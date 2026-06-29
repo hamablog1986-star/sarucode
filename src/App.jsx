@@ -2,7 +2,7 @@ import { useState, useMemo, Fragment, useEffect } from 'react';
 import {
   Landmark, UtensilsCrossed, BedDouble, Store, Check, Star,
   Footprints, Bus, Car, Clock, RotateCcw, Map as MapIcon, LayoutGrid, Flag, Compass, Navigation, Route,
-  Save, Share2, Download, Upload, X, FolderOpen, Trash2,
+  Save, Share2, Download, Upload, X, FolderOpen, Trash2, ExternalLink,
   Sun, Cloud, CloudSun, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, Calendar,
 } from 'lucide-react';
 
@@ -1027,6 +1027,17 @@ export default function MairuDemo() {
                 >
                   <Calendar size={10} /> {lang === 'en' ? 'Book' : '予約'}
                 </button>
+              )}
+              {spot.affiliateUrl && (
+                <a
+                  className="card-action-btn"
+                  href={spot.affiliateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink size={10} /> {lang === 'en' ? 'Book here' : '予約はこちら'}
+                </a>
               )}
             </div>
           </div>
@@ -2718,6 +2729,16 @@ export default function MairuDemo() {
                 >
                   <Calendar size={14} /> {reserved.includes(selectedSpot.id) ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
                 </button>
+              )}
+              {selectedSpot.affiliateUrl && (
+                <a
+                  className="action-btn"
+                  href={selectedSpot.affiliateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                >
+                  <ExternalLink size={14} /> {lang === 'en' ? 'Book here' : '予約はこちら'}
+                </a>
               )}
             </div>
             </div>
