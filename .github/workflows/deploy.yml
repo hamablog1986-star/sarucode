@@ -22,4 +22,4 @@ jobs:
           rsync -rlptgoD -O --delete \
             --exclude ".git/" --exclude ".github/" --exclude ".ssh/" \
             -e "ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.WING_SSH_PORT }}" \
-            ./ ${{ secrets.WING_SSH_USER }}@${{ secrets.WING_SSH_HOST }}:~/public_html/sarucode.sikomu.online/
+            ./ ${{ secrets.WING_SSH_USER }}@${{ secrets.WING_SSH_HOST }}:~/public_html/conotavi.com/
