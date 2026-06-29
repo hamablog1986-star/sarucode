@@ -1,4 +1,4 @@
-name: Deploy to ConoHa WING
+name: Build and Deploy to ConoHa WING
 
 on:
   push:
@@ -11,6 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Copy data and images into the build output
+        run: |
+          cp -r data dist/data
+          cp -r images dist/images
+
       - name: prepare ssh key
         run: |
           mkdir -p .ssh
@@ -20,6 +36,5 @@ jobs:
       - name: deploy with rsync
         run: |
           rsync -rlptgoD -O --delete \
-            --exclude ".git/" --exclude ".github/" --exclude ".ssh/" \
             -e "ssh -i .ssh/id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.WING_SSH_PORT }}" \
-            ./ ${{ secrets.WING_SSH_USER }}@${{ secrets.WING_SSH_HOST }}:~/public_html/conotavi.com/
+            ./dist/ ${{ secrets.WING_SSH_USER }}@${{ secrets.WING_SSH_HOST }}:~/public_html/conotavi.com/
