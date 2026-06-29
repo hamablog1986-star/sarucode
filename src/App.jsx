@@ -17,6 +17,18 @@ const VIEW_H = 560;
 const PLAN_FORMAT_VERSION = 1;
 const SAVED_PLANS_STORAGE_KEY = 'mairu_saved_plans_v1';
 
+// price/durationのレンジ文字列("500〜1000"等、スプレッドシートの生の値)を、カンマ区切りの表示用文字列に変換する。
+// レンジでない単一の値の場合はnullを返す(呼び出し側で従来通りのtoLocaleString()表示にフォールバックさせるため)
+function formatPriceRangeText(rangeText) {
+  if (!rangeText) return null;
+  const str = String(rangeText);
+  if (!str.includes('〜')) return null;
+  const [minPart, maxPart] = str.split('〜');
+  const min = minPart.trim() ? Number(minPart.trim()).toLocaleString() : '';
+  const max = maxPart.trim() ? Number(maxPart.trim()).toLocaleString() : '';
+  return `${min}〜${max}`;
+}
+
 // 諫早市の輪郭(国土数値情報の行政区域をもとに簡略化)。選択画面・ルート画面・TOPページ演出で共用。
 const ISAHAYA_OUTLINE_PATH = "M206.2,485.0 C207.1,486.8 208.4,496.5 211.4,495.6 C214.5,494.6 220.6,480.9 224.4,479.5 C228.3,478.2 227.2,486.3 234.6,487.3 C241.9,488.3 246.9,497.2 268.3,485.4 C289.6,473.5 335.8,425.6 362.7,416.2 C389.5,406.9 412.9,429.7 429.4,429.2 C445.9,428.7 458.6,419.7 461.7,413.2 C464.8,406.7 447.1,395.1 447.9,390.1 C448.8,385.0 461.2,388.4 466.9,382.7 C472.5,377.0 478.8,365.2 481.9,355.8 C484.9,346.4 487.3,332.6 485.1,326.2 C482.8,319.8 464.1,326.9 468.4,317.4 C472.7,307.9 509.6,286.8 510.9,269.3 C512.2,251.9 480.7,223.1 476.2,212.7 C471.7,202.3 483.1,209.1 484.0,207.0 C484.9,204.9 479.8,201.9 481.7,200.3 C483.5,198.7 492.5,200.3 495.0,197.5 C497.5,194.8 490.6,186.2 496.6,183.9 C502.7,181.6 525.2,187.6 531.5,183.7 C537.7,179.8 530.0,165.2 534.1,160.3 C538.2,155.4 552.1,164.8 556.0,154.4 C560.0,144.0 572.2,108.9 558.0,97.9 C543.8,87.0 486.8,93.3 470.8,88.9 C454.7,84.5 466.7,73.4 461.6,71.6 C456.5,69.8 453.5,79.4 440.2,78.2 C426.8,77.0 393.6,66.6 381.6,64.4 C369.6,62.3 372.9,62.7 368.1,65.4 C363.4,68.0 355.5,75.2 352.9,80.3 C350.4,85.4 356.5,91.4 352.9,95.9 C349.3,100.5 336.5,106.9 331.3,107.5 C326.1,108.2 327.7,100.6 321.5,99.6 C315.2,98.6 300.8,97.9 293.7,101.5 C286.6,105.2 284.3,116.6 278.8,121.4 C273.3,126.2 264.5,125.7 260.6,130.4 C256.6,135.1 258.5,130.2 255.2,149.7 C251.8,169.1 241.5,229.6 240.3,247.3 C239.0,264.9 246.2,246.7 247.9,255.5 C249.7,264.4 253.4,289.6 250.8,300.4 C248.2,311.1 234.8,315.7 232.1,320.1 C229.3,324.5 239.1,326.0 234.4,326.8 C229.7,327.5 209.6,323.1 204.1,324.6 C198.6,326.0 202.2,335.1 201.5,335.4 C200.8,335.7 202.1,327.2 200.0,326.3 C197.9,325.5 190.2,331.3 189.0,330.4 C187.8,329.5 193.4,324.3 192.8,320.9 C192.2,317.4 191.6,310.8 185.7,309.8 C179.8,308.8 162.0,316.7 157.4,314.7 C152.8,312.7 159.9,302.8 157.8,298.1 C155.7,293.4 152.3,287.6 144.5,286.4 C136.8,285.1 116.4,292.0 111.2,290.6 C106.0,289.2 117.9,280.1 113.3,277.8 C108.6,275.4 90.5,280.6 83.2,276.6 C75.8,272.6 73.4,258.3 69.2,253.9 C65.1,249.4 60.9,246.8 58.3,249.9 C55.6,253.1 56.1,269.9 53.4,272.6 C50.7,275.4 43.1,262.7 42.0,266.5 C40.9,270.2 43.6,286.3 46.9,295.1 C50.2,303.9 53.2,309.8 61.8,319.1 C70.3,328.5 91.3,343.3 98.1,350.9 C104.8,358.6 98.9,361.0 102.4,364.9 C106.0,368.8 112.2,373.6 119.3,374.1 C126.5,374.6 138.3,365.9 145.2,367.7 C152.1,369.6 154.1,384.8 160.9,385.1 C167.7,385.5 179.8,369.6 186.0,370.0 C192.1,370.3 193.3,383.7 197.9,387.5 C202.6,391.3 212.5,388.6 214.1,392.6 C215.8,396.7 207.7,403.6 208.0,411.6 C208.2,419.6 216.2,432.4 215.7,440.6 C215.3,448.8 205.9,454.6 205.2,460.7 C204.5,466.8 211.2,473.3 211.4,477.4 C211.6,481.4 207.1,483.7 206.2,485.0 C205.4,486.3 205.4,483.3 206.2,485.0 Z";
 
@@ -953,9 +965,12 @@ export default function MairuDemo() {
     const isReserved = reserved.includes(spot.id);
     const state = isDecided ? 'decided' : isCandidate ? 'candidate' : 'default';
     const overBudget = wouldExceedBudget(spot);
-    const priceLabel = spot.price
-      ? `¥${spot.price.toLocaleString()}${travelers > 1 ? ` ×${travelers}` : ''}`
-      : (lang === 'en' ? 'Free' : '無料');
+    const priceRangeText = formatPriceRangeText(spot.priceRangeText);
+    const priceLabel = priceRangeText
+      ? `¥${priceRangeText}${travelers > 1 ? ` ×${travelers}` : ''}`
+      : spot.price
+        ? `¥${spot.price.toLocaleString()}${travelers > 1 ? ` ×${travelers}` : ''}`
+        : (lang === 'en' ? 'Free' : '無料');
 
     if (spot.image) {
       // 写真があるスポットは、写真ブロック+完全な黒地テキストパネルの2段構成(グラデーションではなく黒塗り+白文字)
@@ -967,7 +982,7 @@ export default function MairuDemo() {
           onClick={() => setSelectedId(spot.id)}
         >
           <div className="card-photo-frame">
-            <img src={spot.image} alt={sName(spot)} className="card-photo-img" />
+            <img src={spot.image} alt={sName(spot)} className="card-photo-img" loading="lazy" decoding="async" />
             {(state === 'decided' || state === 'candidate') && (
               <span className="card-photo-badge">
                 {state === 'decided' ? <Check size={12} /> : <Star size={12} />}
@@ -2590,7 +2605,7 @@ export default function MairuDemo() {
 
             <div className={`detail-hero ${selectedSpot.image ? 'has-image' : ''}`} style={{ background: selectedSpot.image ? 'none' : 'var(--cat-tint)' }}>
               {selectedSpot.image ? (
-                <img src={selectedSpot.image} alt={sName(selectedSpot)} className="detail-hero-img" />
+                <img src={selectedSpot.image} alt={sName(selectedSpot)} className="detail-hero-img" loading="eager" decoding="async" />
               ) : (
                 (() => {
                   const HeroIcon = CATEGORY_META[selectedSpot.category].icon;
@@ -2610,9 +2625,11 @@ export default function MairuDemo() {
                     {catLabel(CATEGORY_META[selectedSpot.category])}
                   </span>
                   <span className="detail-textblock-price">
-                    {selectedSpot.price
-                      ? `¥${selectedSpot.price.toLocaleString()}${travelers > 1 ? ` ×${travelers}` : ''}`
-                      : (lang === 'en' ? 'Free' : '無料')}
+                    {formatPriceRangeText(selectedSpot.priceRangeText)
+                      ? `¥${formatPriceRangeText(selectedSpot.priceRangeText)}${travelers > 1 ? ` ×${travelers}` : ''}`
+                      : selectedSpot.price
+                        ? `¥${selectedSpot.price.toLocaleString()}${travelers > 1 ? ` ×${travelers}` : ''}`
+                        : (lang === 'en' ? 'Free' : '無料')}
                   </span>
                 </div>
                 <h2 className="detail-textblock-name">{sName(selectedSpot)}</h2>
@@ -2638,11 +2655,15 @@ export default function MairuDemo() {
                 <h2 className="detail-name">{sName(selectedSpot)}</h2>
                 <p className="detail-desc">{sDesc(selectedSpot)}</p>
                 <p className="detail-price">
-                  {selectedSpot.price
+                  {formatPriceRangeText(selectedSpot.priceRangeText)
                     ? (lang === 'en'
-                        ? `Approx. ¥${selectedSpot.price.toLocaleString()}/person${travelers > 1 ? ` · Total ¥${(selectedSpot.price * travelers).toLocaleString()} (${travelers} people)` : ''}`
-                        : `目安 ¥${selectedSpot.price.toLocaleString()}/人${travelers > 1 ? ` ・ 合計 ¥${(selectedSpot.price * travelers).toLocaleString()}(${travelers}人)` : ''}`)
-                    : (lang === 'en' ? 'Free' : '無料')}
+                        ? `Approx. ¥${formatPriceRangeText(selectedSpot.priceRangeText)}/person${travelers > 1 ? ` · Total ×${travelers}` : ''}`
+                        : `目安 ¥${formatPriceRangeText(selectedSpot.priceRangeText)}/人${travelers > 1 ? ` ・ ${travelers}人分` : ''}`)
+                    : selectedSpot.price
+                      ? (lang === 'en'
+                          ? `Approx. ¥${selectedSpot.price.toLocaleString()}/person${travelers > 1 ? ` · Total ¥${(selectedSpot.price * travelers).toLocaleString()} (${travelers} people)` : ''}`
+                          : `目安 ¥${selectedSpot.price.toLocaleString()}/人${travelers > 1 ? ` ・ 合計 ¥${(selectedSpot.price * travelers).toLocaleString()}(${travelers}人)` : ''}`)
+                      : (lang === 'en' ? 'Free' : '無料')}
                 </p>
               </Fragment>
             )}
