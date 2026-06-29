@@ -1736,7 +1736,7 @@ export default function MairuDemo() {
               <span className="app-top-start-arrow">→</span>
             </button>
             <p className="app-top-note">
-              {lang === 'en' ? 'Nagasaki Prefecture demo (Isahaya City only, for now)' : '長崎県 デモ版(現在は諫早市のみ体験可能)'}
+              {lang === 'en' ? 'Nagasaki Prefecture (currently Isahaya City only)' : '長崎県(現在は諫早市のみ対応)'}
             </p>
             <button className="lang-toggle-top" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}>
               {lang === 'ja' ? 'English' : '日本語'}
@@ -1989,7 +1989,7 @@ export default function MairuDemo() {
         <div className="brand-line">
           <div className="brand-stack">
             <span className="brand-name">CONOTAVI</span>
-            <span className="brand-sub">{lang === 'en' ? 'Nagasaki Pref., Isahaya City · Demo' : '長崎県 諫早市 ・ デモ版'}</span>
+            <span className="brand-sub">{lang === 'en' ? 'Nagasaki Pref., Isahaya City' : '長崎県 諫早市'}</span>
           </div>
           <button className="lang-toggle" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}>{lang === 'ja' ? 'EN' : 'JP'}</button>
         </div>
@@ -2594,7 +2594,7 @@ export default function MairuDemo() {
           </div>
           )}
           <p className="disclaimer">
-            {lang === 'en' ? 'Locations, routes, and times in this demo are sample data.' : '※本デモの地点・経路・所要時間はサンプルデータです'}
+            {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
           </p>
         </main>
       )}
