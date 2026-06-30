@@ -94,14 +94,6 @@ function getCrowdLevel(dateStr) {
 }
 
 
-const TOP_SHOWCASE_SPOTS = [
-  { id: 'top-lodging', category: 'lodging', x: 163.0, y: 333.3 },     // 西側
-  { id: 'top-food', category: 'food', x: 300.0, y: 310.0 },           // 中央
-  { id: 'top-sightseeing-n', category: 'sightseeing', x: 330.0, y: 125.0 }, // 北
-  { id: 'top-sightseeing-e', category: 'sightseeing', x: 477.3, y: 246.0 }, // 東端
-  { id: 'top-roadside', category: 'roadside', x: 281.6, y: 454.6 },   // 南
-];
-
 const CATEGORY_META = {
   sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#E2613D', tint: '#FBEAE4', icon: Landmark },
   food: { label: { ja: '食事', en: 'Food' }, color: '#3F8753', tint: '#E9F3EC', icon: UtensilsCrossed },
@@ -315,7 +307,7 @@ function gmapsUrl(originName, destinationName, mode) {
 
 export default function MairuDemo() {
   const [lang, setLang] = useState('ja'); // 'ja' | 'en'
-  const [appStage, setAppStage] = useState('top'); // 'top' | 'kyushu' | 'region' | 'city'
+  const [appStage, setAppStage] = useState('top'); // 'top' | 'entry' | 'kyushu' | 'region' | 'city'
   const [selectedCity, setSelectedCity] = useState(null); // 選択中の市町村ID
   const [regionMode, setRegionMode] = useState('map'); // 地域選択画面の 'map' | 'card'
   const [peekCityId, setPeekCityId] = useState(null); // 地域地図でタップ中の市町村
@@ -1151,60 +1143,14 @@ export default function MairuDemo() {
           overflow:hidden;
           background:#FFFFFF;
         }
-        .app-top-map {
-          position:absolute;
-          top:50%; left:50%;
-          width:max(620px, 130vw, 110vh);
-          aspect-ratio: ${VIEW_W} / ${VIEW_H};
-          transform:translate(-50%,-50%) rotate(-4deg);
-          opacity:0.9;
-          pointer-events:none;
-        }
-        .app-top-map-svg { width:100%; height:100%; overflow:visible; }
-        .app-top-outline { fill:none; stroke:#21262C; stroke-width:1.6; stroke-linejoin:round; opacity:0.16; }
-        .app-top-route-line {
-          fill:none;
-          stroke:#21262C;
-          stroke-width:0.9;
-          stroke-dasharray:3 5;
-          stroke-linecap:round;
-          opacity:0.32;
-          stroke-dashoffset: 1000;
-          animation: app-top-draw-route 3.2s 0.3s cubic-bezier(.65,0,.35,1) forwards;
-        }
-        .app-top-pin {
-          fill: var(--cat-color);
-          stroke:#FFFFFF;
-          stroke-width:3;
-          opacity:0;
-          transform-origin: center;
-          animation: app-top-pin-pop 0.5s var(--pin-delay) cubic-bezier(.34,1.56,.64,1) forwards;
-        }
-        .app-top-airport-pin { fill: var(--ink); r:6; }
-        @keyframes app-top-draw-route { to { stroke-dashoffset: 0; } }
-        @keyframes app-top-pin-pop {
-          0% { opacity:0; transform:scale(0); }
-          60% { opacity:1; transform:scale(1.4); }
-          100% { opacity:1; transform:scale(1); }
-        }
-
         .app-top-content { position:relative; z-index:1; text-align:center; max-width:360px; }
-        .app-top-eyebrow {
-          display:inline-block;
-          font-size:11.5px;
-          font-weight:700;
-          letter-spacing:0.16em;
-          color:var(--muted);
-          margin-bottom:14px;
-          text-transform:uppercase;
-        }
         .app-top-logo {
           font-family:'Zen Kaku Gothic New', sans-serif;
           font-size:clamp(44px, 12vw, 64px);
           font-weight:900;
           letter-spacing:0.02em;
           line-height:1;
-          margin:0 0 18px;
+          margin:0 0 14px;
           color:var(--ink);
         }
         .app-top-tagline { font-size:14.5px; color:#454A52; line-height:1.75; margin:0 0 32px; }
@@ -1230,30 +1176,124 @@ export default function MairuDemo() {
           .app-top-start-btn:hover .app-top-start-arrow { transform:translateX(3px); }
         }
         .app-top-start-arrow { transition: transform .15s; }
-        .app-top-note { font-size:11px; color:var(--muted); margin:20px 0 0; }
-        .lang-toggle-top { margin-top:14px; padding:6px 16px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; position:relative; z-index:1; }
+        .lang-toggle-top { position:absolute; top:24px; right:24px; display:flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:#fff; z-index:1; }
+        .lang-toggle-opt { background:none; border:none; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; padding:0; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+        .lang-toggle-opt.active { color:var(--ink); }
+        .lang-toggle-sep { font-size:12px; color:var(--line); }
 
-        @media (prefers-reduced-motion: reduce) {
-          .app-top-route-line { stroke-dashoffset:0; animation:none; }
-          .app-top-pin { opacity:1; transform:scale(1); animation:none; }
+        /* ---------- 入り口選択画面(目的で探す・地域で探す・NO PLAN) ---------- */
+        .entry-view {
+          height:100vh;
+          height:100dvh;
+          display:flex;
+          flex-direction:column;
+          background:#EFF1F2;
+          padding:0;
+          position:relative;
         }
+        .region-scroll {
+          height:auto;
+          min-height:100vh;
+          min-height:100dvh;
+          display:block;
+          padding-bottom:100px;
+        }
+        .entry-header {
+          background:#fff;
+          padding:40px 28px 24px;
+          flex-shrink:0;
+          position:relative;
+          z-index:2;
+        }
+        .entry-header-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+        .entry-header-text { min-width:0; flex:1 1 auto; }
+        .entry-lang-toggle { display:flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:#fff; flex-shrink:0; }
+        .entry-title-btn { background:none; border:none; padding:0; margin:0 0 4px; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; display:inline-block; }
+        .entry-title { font-size:26px; font-weight:800; color:#1A2E3B; margin:0; letter-spacing:0.04em; }
+        .entry-catch { font-size:12.5px; color:#7A9BAD; margin:0; white-space:normal; overflow-wrap:break-word; }
+        .entry-wave { display:block; width:100%; height:24px; flex-shrink:0; }
+        .entry-prompt { padding:36px 28px 36px; flex-shrink:0; }
+        .entry-prompt-text { font-size:14px; color:#3A5A6A; margin:0; font-weight:600; letter-spacing:0.02em; }
+        .entry-prompt-text-lg {
+          font-size:21px;
+          margin:0;
+          font-weight:800;
+          letter-spacing:0.02em;
+          background: linear-gradient(90deg, #1B8FE0 0%, #2BA868 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent !important;
+          -webkit-text-fill-color: transparent !important;
+          display:inline-block;
+        }
+        .entry-cards { padding:0 18px; display:flex; flex-direction:column; gap:10px; flex:1; min-height:0; }
+        .entry-card {
+          background:#fff;
+          border:none;
+          box-shadow: 0 2px 10px rgba(26,46,59,0.08);
+          border-radius:16px;
+          padding:0 22px;
+          display:flex;
+          align-items:center;
+          gap:18px;
+          cursor:pointer;
+          flex:1;
+          text-align:left;
+          font-family:inherit;
+          -webkit-tap-highlight-color:transparent;
+        }
+        .entry-card:disabled { cursor:default; opacity:0.55; }
+        .entry-card-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px; }
+        .entry-card-body { flex:1; min-width:0; }
+        .entry-card-ja { font-size:18px; font-weight:800; margin:0 0 3px; color:#1A2E3B; }
+        .entry-card-desc { font-size:11.5px; margin:0; color:#8A9FA8; line-height:1.5; }
+        .entry-card-chev { font-size:17px; color:#C8D4D8; flex-shrink:0; }
+        .entry-card-arrow { font-size:22px; font-weight:700; color:#1A2E3B; flex-shrink:0; }
+        .entry-card-badge { font-size:9.5px; color:#fff; background:#E2613D; border-radius:999px; padding:3px 10px; flex-shrink:0; font-weight:700; letter-spacing:0.02em; }
+        .entry-footer { margin:12px 18px; padding:12px 18px; background:#EFF4F2; border-radius:12px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .entry-footer-dot { width:6px; height:6px; border-radius:50%; background:#3A7A5A; flex-shrink:0; }
+        .entry-footer-text { font-size:10px; color:#5A8070; margin:0; }
 
-        .region-view { padding:22px 22px 60px; max-width:760px; margin:0 auto; }
+        .region-view { padding:0 0 100px; background:#EFF1F2; min-height:100vh; min-height:100dvh; }
+        .region-view-legacy { padding:22px 22px 60px; max-width:760px; margin:0 auto; background:#fff; }
+        .region-body { padding:0 18px 0; }
         .region-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-        .region-title { font-family:'Zen Kaku Gothic New', sans-serif; font-size:17px; margin:4px 0 14px; }
+        .region-title { font-family:'Zen Kaku Gothic New', sans-serif; font-weight:800; font-size:19px; color:#1A2E3B; margin:4px 0 14px; letter-spacing:0.02em; }
+        .floating-back-btn {
+          position:fixed;
+          left:28px;
+          bottom:18px;
+          background:rgba(226,97,61,0.75);
+          border:none;
+          box-shadow:none;
+          color:#fff;
+          font-size:12px;
+          font-weight:600;
+          padding:6px 13px;
+          border-radius:999px;
+          cursor:pointer;
+          z-index:20;
+          -webkit-tap-highlight-color:transparent;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .floating-back-btn:hover { background:rgba(226,97,61,0.92); }
+        }
         .region-back-link { display:block; background:none; border:none; font-size:11px; font-weight:600; color:var(--muted); cursor:pointer; padding:0; margin-bottom:4px; }
 
-        .region-map-frame { position:relative; width:100%; aspect-ratio: ${PREF_VIEW_W} / ${PREF_VIEW_H}; background:#fff; border-radius:18px; overflow:hidden; border:1px solid var(--line); }
+        .region-map-frame { position:relative; width:100%; aspect-ratio: ${PREF_VIEW_W} / ${PREF_VIEW_H}; background:#fff; border-radius:18px; overflow:hidden; box-shadow: 0 2px 12px rgba(26,46,59,0.08); --frame-pad:40px; }
         .kyushu-map-frame { aspect-ratio: ${KYUSHU_VIEW_W} / ${KYUSHU_VIEW_H}; }
 
-        .island-inset-panel { background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:10px 14px; margin-top:10px; display:flex; align-items:stretch; gap:10px; }
-        .island-inset-panel .inset-islands-row { gap:0; flex-wrap:nowrap; justify-content:space-evenly; align-items:center; width:100%; }
-        .inset-group { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
-        .inset-group-label { font-size:8.5px; font-weight:700; color:var(--muted); white-space:nowrap; }
+        .island-inset-row { display:flex; gap:10px; margin-top:10px; }
+        .island-inset-panel { background:#fff; box-shadow: 0 2px 10px rgba(26,46,59,0.08); border-radius:14px; padding:14px 14px 10px; margin-top:10px; position:relative; }
+        .inset-group { display:flex; flex-direction:column; align-items:center; gap:4px; }
+        .inset-group .inset-islands-row { margin-top:18px; justify-content:center; }
+        .island-inset-frame { position:relative; flex:1; background:#fff; border-radius:14px; box-shadow: 0 2px 10px rgba(26,46,59,0.08); padding:36px 10px 32px; display:flex; flex-direction:column; align-items:center; min-width:0; }
+        .island-inset-frame .inset-islands-row { gap:0; flex-wrap:nowrap; justify-content:space-evenly; align-items:center; width:100%; margin-top:6px; }
+        .inset-group-label { position:absolute; left:10px; top:10px; z-index:2; font-size:10px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:3px 9px; border-radius:999px; border:1px solid var(--line); white-space:nowrap; pointer-events:none; }
         .inset-islands-row { display:flex; align-items:flex-end; gap:6px; }
         .inset-island { position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:none; cursor:pointer; padding:2px; border-radius:6px; -webkit-tap-highlight-color: transparent; }
         @media (hover: hover) and (pointer: fine) {
-          .inset-island:hover { background:#F6F6F4; }
+          .inset-island:hover .inset-island-svg path { fill:#E2E4E0; }
         }
         .inset-island-svg { display:block; width:calc(var(--isl-w) * 0.85); transition: transform .15s; }
         .inset-island-svg.is-peeking { transform:scale(1.18); }
@@ -1274,12 +1314,12 @@ export default function MairuDemo() {
         .muni-soon-tag { font-size:10px; color:#C9CCD1; font-weight:500; }
 
         .muni-card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-        .muni-card { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line); background:#fff; cursor:pointer; text-align:left; }
-        .muni-card.is-active { border-color:#E2613D; cursor:pointer; }
-        .muni-card.is-soon { opacity:0.5; cursor:not-allowed; }
+        .muni-card { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-radius:12px; border:none; box-shadow: 0 2px 10px rgba(26,46,59,0.08); background:#fff; cursor:pointer; text-align:left; }
+        .muni-card.is-active { box-shadow: 0 2px 10px rgba(226,97,61,0.18); border:1.5px solid #E2613D; cursor:pointer; }
+        .muni-card.is-soon { opacity:0.55; cursor:not-allowed; }
         .muni-card-name { font-size:13px; font-weight:700; }
-        .muni-card-tag { font-size:10px; font-weight:600; color:var(--muted); background:#F0F1EF; padding:3px 8px; border-radius:999px; }
-        .muni-card-tag.active { color:#E2613D; background:#FBEAE4; }
+        .muni-card-tag { font-size:10px; font-weight:700; color:#A8B4B8; background:#EEF1F0; padding:3px 8px; border-radius:999px; }
+        .muni-card-tag.active { color:#fff; background:#E2613D; }
         @media (min-width:640px) { .muni-card-grid { grid-template-columns:repeat(3,1fr); } }
 
         .header { display:flex; flex-direction:column; gap:10px; padding:16px 22px; border-bottom:1px solid var(--line); }
@@ -1287,7 +1327,7 @@ export default function MairuDemo() {
         .brand-stack { display:flex; flex-direction:column; }
         .brand-name { font-family:'Zen Kaku Gothic New', sans-serif; font-weight:700; font-size:22px; letter-spacing:0.04em; }
         .brand-sub { display:block; font-size:11px; color:var(--muted); margin-top:2px; letter-spacing:0.04em; }
-        .lang-toggle { padding:4px 11px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:11px; font-weight:700; color:var(--ink); cursor:pointer; flex-shrink:0; }
+        .lang-toggle { padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:12px; font-weight:700; color:var(--ink); cursor:pointer; flex-shrink:0; }
 
         .tabs { display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
         .tab { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink:0; white-space:nowrap; }
@@ -1313,7 +1353,7 @@ export default function MairuDemo() {
         .budget-breakdown-legend-item { display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; }
         .budget-breakdown-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 
-        .mode-switch { display:inline-flex; flex-wrap:wrap; gap:4px; background:#F0F1EF; padding:3px; border-radius:999px; margin-bottom:14px; max-width:100%; }
+        .mode-switch { display:inline-flex; flex-wrap:wrap; gap:4px; background:#fff; box-shadow: 0 2px 8px rgba(26,46,59,0.06); padding:3px; border-radius:999px; margin-bottom:14px; max-width:100%; }
         .mode-switch button { display:flex; align-items:center; gap:5px; padding:6px 13px; border-radius:999px; border:none; background:transparent; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
         .mode-switch button.active { background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,0.1); }
         .mode-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:999px; background:#E2613D; color:#fff; font-size:9.5px; font-weight:700; }
@@ -1372,7 +1412,7 @@ export default function MairuDemo() {
         .map-scroll { width:100%; border-radius:18px; }
         .map-frame { position:relative; width:100%; aspect-ratio: ${VIEW_W} / ${VIEW_H}; background:#fff; border-radius:18px; overflow:hidden; border:1px solid var(--line); }
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
-        .map-svg { position:absolute; inset:0; width:100%; height:100%; }
+        .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
         .city-outline { fill:#FFFFFF; stroke:#23262B; stroke-width:2.2; stroke-linejoin:round; stroke-linecap:round; }
 
         .spot-pin {
@@ -1671,8 +1711,11 @@ export default function MairuDemo() {
 
           .inset-island-svg { width:calc(var(--isl-w) * 0.46); }
           .island-inset-panel { padding:10px 8px; gap:6px; }
+          .island-inset-frame { padding:30px 6px 14px; }
+          .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
+          .region-map-frame { --frame-pad:18px; }
           .route-fab-cluster { right:14px; bottom:14px; gap:6px; }
           .route-fab { padding:12px 16px; font-size:12.5px; }
           .fab-secondary { padding:8px 11px; font-size:11px; }
@@ -1708,61 +1751,142 @@ export default function MairuDemo() {
 
       {appStage === 'top' && (
         <div className="app-top">
-          <div className="app-top-map" aria-hidden="true">
-            <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="app-top-map-svg">
-              <path d={ISAHAYA_OUTLINE_PATH} className="app-top-outline" />
-              <polyline
-                points={[AIRPORT, ...TOP_SHOWCASE_SPOTS].map((s) => `${s.x},${s.y}`).join(' ')}
-                className="app-top-route-line"
-              />
-              <circle cx={AIRPORT.x} cy={AIRPORT.y} r="6" className="app-top-pin app-top-airport-pin" style={{ '--pin-delay': '0.15s' }} />
-              {TOP_SHOWCASE_SPOTS.map((spot, i) => {
-                const meta = CATEGORY_META[spot.category];
-                return (
-                  <circle
-                    key={spot.id}
-                    cx={spot.x}
-                    cy={spot.y}
-                    r="7"
-                    className="app-top-pin"
-                    style={{ '--cat-color': meta.color, '--pin-delay': `${0.55 + i * 0.32}s` }}
-                  />
-                );
-              })}
-            </svg>
-          </div>
-
           <div className="app-top-content">
-            <span className="app-top-eyebrow">{lang === 'en' ? 'Nagasaki · Isahaya' : '長崎県 諫早市'}</span>
             <h1 className="app-top-logo">CONOTAVI</h1>
             <p className="app-top-tagline">
-              {lang === 'en' ? (
-                <>Just pick where you want to go.<br />AI connects the shortest route for you.</>
-              ) : (
-                <>行きたい場所を選ぶだけ。<br />AIが最短ルートでつなぎます。</>
-              )}
+              {lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}
             </p>
-            <button className="app-top-start-btn" onClick={() => setAppStage('kyushu')}>
+            <button className="app-top-start-btn" onClick={() => setAppStage('entry')}>
               {lang === 'en' ? 'Get started' : 'はじめる'}
               <span className="app-top-start-arrow">→</span>
             </button>
-            <p className="app-top-note">
-              {lang === 'en' ? 'Nagasaki Prefecture (currently Isahaya City only)' : '長崎県(現在は諫早市のみ対応)'}
-            </p>
-            <button className="lang-toggle-top" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}>
-              {lang === 'ja' ? 'English' : '日本語'}
+          </div>
+          <div className="lang-toggle-top">
+            <button
+              className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+              onClick={() => setLang('ja')}
+            >JP</button>
+            <span className="lang-toggle-sep">/</span>
+            <button
+              className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+              onClick={() => setLang('en')}
+            >EN</button>
+          </div>
+        </div>
+      )}
+
+      {appStage === 'entry' && (
+        <div className="entry-view">
+          <div className="entry-header">
+            <div className="entry-header-row">
+              <div className="entry-header-text">
+                <button className="entry-title-btn" onClick={() => setAppStage('top')}>
+                  <h1 className="entry-title">CONOTAVI</h1>
+                </button>
+                <p className="entry-catch">{lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}</p>
+              </div>
+              <div className="entry-lang-toggle">
+                <button
+                  className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+                  onClick={() => setLang('ja')}
+                >JP</button>
+                <span className="lang-toggle-sep">/</span>
+                <button
+                  className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+                  onClick={() => setLang('en')}
+                >EN</button>
+              </div>
+            </div>
+          </div>
+
+          <svg className="entry-wave" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,0 L400,0 L400,4 Q200,28 0,4 Z" fill="#fff" />
+          </svg>
+
+          <div className="entry-prompt">
+            <p className="entry-prompt-text-lg">{lang === 'en' ? 'So, where to?' : 'さて、どこへ行こうか。'}</p>
+          </div>
+
+          <div className="entry-cards">
+            <button className="entry-card" disabled>
+              <div className="entry-card-icon" style={{ background: '#1B6CA8' }}>
+                <Compass size={22} color="#fff" />
+              </div>
+              <div className="entry-card-body">
+                <p className="entry-card-ja">{lang === 'en' ? 'By Purpose' : '目的で探す'}</p>
+                <p className="entry-card-desc">{lang === 'en' ? 'Sights, food, hot springs…' : '観る・食べる・温泉など'}</p>
+              </div>
+              <span className="entry-card-badge">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
             </button>
+
+            <button
+              className="entry-card"
+              onClick={() => { setAppStage('kyushu'); setPeekIslandKey(null); }}
+            >
+              <div className="entry-card-icon" style={{ background: '#1F6E45' }}>
+                <MapIcon size={22} color="#fff" />
+              </div>
+              <div className="entry-card-body">
+                <p className="entry-card-ja">{lang === 'en' ? 'By Area' : '地域で探す'}</p>
+                <p className="entry-card-desc">{lang === 'en' ? 'Tap an area on the map' : '地図からエリアをタップ'}</p>
+              </div>
+              <span className="entry-card-arrow">→</span>
+            </button>
+
+            <button className="entry-card" disabled>
+              <div className="entry-card-icon" style={{ background: '#4A5A63' }}>
+                <Compass size={22} color="#fff" />
+              </div>
+              <div className="entry-card-body">
+                <p className="entry-card-ja">NO PLAN</p>
+                <p className="entry-card-desc">{lang === 'en' ? 'Not decided yet' : 'まだ決まっていない'}</p>
+              </div>
+              <span className="entry-card-badge">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
+            </button>
+          </div>
+
+          <div className="entry-footer">
+            <div className="entry-footer-dot" />
+            <p className="entry-footer-text">
+              {lang === 'en' ? 'Currently available: Isahaya City, Nagasaki' : '現在のエリア：長崎県 諫早市'}
+            </p>
           </div>
         </div>
       )}
 
       {appStage === 'kyushu' && (
-        <div className="region-view">
-          <div className="region-header">
-            <button className="back-btn" onClick={() => { setAppStage('top'); setPeekIslandKey(null); }}>{lang === 'en' ? '← Back to top' : '← トップへ戻る'}</button>
-            <button className="lang-toggle" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}>{lang === 'ja' ? 'EN' : 'JP'}</button>
+        <div className="entry-view region-scroll">
+          <div className="entry-header">
+            <div className="entry-header-row">
+              <div className="entry-header-text">
+                <button className="entry-title-btn" onClick={() => setAppStage('top')}>
+                  <h1 className="entry-title">CONOTAVI</h1>
+                </button>
+                <p className="entry-catch">{lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}</p>
+              </div>
+              <div className="entry-lang-toggle">
+                <button
+                  className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+                  onClick={() => setLang('ja')}
+                >JP</button>
+                <span className="lang-toggle-sep">/</span>
+                <button
+                  className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
+                  onClick={() => setLang('en')}
+                >EN</button>
+              </div>
+            </div>
           </div>
-          <h2 className="region-title">{lang === 'en' ? 'Kyushu — choose a prefecture' : '九州 ― 行きたい県を選んでください'}</h2>
+
+          <svg className="entry-wave" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,0 L400,0 L400,4 Q200,28 0,4 Z" fill="#fff" />
+          </svg>
+
+          <div className="entry-prompt">
+            <h2 className="entry-prompt-text-lg">{lang === 'en' ? 'I wonder what Kyushu is like.' : '九州、どんな場所なんだろう。'}</h2>
+          </div>
+
+          <div className="region-body">
 
           <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '表示方法を切り替え'}>
             <button className={kyushuMode === 'map' ? 'active' : ''} onClick={() => { setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); }}>
@@ -1814,9 +1938,9 @@ export default function MairuDemo() {
                 })()}
               </div>
 
-              <div className="island-inset-panel">
-                <div className="inset-group">
-                  <span className="inset-group-label">{lang === 'en' ? 'Nagasaki Is.' : '長崎県 離島'}</span>
+              <div className="island-inset-row">
+                <div className="island-inset-frame">
+                  <span className="inset-group-label">{lang === 'en' ? 'Nagasaki Is.' : '長崎 - 離島'}</span>
                   <div className="inset-islands-row">
                     {KYUSHU_INSET_ISLANDS.filter((isl) => isl.parentId === '42').map((isl, i) => {
                       const key = `kyushu-${isl.name}`;
@@ -1839,9 +1963,8 @@ export default function MairuDemo() {
                     })}
                   </div>
                 </div>
-                <div className="inset-divider" />
-                <div className="inset-group">
-                  <span className="inset-group-label">{lang === 'en' ? 'Kagoshima Is.' : '鹿児島県 離島'}</span>
+                <div className="island-inset-frame">
+                  <span className="inset-group-label">{lang === 'en' ? 'Kagoshima Is.' : '鹿児島 - 離島'}</span>
                   <div className="inset-islands-row">
                     {KYUSHU_INSET_ISLANDS.filter((isl) => isl.parentId === '46').map((isl, i) => {
                       const key = `kyushu-${isl.name}`;
@@ -1884,11 +2007,19 @@ export default function MairuDemo() {
               })}
             </div>
           )}
+          </div>
+
+          <button
+            className="floating-back-btn"
+            onClick={() => { setAppStage('entry'); setPeekIslandKey(null); }}
+          >
+            {lang === 'en' ? '← Back' : '← 戻る'}
+          </button>
         </div>
       )}
 
       {appStage === 'region' && (
-        <div className="region-view">
+        <div className="region-view region-view-legacy">
           <div className="region-header">
             <button className="back-btn" onClick={() => { setAppStage('kyushu'); setPeekIslandKey(null); }}>{lang === 'en' ? '← Back to Kyushu select' : '← 九州選択へ戻る'}</button>
             <button className="lang-toggle" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}>{lang === 'ja' ? 'EN' : 'JP'}</button>
