@@ -1,10 +1,10 @@
-import { useState, useMemo, Fragment, useEffect } from 'react';
+import { useState, useMemo, Fragment, useEffect, Component } from 'react';
 import {
   Landmark, UtensilsCrossed, BedDouble, Store, Check, Star,
   Footprints, Bus, Car, Clock, RotateCcw, Map as MapIcon, LayoutGrid, Flag, Compass, Navigation, Route,
   Save, Share2, Download, Upload, X, FolderOpen, Trash2, ExternalLink,
   Sun, Cloud, CloudSun, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, Calendar,
-  Wallet, ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 
 /* ---------------------------------------------------------
@@ -111,6 +111,16 @@ const AIRPORT = { x: 90, y: 178 };
 // 実在の諫早市スポット。起動時にGAS Web App→GitHub→ConoHa WINGの配信経路で
 // 毎晩自動更新される本物のスプレッドシートデータを取得して入れる(下のuseEffectを参照)。
 let SPOTS = [];
+
+// 仮のプレビュー用スポット(A/B/C/D)。本物のデータ取得(SPOTS_DATA_URL)に失敗した場合、
+// または0件だった場合のみ表示され、ルート検索の動作確認ができるようにするための一時的なもの。
+// 本物のデータが取得できるようになったら不要(このまま置いておいて問題ない)。
+const DEMO_SPOTS = [
+  { id: 'demo-a', category: 'sightseeing', name: 'A', nameEn: 'A', x: 300, y: 220, duration: 30, price: 0, desc: '仮の観光スポットです。', descEn: 'A placeholder sightseeing spot.', hours: null },
+  { id: 'demo-b', category: 'food', name: 'B', nameEn: 'B', x: 360, y: 300, duration: 45, price: 1200, desc: '仮の食事スポットです。', descEn: 'A placeholder dining spot.', hours: null },
+  { id: 'demo-c', category: 'lodging', name: 'C', nameEn: 'C', x: 220, y: 360, duration: 0, price: 8000, desc: '仮の宿泊施設です。', descEn: 'A placeholder lodging spot.', hours: null },
+  { id: 'demo-d', category: 'roadside', name: 'D', nameEn: 'D', x: 170, y: 230, duration: 20, price: 0, desc: '仮の道の駅です。', descEn: 'A placeholder roadside station.', hours: null },
+];
 
 // スプレッドシートの「カテゴリ」列(日本語)を、このアプリが使う内部キーに変換する
 const CATEGORY_JA_TO_EN = { '観光': 'sightseeing', '食事': 'food', '宿泊': 'lodging', '道の駅': 'roadside' };
@@ -293,7 +303,7 @@ function minutesForMode(d, mode) {
   if (mode === 'bus') return Math.round(12 + d * 0.18);
   return Math.round(8 + d * 0.12); // taxi
 }
-const MODE_LABEL = { walk: { ja: '徒歩', en: 'Walk' }, bus: { ja: 'バス', en: 'Bus' }, taxi: { ja: '車', en: 'Car' } };
+const MODE_LABEL = { walk: { ja: '徒歩', en: 'Walk' }, bus: { ja: '公共機関', en: 'Public transit' }, taxi: { ja: '車', en: 'Car' } };
 const MODE_ICON = { walk: Footprints, bus: Bus, taxi: Car };
 function addMinutes(timeStr, mins) {
   const [h, m] = timeStr.split(':').map(Number);
@@ -310,7 +320,7 @@ function minutesOfDay(date) { return date.getHours() * 60 + date.getMinutes(); }
 
 // 指定した日時(Date)が営業時間内かどうかを判定する
 function isOpenAt(hours, date) {
-  if (!hours) return true; // 常時開放
+  if (!hours || !Array.isArray(hours.week)) return true; // 常時開放、またはデータ形式が不正な場合は開いている扱いにする
   const todayRanges = hours.week[date.getDay()] || [];
   const mins = minutesOfDay(date);
   return todayRanges.some(([start, end]) => mins >= start && mins < end);
@@ -318,7 +328,7 @@ function isOpenAt(hours, date) {
 
 // 「あと何分で閉まるか」を返す。営業時間外、または常時開放の場合はnull
 function minutesUntilClose(hours, date) {
-  if (!hours) return null;
+  if (!hours || !Array.isArray(hours.week)) return null;
   const todayRanges = hours.week[date.getDay()] || [];
   const mins = minutesOfDay(date);
   for (const [start, end] of todayRanges) {
@@ -329,7 +339,7 @@ function minutesUntilClose(hours, date) {
 
 // 営業時間の状態をまとめて返す: { open: 営業中か, closingSoon: 30分以内に閉まるか, todayLabel: 今日の営業時間の表示用文字列 }
 function getOpenStatus(hours, date, lang) {
-  if (!hours) return { always: true };
+  if (!hours || !Array.isArray(hours.week)) return { always: true };
   const open = isOpenAt(hours, date);
   const closeIn = minutesUntilClose(hours, date);
   const todayRanges = hours.week[date.getDay()] || [];
@@ -373,7 +383,46 @@ function gmapsUrl(originName, destinationName, mode) {
    COMPONENT
 --------------------------------------------------------- */
 
+// エラーバウンダリ: 予期しないエラーが起きた際、Artifactの汎用エラーではなく
+// 実際のエラーメッセージ・スタックトレースを画面に表示し、原因調査をしやすくする
+class AppErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, info: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error('CONOTAVI app crashed:', error, info);
+    this.setState({ info });
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 24, fontFamily: 'sans-serif', color: '#21262C', background: '#FBEAEA', minHeight: '100vh', boxSizing: 'border-box' }}>
+          <h2 style={{ marginTop: 0 }}>エラーが発生しました / An error occurred</h2>
+          <p style={{ fontWeight: 700 }}>{String(this.state.error && this.state.error.message || this.state.error)}</p>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 11, background: '#fff', padding: 12, borderRadius: 8, overflow: 'auto' }}>
+            {String((this.state.error && this.state.error.stack) || '')}
+            {this.state.info ? `\n\n--- component stack ---\n${this.state.info.componentStack}` : ''}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function MairuDemo() {
+  return (
+    <AppErrorBoundary>
+      <MairuDemoInner />
+    </AppErrorBoundary>
+  );
+}
+
+function MairuDemoInner() {
   const [lang, setLang] = useState('ja'); // 'ja' | 'en'
   const [appStage, setAppStage] = useState('top'); // 'top' | 'entry' | 'kyushu' | 'region' | 'muni' | 'city'
   const [selectedCity, setSelectedCity] = useState(null); // 選択中の市町村ID
@@ -384,6 +433,7 @@ export default function MairuDemo() {
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
 
   const [activeCategory, setActiveCategory] = useState('sightseeing');
+  const [showOtherMenu, setShowOtherMenu] = useState(false); // 「その他」タブを押した際に開くウインドウの開閉状態
   const [selectMode, setSelectMode] = useState('map'); // 'map' | 'card'
   const [lastBrowseMode, setLastBrowseMode] = useState('map'); // 候補/決定から戻る際に復元する表示モード('map' | 'card')
   const [selectedId, setSelectedId] = useState(null);
@@ -398,7 +448,8 @@ export default function MairuDemo() {
   const [routeStops, setRouteStops] = useState(null); // 出発地を除いた決定済み地点の順序(最後が宿泊地の場合あり)
   const [legDistances, setLegDistances] = useState([]);
   const [legModes, setLegModes] = useState([]);
-  const [routeOrigin, setRouteOrigin] = useState('airport'); // ルートの出発地: 'airport' | 'mylocation'
+  const [routeOrigin, setRouteOrigin] = useState('airport'); // ルートの出発地: 'airport' | 'mylocation' | 'custom'
+  const [customOriginName, setCustomOriginName] = useState(''); // 地名を入力する場合の出発地名(仮実装: 座標は取得できないため空港の座標を代用)
   const [routeViewMode, setRouteViewMode] = useState('timeline'); // 'timeline' | 'map'
   const [detourMode, setDetourMode] = useState(false);
   const [detourCategory, setDetourCategory] = useState('all'); // 寄り道モードのカテゴリ絞り込み
@@ -446,10 +497,13 @@ export default function MairuDemo() {
           }))
           // 緯度経度が無い(ジオコーディング未完了)スポットは、地図上に置く場所が無いので除外する
           .filter((s) => typeof s.x === 'number' && typeof s.y === 'number' && !Number.isNaN(s.x) && !Number.isNaN(s.y));
-        SPOTS.push(...mapped);
+        // 本物のデータが1件も無ければ、プレビュー確認用の仮スポット(A/B/C/D)を代わりに使う
+        SPOTS.push(...(mapped.length > 0 ? mapped : DEMO_SPOTS));
       })
       .catch((err) => {
         console.error('スポットデータの取得に失敗しました:', err);
+        // 取得自体に失敗した場合も、プレビュー確認用の仮スポット(A/B/C/D)を使う
+        SPOTS.push(...DEMO_SPOTS);
       })
       .finally(() => {
         try {
@@ -509,13 +563,13 @@ export default function MairuDemo() {
     setDescExpanded(false);
   }, [selectedId]);
 
-  // ルート画面に入ったタイミングで諫早市の天気予報を取得する(まだ取得していない場合のみ)
-  useEffect(() => {
-    if (view === 'route' && !weatherForecast && !weatherLoading) {
-      fetchWeatherForecast();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view]);
+  // 天気機能は現在無効化しています(シンプル化のため)。再度有効にする場合は、下記のコメントを解除してください。
+  // useEffect(() => {
+  //   if (view === 'route' && !weatherForecast && !weatherLoading) {
+  //     fetchWeatherForecast();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [view]);
 
   const visibleSpots = SPOTS.filter((s) => s.category === activeCategory);
   const selectedSpot = SPOTS.find((s) => s.id === selectedId) || null;
@@ -536,10 +590,15 @@ export default function MairuDemo() {
   }, [myLocation, travelTargetSpot]);
 
   const canCreateRoute = decided.length > 0;
-  // ルートの実際の出発地点: 「現在地」が選択され、かつ現在地を取得済みの場合のみ現在地を使う。それ以外は長崎空港。
+  // ルートの実際の出発地点: 「現在地」が選択され、かつ現在地を取得済みの場合のみ現在地を使う。「地名を入力」の場合は座標取得ができないため、仮に空港の座標を代用する。それ以外は長崎空港。
   const effectiveOrigin = (routeOrigin === 'mylocation' && myLocation) ? myLocation : AIRPORT;
   const originIsMyLocation = routeOrigin === 'mylocation' && !!myLocation;
-  const originLabel = (lang) => originIsMyLocation ? (lang === 'en' ? 'Your location' : '現在地') : (lang === 'en' ? 'Nagasaki Airport' : '長崎空港');
+  const originIsCustom = routeOrigin === 'custom' && !!customOriginName.trim();
+  const originLabel = (lang) => originIsCustom
+    ? customOriginName.trim()
+    : originIsMyLocation
+      ? (lang === 'en' ? 'Your location' : '現在地')
+      : (lang === 'en' ? 'Nagasaki Airport' : '長崎空港');
   // Googleマップでのナビ用クエリ。現在地の場合は緯度経度をそのまま渡す(地名より正確なため)
   const originQueryFor = () => originIsMyLocation ? `${myLocation.lat},${myLocation.lon}` : '長崎空港';
 
@@ -750,7 +809,7 @@ export default function MairuDemo() {
       customDuration,
       budget,
       travelers,
-      routeOrigin: routeOrigin === 'mylocation' ? 'airport' : routeOrigin, // 現在地は端末ごとに変わるため保存時は空港扱いに戻す
+      routeOrigin: 'airport', // 現在地・地名入力(仮)は端末/入力ごとに変わるため保存時は空港扱いに戻す
       savedAt: new Date().toISOString(),
     };
   }
@@ -1285,6 +1344,7 @@ export default function MairuDemo() {
         .entry-catch { font-size:12.5px; color:#7A9BAD; margin:0; white-space:normal; overflow-wrap:break-word; }
         .entry-wave { display:block; width:100%; height:24px; flex-shrink:0; }
         .entry-prompt { padding:36px 28px 36px; flex-shrink:0; }
+        .entry-prompt-spacer { height:20px; flex-shrink:0; }
         .entry-prompt-text { font-size:14px; color:#3A5A6A; margin:0; font-weight:600; letter-spacing:0.02em; }
         .entry-prompt-text-lg {
           font-size:21px;
@@ -1399,7 +1459,7 @@ export default function MairuDemo() {
         .muni-card-tag.active { color:#fff; background:#E2613D; }
         @media (min-width:640px) { .muni-card-grid { grid-template-columns:repeat(3,1fr); } }
 
-        .header { display:flex; flex-direction:column; gap:10px; padding:16px 22px; border-bottom:1px solid var(--line); }
+        .header { display:flex; flex-direction:column; gap:10px; padding:16px 22px; }
         .brand-line { display:flex; justify-content:space-between; align-items:center; gap:14px; }
         .brand-stack { display:flex; flex-direction:column; }
         .brand-name { font-family:'Zen Kaku Gothic New', sans-serif; font-weight:700; font-size:22px; letter-spacing:0.04em; }
@@ -1408,16 +1468,10 @@ export default function MairuDemo() {
 
         .tabs { display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
         .tab { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink:0; white-space:nowrap; }
-        .tab-active { border-color: var(--cat-color); background: var(--cat-color); color:#fff; }
+        .tab-active { border-color: var(--ink); background: var(--ink); color:#fff; }
 
         .select-view { padding:22px 18px; }
 
-        .budget-toggle-btn { display:flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; margin-bottom:14px; -webkit-tap-highlight-color:transparent; }
-        .budget-toggle-btn.is-over-budget { border-color:#D9534F; }
-        .budget-toggle-label { color:var(--muted); font-weight:600; }
-        .budget-toggle-amount { font-family:'JetBrains Mono', monospace; font-weight:700; }
-        .budget-toggle-chevron { transition: transform .15s ease; color:var(--muted); flex-shrink:0; }
-        .budget-toggle-chevron.is-open { transform: rotate(180deg); }
         .budget-bar { background:#F6F6F4; border-radius:14px; padding:12px 16px; margin-bottom:14px; }
         .budget-inputs-row { display:flex; align-items:stretch; gap:0; flex-wrap:nowrap; margin-bottom:8px; }
         .budget-input-row { display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:600; color:var(--ink); flex:1; padding:0 14px; }
@@ -1436,10 +1490,16 @@ export default function MairuDemo() {
         .budget-breakdown-legend-item { display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; }
         .budget-breakdown-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 
-        .mode-switch { display:inline-flex; flex-wrap:wrap; gap:4px; background:#fff; box-shadow: 0 2px 8px rgba(26,46,59,0.06); padding:3px; border-radius:999px; margin-bottom:14px; max-width:100%; }
+        .mode-switch-wrap { padding:0 22px; }
+        .mode-switch { display:flex; flex-wrap:wrap; gap:4px; background:#fff; box-shadow: 0 2px 8px rgba(26,46,59,0.06); padding:3px; border-radius:999px; margin:0 auto 14px; max-width:100%; width:fit-content; }
+        .map-frame-wrap { position:relative; }
+        .tabs-on-frame { display:flex; justify-content:center; margin-bottom:10px; }
+        .tabs-on-frame .tabs { flex-wrap:nowrap; gap:6px; overflow-x:auto; max-width:100%; }
         .mode-switch button { display:flex; align-items:center; gap:5px; padding:6px 13px; border-radius:999px; border:none; background:transparent; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
         .mode-switch button.active { background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+        .mode-switch button:disabled { color:#C9CCD1; cursor:not-allowed; }
         .mode-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:999px; background:#E2613D; color:#fff; font-size:9.5px; font-weight:700; }
+        .budget-warn-badge { background:#D9534F; }
         .empty-page-hint { grid-column:1 / -1; text-align:center; font-size:12.5px; color:var(--muted); padding:40px 16px; line-height:1.6; }
 
         .card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding-bottom:14px; }
@@ -1556,8 +1616,9 @@ export default function MairuDemo() {
           100% { transform:scale(3.2); opacity:0; }
         }
 
-        .locate-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:10px 0 4px; }
         .locate-btn { display:flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; flex-shrink:0; }
+        .locate-btn.is-active { background:var(--ink); border-color:var(--ink); color:#fff; }
+        .start-actions-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
         .locate-btn:disabled { opacity:0.6; cursor:not-allowed; }
         .locate-travel-panel { display:flex; align-items:center; gap:7px; flex:1; min-width:0; padding:6px 12px; border-radius:999px; background:#F6F6F4; overflow-x:auto; }
         .locate-travel-distance { font-size:11.5px; font-weight:700; color:var(--ink); white-space:nowrap; flex-shrink:0; }
@@ -1572,8 +1633,8 @@ export default function MairuDemo() {
         .chip button { background:none; border:none; display:flex; cursor:pointer; color:inherit; padding:0; }
         .dock-empty { font-size:12px; color:var(--muted); }
 
-        .bottom-toolbar { position:fixed; left:18px; right:18px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); z-index:40; display:flex; background:#fff; border-radius:18px; overflow:hidden; }
-        .bottom-toolbar-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:14px 10px; border-radius:0; border:none; background:transparent; color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+        .bottom-toolbar { position:fixed; right:18px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); z-index:40; display:inline-flex; background:#fff; border-radius:999px; overflow:hidden; }
+        .bottom-toolbar-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:14px 22px; border-radius:999px; border:none; background:transparent; color:var(--muted); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
         .bottom-toolbar-btn.is-active { background:#F3F3F1; color:var(--ink); }
         .bottom-toolbar-btn-primary { background:#E2613D; color:#fff; font-weight:700; }
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
@@ -1621,6 +1682,9 @@ export default function MairuDemo() {
         .plan-file-input-hidden { position:absolute; inset:0; opacity:0; cursor:pointer; }
         .plan-dialog-file-note { font-size:11px; color:var(--muted); text-align:center; margin:8px 0 0; }
         .plan-dialog-close-text { display:block; width:100%; text-align:center; background:none; border:none; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer; margin-top:14px; }
+        .other-menu-list { display:flex; flex-direction:column; gap:8px; }
+        .other-menu-item { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; text-align:left; -webkit-tap-highlight-color: transparent; }
+        .other-menu-item:hover { background:#F6F6F4; }
 
         .saved-plan-list { display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; }
         .saved-plan-item { display:flex; align-items:center; gap:8px; }
@@ -1690,15 +1754,14 @@ export default function MairuDemo() {
         .action-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px; border-radius:999px; border:1.5px solid transparent; background:#EFEFEC; color:var(--ink); font-size:13px; font-weight:700; cursor:pointer; }
         .action-btn.action-active { background:var(--cat-color); color:#fff; }
 
-        .route-view { padding:24px 18px 50px; }
-        .route-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-        .back-btn, .reset-btn { background:none; border:none; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:4px; }
-        .route-actions { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-        .route-action-btn { display:flex; align-items:center; gap:6px; padding:8px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; }
-        .route-summary { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px 4px; background:#F6F6F4; border-radius:12px; padding:14px 18px; margin-bottom:16px; }
+        .route-view { padding:16px 22px 50px; }
+        .route-actions { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+        .route-action-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); font-size:13px; font-weight:500; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; white-space:nowrap; }
+        .route-action-btn.active { background:var(--ink); border-color:var(--ink); color:#fff; font-weight:700; }
         .summary-label { display:block; font-size:11px; color:var(--muted); margin-bottom:2px; }
         .summary-value { font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; white-space:nowrap; }
-        .route-locate-row { margin-bottom:20px; }
+        .timeline-stop.timeline-stop-start { align-items:center; }
+        .start-actions { display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:auto; flex-shrink:0; text-align:right; }
         .locate-origin-reset { background:none; border:none; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; cursor:pointer; padding:0; }
 
         .trip-date-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:20px; }
@@ -1715,7 +1778,6 @@ export default function MairuDemo() {
         .crowd-busy { background:#FBEAEA; color:#B3494B; }
         .crowd-normal { background:#E9F3EC; color:#2E7D4F; }
 
-        .route-mode-switch { margin-bottom:16px; }
 
         .navi-view { margin-bottom:24px; }
         .navi-combined-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:13px; border-radius:10px; background:var(--ink); color:#fff; font-size:13.5px; font-weight:700; text-decoration:none; margin-bottom:10px; }
@@ -1744,7 +1806,7 @@ export default function MairuDemo() {
         .timeline { display:flex; flex-direction:column; gap:2px; }
         .timeline-stop {
           display:flex;
-          align-items:flex-start;
+          align-items:center;
           gap:14px;
           padding:16px;
           border-radius:14px;
@@ -1754,26 +1816,27 @@ export default function MairuDemo() {
         @media (hover: hover) and (pointer: fine) {
           .timeline-stop.clickable:hover { background:#ECECE8; }
         }
+        .stop-chevron { flex-shrink:0; color:#B7BBC0; }
         .timeline-travel {
           display:flex;
           align-items:center;
           gap:12px;
           padding:10px 16px 10px 0;
           margin-left:34px;
-          border-left:2px solid var(--line);
+          border-left:2px dashed var(--line);
         }
         .stop-dot { flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
-        .travel-icon-wrap { flex-shrink:0; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 0 0 1px var(--line) inset; display:flex; align-items:center; justify-content:center; color:#5B616A; margin-left:-11px; }
+        .travel-icon-wrap { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; box-shadow:0 0 0 1.5px var(--line) inset; display:flex; align-items:center; justify-content:center; color:var(--ink); margin-left:-13px; }
         .stop-content { display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
         .stop-name { font-weight:700; font-size:16px; line-height:1.3; }
         .stop-time-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .stop-time { font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted); letter-spacing:0.01em; }
+        .stop-time { font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:600; color:var(--ink); letter-spacing:0.01em; }
         .stop-stay-badge { font-size:10.5px; font-weight:600; color:#5B616A; background:#fff; border-radius:999px; padding:2px 8px; }
-        .stop-edit-hint { font-size:11px; color:#A7ABB2; margin-top:2px; }
-        .travel-info { display:flex; flex-direction:column; gap:7px; flex:1; min-width:0; }
+        .travel-info { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; flex:1; min-width:0; background:#fff; border-radius:10px; padding:7px 10px; }
         .travel-label { font-size:12.5px; color:#5B616A; font-weight:500; }
-        .mode-toggle { display:flex; gap:6px; }
-        .mode-btn { width:28px; height:28px; border-radius:9px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; color:#7C828A; cursor:pointer; padding:0; -webkit-tap-highlight-color: transparent; }
+        .mode-toggle { display:flex; align-items:center; gap:5px; }
+        .mode-toggle-divider { width:1px; height:18px; background:var(--line); margin:0 2px; }
+        .mode-btn { display:flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:#5B616A; cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; }
         .mode-btn.mode-active { background:var(--ink); border-color:var(--ink); color:#fff; }
         .disclaimer { font-size:11px; color:var(--muted); margin-top:30px; text-align:center; }
 
@@ -1787,8 +1850,9 @@ export default function MairuDemo() {
 
         @media (max-width:560px) {
           .header { padding:14px 16px; }
+          .mode-switch-wrap { padding:0 16px; }
           .select-view { padding:16px; }
-          .route-view { padding:18px 16px 40px; }
+          .route-view { padding:14px 16px 40px; }
           .spot-pin { --pin-size: 22px; }
           .spot-index-name { font-size:10.5px; }
 
@@ -1799,8 +1863,8 @@ export default function MairuDemo() {
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
           .region-map-frame { --frame-pad:18px; }
-          .bottom-toolbar { left:16px; right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
-          .bottom-toolbar-btn { padding:11px 6px; font-size:10.5px; gap:4px; }
+          .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
+          .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
 
           .budget-bar { padding:10px 10px; }
           .budget-inputs-row { flex-wrap:nowrap; gap:0; }
@@ -1816,11 +1880,14 @@ export default function MairuDemo() {
           .locate-error { order:4; }
 
           .timeline-stop { padding:14px; gap:12px; }
+          .timeline-stop.timeline-stop-start { flex-wrap:wrap; }
+          .start-actions { align-items:flex-start; text-align:left; margin-left:44px; width:100%; }
           .timeline-travel { padding:8px 14px 8px 0; margin-left:30px; }
           .stop-dot { width:32px; height:32px; }
           .travel-icon-wrap { margin-left:-11px; }
           .stop-name { font-size:15px; }
           .mode-btn { width:28px; height:28px; }
+          .travel-info { padding:6px 8px; }
         }
         @media (max-width:380px) {
           .budget-input-row { font-size:9.5px; padding:0 4px; }
@@ -1885,9 +1952,7 @@ export default function MairuDemo() {
             <path d="M0,0 L400,0 L400,24 Q200,-16 0,24 Z" fill="#fff" />
           </svg>
 
-          <div className="entry-prompt">
-            <p className="entry-prompt-text-lg">{lang === 'en' ? 'So, where to?' : 'さて、どこへ行こうか。'}</p>
-          </div>
+          <div className="entry-prompt-spacer" />
 
           <div className="entry-cards">
             <button className="entry-card" disabled>
@@ -1964,18 +2029,19 @@ export default function MairuDemo() {
             <path d="M0,0 L400,0 L400,24 Q200,-16 0,24 Z" fill="#fff" />
           </svg>
 
-          <div className="entry-prompt">
-            <h2 className="entry-prompt-text-lg">{lang === 'en' ? 'I wonder what Kyushu is like.' : '九州、どんな場所なんだろう。'}</h2>
-          </div>
+          <div className="entry-prompt-spacer" />
 
           <div className="region-body">
 
           <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '表示方法を切り替え'}>
             <button className={kyushuMode === 'map' ? 'active' : ''} onClick={() => { setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); }}>
-              <MapIcon size={14} /> {lang === 'en' ? 'Map' : '地図'}
+              <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
             <button className={kyushuMode === 'card' ? 'active' : ''} onClick={() => { setKyushuMode('card'); setPeekIslandKey(null); }}>
-              <LayoutGrid size={14} /> {lang === 'en' ? 'Cards' : 'カード'}
+              <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
+            </button>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
+              <Compass size={14} /> NO PLAN
             </button>
           </div>
 
@@ -2127,17 +2193,18 @@ export default function MairuDemo() {
             <path d="M0,0 L400,0 L400,24 Q200,-16 0,24 Z" fill="#fff" />
           </svg>
 
-          <div className="entry-prompt">
-            <p className="entry-prompt-text-lg">{lang === 'en' ? 'I wonder what Nagasaki Prefecture is like.' : '長崎県、どんな場所なんだろう。'}</p>
-          </div>
+          <div className="entry-prompt-spacer" />
 
           <div className="region-body">
           <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '地域の表示方法を切り替え'}>
             <button className={regionMode === 'map' ? 'active' : ''} onClick={() => { setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); }}>
-              <MapIcon size={14} /> {lang === 'en' ? 'Map' : '地図'}
+              <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
             <button className={regionMode === 'card' ? 'active' : ''} onClick={() => { setRegionMode('card'); setPeekIslandKey(null); }}>
-              <LayoutGrid size={14} /> {lang === 'en' ? 'Cards' : 'カード'}
+              <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
+            </button>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
+              <Compass size={14} /> NO PLAN
             </button>
           </div>
 
@@ -2247,6 +2314,36 @@ export default function MairuDemo() {
         const cityMap = NAGASAKI_CITY_MAPS[selectedCity];
         const cityName = cityMap ? (lang === 'en' ? cityMap.nameEn : cityMap.name) : selectedCity;
         const isIsahaya = selectedCity === '42204';
+        const categoryTabs = (
+          <nav className="tabs" aria-label={lang === 'en' ? 'Category selection' : 'カテゴリ選択'}>
+            {Object.entries(CATEGORY_META).map(([key, meta]) => {
+              const Icon = meta.icon;
+              const isOther = key === 'roadside';
+              return (
+                <button
+                  key={key}
+                  className={`tab ${activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided' ? 'tab-active' : ''}`}
+                  onClick={() => {
+                    if (isOther) {
+                      setShowOtherMenu(true);
+                      return;
+                    }
+                    setActiveCategory(key);
+                    setLinkedId(null);
+                    if (selectMode === 'candidates' || selectMode === 'decided') {
+                      setSelectMode(lastBrowseMode);
+                    }
+                  }}
+                  aria-haspopup={isOther ? 'dialog' : undefined}
+                  aria-pressed={!isOther && activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
+                >
+                  <Icon size={16} />
+                  {isOther ? (lang === 'en' ? 'Other' : 'その他') : catLabel(meta)}
+                </button>
+              );
+            })}
+          </nav>
+        );
         return (
           <div className={`entry-view region-scroll ${isIsahaya && view === 'select' ? 'has-bottom-toolbar' : ''}`}>
             <div className="entry-header">
@@ -2269,9 +2366,7 @@ export default function MairuDemo() {
               <path d="M0,0 L400,0 L400,24 Q200,-16 0,24 Z" fill="#fff" />
             </svg>
 
-            <div className="entry-prompt">
-              <p className="entry-prompt-text-lg">{lang === 'en' ? `I wonder what ${cityMap?.nameEn ?? cityName} is like.` : `${cityMap?.name ?? cityName}、どんな場所なんだろう。`}</p>
-            </div>
+            <div className="entry-prompt-spacer" />
 
             <div className="region-body">
               {cityMap && !isIsahaya ? (
@@ -2295,150 +2390,35 @@ export default function MairuDemo() {
 
             {isIsahaya && (
             <>
+      {view === 'select' && (
+        <div className="mode-switch-wrap">
+          <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '表示方法を切り替え'}>
+            <button className={selectMode === 'map' ? 'active' : ''} onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}>
+              <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
+            </button>
+            <button className={selectMode === 'card' ? 'active' : ''} onClick={() => { setSelectMode('card'); setLastBrowseMode('card'); }}>
+              <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
+            </button>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
+              <Compass size={14} /> NO PLAN
+            </button>
+          </div>
+        </div>
+      )}
+
+      {view === 'select' && selectMode !== 'map' && (
       <header className="header">
-        {view === 'select' && (
-          <nav className="tabs" aria-label={lang === 'en' ? 'Category selection' : 'カテゴリ選択'}>
-            {Object.entries(CATEGORY_META).map(([key, meta]) => {
-              const Icon = meta.icon;
-              return (
-                <button
-                  key={key}
-                  className={`tab ${activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided' ? 'tab-active' : ''}`}
-                  style={{ '--cat-color': meta.color }}
-                  onClick={() => {
-                    setActiveCategory(key);
-                    setLinkedId(null);
-                    if (selectMode === 'candidates' || selectMode === 'decided') {
-                      setSelectMode(lastBrowseMode);
-                    }
-                  }}
-                  aria-pressed={activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
-                >
-                  <Icon size={16} />
-                  {catLabel(meta)}
-                </button>
-              );
-            })}
-          </nav>
-        )}
+        {categoryTabs}
       </header>
+      )}
 
       {view === 'select' && (
         <main className="select-view">
-          <button
-            type="button"
-            className={`budget-toggle-btn ${remainingBudget < 0 ? 'is-over-budget' : ''}`}
-            onClick={() => setShowBudget((v) => !v)}
-            aria-expanded={showBudget}
-          >
-            <Wallet size={14} />
-            <span className="budget-toggle-label">{lang === 'en' ? 'Budget' : '予算'}</span>
-            <span className={`budget-toggle-amount ${remainingBudget < 0 ? 'over-budget-text' : ''}`}>
-              {lang === 'en' ? `¥${remainingBudget.toLocaleString()} left` : `残り ¥${remainingBudget.toLocaleString()}`}
-            </span>
-            <ChevronDown size={14} className={`budget-toggle-chevron ${showBudget ? 'is-open' : ''}`} />
-          </button>
-          {showBudget && (
-          <div className="budget-bar">
-            <div className="budget-inputs-row">
-              <label className="budget-input-row">
-                {lang === 'en' ? 'Budget' : '予算'}
-                <div className="stepper budget-stepper">
-                  <button type="button" className="stepper-btn" onClick={() => adjustBudget(-500)} aria-label={lang === 'en' ? 'Decrease budget by 500 yen' : '予算を500円減らす'}>−</button>
-                  <input
-                    type="number"
-                    className="budget-input"
-                    value={budget}
-                    min={0}
-                    step={500}
-                    onChange={(e) => setBudget(Math.max(0, Number(e.target.value) || 0))}
-                  />
-                  <button type="button" className="stepper-btn" onClick={() => adjustBudget(500)} aria-label={lang === 'en' ? 'Increase budget by 500 yen' : '予算を500円増やす'}>＋</button>
-                </div>
-                {lang === 'en' ? 'yen' : '円'}
-              </label>
-              <div className="budget-input-divider" />
-              <label className="budget-input-row">
-                {lang === 'en' ? 'People' : '人数'}
-                <div className="stepper travelers-stepper">
-                  <button type="button" className="stepper-btn" onClick={() => adjustTravelers(-1)} aria-label={lang === 'en' ? 'Decrease number of people' : '人数を減らす'}>−</button>
-                  <span className="stepper-value travelers-value">{travelers}</span>
-                  <button type="button" className="stepper-btn" onClick={() => adjustTravelers(1)} aria-label={lang === 'en' ? 'Increase number of people' : '人数を増やす'}>＋</button>
-                </div>
-                {lang === 'en' ? '' : '人'}
-              </label>
-            </div>
-            <div className="budget-status">
-              <span>
-                {lang === 'en'
-                  ? `Spent ¥${spentBudget.toLocaleString()}${travelers > 1 ? ` (×${travelers})` : ''}`
-                  : `使用済み ¥${spentBudget.toLocaleString()}${travelers > 1 ? `(${travelers}人分)` : ''}`}
-              </span>
-              <span className={remainingBudget < 0 ? 'over-budget-text' : ''}>
-                {lang === 'en' ? `Remaining ¥${remainingBudget.toLocaleString()}` : `残り ¥${remainingBudget.toLocaleString()}`}
-              </span>
-            </div>
-            <div className="budget-progress">
-              <div
-                className="budget-progress-fill"
-                style={{
-                  width: `${Math.min(100, (spentBudget / Math.max(budget, 1)) * 100)}%`,
-                  background: remainingBudget < 0 ? '#D9534F' : '#3F8753',
-                }}
-              />
-            </div>
-            {spentBudget > 0 && (
-              <div className="budget-breakdown">
-                <div className="budget-breakdown-bar">
-                  {Object.entries(spentByCategory).filter(([, v]) => v > 0).map(([cat, v]) => (
-                    <div
-                      key={cat}
-                      className="budget-breakdown-segment"
-                      style={{ width: `${(v / spentBudget) * 100}%`, background: CATEGORY_META[cat].color }}
-                      title={`${catLabel(CATEGORY_META[cat])}: ¥${v.toLocaleString()}`}
-                    />
-                  ))}
-                </div>
-                <div className="budget-breakdown-legend">
-                  {Object.entries(spentByCategory).filter(([, v]) => v > 0).map(([cat, v]) => (
-                    <span key={cat} className="budget-breakdown-legend-item">
-                      <span className="budget-breakdown-dot" style={{ background: CATEGORY_META[cat].color }} />
-                      {catLabel(CATEGORY_META[cat])} ¥{v.toLocaleString()} ({Math.round((v / spentBudget) * 100)}%)
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {travelers > 1 && (
-              <p className="budget-per-person-note">
-                {lang === 'en'
-                  ? `Each spot's price is per person. The budget reflects all ${travelers} travelers.`
-                  : `各スポットの金額は1人あたりの目安です。予算には人数分(${travelers}人)が反映されます。`}
-              </p>
-            )}
-          </div>
-          )}
-
-          <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '表示方法を切り替え'}>
-            <button className={selectMode === 'map' ? 'active' : ''} onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}>
-              <MapIcon size={14} /> {lang === 'en' ? 'Map' : '地図'}
-            </button>
-            <button className={selectMode === 'card' ? 'active' : ''} onClick={() => { setSelectMode('card'); setLastBrowseMode('card'); }}>
-              <LayoutGrid size={14} /> {lang === 'en' ? 'Cards' : 'カード'}
-            </button>
-            <button className={selectMode === 'candidates' ? 'active' : ''} onClick={() => setSelectMode('candidates')}>
-              <Star size={14} /> {lang === 'en' ? 'Saved' : '候補'}
-              {candidates.length > 0 && <span className="mode-count-badge">{candidates.length}</span>}
-            </button>
-            <button className={selectMode === 'decided' ? 'active' : ''} onClick={() => setSelectMode('decided')}>
-              <Check size={14} /> {lang === 'en' ? 'Picked' : '決定'}
-              {decided.length > 0 && <span className="mode-count-badge">{decided.length}</span>}
-            </button>
-          </div>
-
           {selectMode === 'map' ? (
             <>
               <div className="map-scroll">
+                <div className="map-frame-wrap">
+                  <div className="tabs-on-frame">{categoryTabs}</div>
                 <div className="map-frame">
                   <span className="map-location-label">
                     <span>{lang === 'en' ? 'Nagasaki Pref.' : '長崎県'}</span>
@@ -2491,22 +2471,10 @@ export default function MairuDemo() {
                     </div>
                   )}
                 </div>
+                </div>
               </div>
 
-              {(travelFromMe || locationError) && (
-              <div className="locate-row">
-                {myLocation && travelFromMe && (
-                  <div className="locate-travel-panel">
-                    <span className="locate-travel-distance">{lang === 'en' ? `${travelFromMe.km.toFixed(1)} km` : `約${travelFromMe.km.toFixed(1)}km`}</span>
-                    <span className="locate-travel-divider" />
-                    <span className="locate-travel-chip"><Car size={12} />{travelFromMe.car}{lang === 'en' ? 'm' : '分'}</span>
-                    <span className="locate-travel-chip"><Bus size={12} />{travelFromMe.transit}{lang === 'en' ? 'm' : '分'}</span>
-                    <span className="locate-travel-chip"><Footprints size={12} />{travelFromMe.walk}{lang === 'en' ? 'm' : '分'}</span>
-                  </div>
-                )}
-                {locationError && <p className="locate-error">{locationError}</p>}
-              </div>
-              )}
+
 
               <div className="spot-index-grid">
                 {visibleSpots.map((spot) => {
@@ -2559,25 +2527,6 @@ export default function MairuDemo() {
 
       {view === 'select' && (
         <div className="bottom-toolbar">
-          <button className="bottom-toolbar-btn" onClick={() => setAppStage('region')}>
-            {lang === 'en' ? '← Back' : '← 戻る'}
-          </button>
-          <button className={`bottom-toolbar-btn ${myLocation ? 'is-active' : ''}`} onClick={() => locateMe()} disabled={locating}>
-            <Navigation size={14} />
-            {locating ? (lang === 'en' ? 'Locating…' : '取得中…') : (lang === 'en' ? 'Locate' : '現在地')}
-          </button>
-          <button
-            className={`bottom-toolbar-btn ${selectMode === 'candidates' ? 'is-active' : ''}`}
-            onClick={() => setSelectMode('candidates')}
-          >
-            <Star size={15} /> {lang === 'en' ? 'Saved' : '候補'} {candidates.length > 0 && `(${candidates.length})`}
-          </button>
-          <button
-            className={`bottom-toolbar-btn ${selectMode === 'decided' ? 'is-active' : ''}`}
-            onClick={() => setSelectMode('decided')}
-          >
-            <Check size={15} /> {lang === 'en' ? 'Picked' : '決定'} {decided.length > 0 && `(${decided.length})`}
-          </button>
           <button className="bottom-toolbar-btn bottom-toolbar-btn-primary" disabled={!canCreateRoute || calculating} onClick={buildRoute}>
             <Route size={16} />
             {lang === 'en' ? 'Create route' : 'ルート検索'}
@@ -2587,11 +2536,13 @@ export default function MairuDemo() {
 
       {view === 'route' && plan && (
         <main className="route-view">
-          <div className="route-header">
-            <button className="back-btn" onClick={() => setView('select')}>{lang === 'en' ? '← Back to selection' : '← 選択に戻る'}</button>
-            <button className="reset-btn" onClick={reset}><RotateCcw size={14} /> {lang === 'en' ? 'Reset' : 'リセット'}</button>
-          </div>
           <div className="route-actions">
+            <button className={`route-action-btn ${routeViewMode === 'timeline' ? 'active' : ''}`} onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}>
+              <LayoutGrid size={14} /> {lang === 'en' ? 'Timeline' : 'タイムライン'}
+            </button>
+            <button className={`route-action-btn ${routeViewMode === 'map' ? 'active' : ''}`} onClick={() => setRouteViewMode('map')}>
+              <MapIcon size={14} /> {lang === 'en' ? 'Route map' : 'ルートマップ'}
+            </button>
             <button className="route-action-btn" onClick={() => setShowSaveDialog(true)}>
               <Save size={14} /> {lang === 'en' ? 'Save' : '保存'}
             </button>
@@ -2601,91 +2552,8 @@ export default function MairuDemo() {
             <button className="route-action-btn" onClick={shareCurrentPlan}>
               <Share2 size={14} /> {lang === 'en' ? 'Share' : '共有'}
             </button>
-          </div>
-          <div className="route-summary">
-            <div><span className="summary-label">{lang === 'en' ? 'From' : '出発地'}</span><span className="summary-value">{originLabel(lang)}</span></div>
-            <div><span className="summary-label">{lang === 'en' ? 'Depart' : '出発'}</span><span className="summary-value">{plan[0].time}</span></div>
-            <div><span className="summary-label">{lang === 'en' ? 'Arrive' : '到着'}</span><span className="summary-value">{plan[plan.length - 1].arrive}</span></div>
-            <div><span className="summary-label">{lang === 'en' ? 'Total time' : '所要時間'}</span><span className="summary-value">{totalLabel}</span></div>
-          </div>
-          <div className="locate-row route-locate-row">
-            <button className="locate-btn" onClick={() => locateMe({ useAsRouteOrigin: true })} disabled={locating}>
-              <Navigation size={13} />
-              {locating
-                ? (lang === 'en' ? 'Locating…' : '取得中…')
-                : originIsMyLocation
-                  ? (lang === 'en' ? 'Update my location' : '現在地を更新')
-                  : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
-            </button>
-            {originIsMyLocation && (
-              <button className="locate-origin-reset" onClick={() => { setRouteOrigin('airport'); const { stops, distances, modes } = computeRouteFrom(AIRPORT); setRouteStops(stops); setLegDistances(distances); setLegModes(modes); }}>
-                {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
-              </button>
-            )}
-            {locationError && <p className="locate-error">{locationError}</p>}
-          </div>
-
-          <div className="trip-date-row">
-            <label className="trip-date-label">
-              <Calendar size={13} />
-              {lang === 'en' ? 'Departure date' : '出発日'}
-              <input
-                type="date"
-                className="trip-date-input"
-                value={tripDate}
-                min={new Date().toISOString().slice(0, 10)}
-                max={new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10)}
-                onChange={(e) => setTripDate(e.target.value)}
-              />
-            </label>
-            {tripDate && (() => {
-              const crowd = getCrowdLevel(tripDate);
-              return (
-                <span className={`crowd-badge ${crowd === 'busy' ? 'crowd-busy' : 'crowd-normal'}`}>
-                  {crowd === 'busy'
-                    ? (lang === 'en' ? 'Likely busy (weekend/holiday)' : '混雑が予想されます(土日・祝日)')
-                    : (lang === 'en' ? 'Likely quieter (weekday)' : '比較的空いている見込み(平日)')}
-                </span>
-              );
-            })()}
-            {tripDate && weatherLoading && (
-              <span className="weather-loading-text">{lang === 'en' ? 'Loading forecast…' : '天気予報を取得中…'}</span>
-            )}
-            {tripDate && weatherError && (
-              <span className="weather-loading-text">{weatherError}</span>
-            )}
-            {tripDate && weatherForecast && weatherForecast[tripDate] && (() => {
-              const w = weatherForecast[tripDate];
-              const meta = weatherCodeMeta(w.code);
-              const WIcon = meta.icon;
-              const isRainy = isRainyForecast(w.code, w.pop);
-              return (
-                <div className="weather-card">
-                  <WIcon size={20} className="weather-icon" />
-                  <div className="weather-info">
-                    <span className="weather-label">{meta.label[lang]}</span>
-                    <span className="weather-temps">{w.tMin}° / {w.tMax}°C ・ {lang === 'en' ? `${w.pop}% rain` : `降水${w.pop}%`}</span>
-                  </div>
-                  {isRainy && decided.some((id) => OUTDOOR_SIGHTSEEING_IDS.has(id)) && (
-                    <p className="weather-outdoor-warning">
-                      {lang === 'en'
-                        ? 'Rain is likely. Your plan includes outdoor spots that may be affected.'
-                        : '雨の可能性があります。決定済みのプランに屋外スポットが含まれています。'}
-                    </p>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-          <div className="mode-switch route-mode-switch" role="group" aria-label={lang === 'en' ? 'Switch route view' : 'ルート表示を切り替え'}>
-            <button className={routeViewMode === 'timeline' ? 'active' : ''} onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}>
-              <LayoutGrid size={14} /> {lang === 'en' ? 'Timeline' : 'タイムライン'}
-            </button>
-            <button className={routeViewMode === 'map' ? 'active' : ''} onClick={() => setRouteViewMode('map')}>
-              <MapIcon size={14} /> {lang === 'en' ? 'Route map' : 'ルートマップ'}
-            </button>
-            <button className={routeViewMode === 'navi' ? 'active' : ''} onClick={() => { setRouteViewMode('navi'); setLinkedId(null); }}>
-              <Navigation size={14} /> ナビ
+            <button className="route-action-btn" onClick={reset}>
+              <RotateCcw size={14} /> {lang === 'en' ? 'Reset' : 'リセット'}
             </button>
           </div>
 
@@ -2868,12 +2736,31 @@ export default function MairuDemo() {
                               className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
                               onClick={() => updateLegMode(legIndex, m)}
                               aria-label={modeLabel(m)}
+                              title={modeLabel(m)}
                               aria-pressed={item.mode === m}
                             >
-                              <MIcon size={13} />
+                              <MIcon size={15} />
                             </button>
                           );
                         })}
+                        <span className="mode-toggle-divider" />
+                        <button
+                          className="mode-btn"
+                          aria-label="ナビ"
+                          title="ナビ"
+                          onClick={() => {
+                            const leg = naviLegs[legIndex];
+                            if (!leg) return;
+                            const ok = window.confirm(
+                              lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
+                            );
+                            if (ok) {
+                              window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
+                            }
+                          }}
+                        >
+                          <Compass size={15} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -2887,7 +2774,7 @@ export default function MairuDemo() {
               return (
                 <div
                   key={idx}
-                  className={`timeline-stop ${isStop ? 'clickable' : ''}`}
+                  className={`timeline-stop ${isStop ? 'clickable' : ''} ${isStart ? 'timeline-stop-start' : ''}`}
                   onClick={isStop ? () => setSelectedId(item.spotId) : undefined}
                 >
                   <span className="stop-dot" style={{ background: dotColor }}><StopIcon size={14} /></span>
@@ -2907,10 +2794,43 @@ export default function MairuDemo() {
                         <span className="stop-stay-badge">{lang === 'en' ? `${item.stay} min` : `滞在${item.stay}分`}</span>
                       )}
                     </div>
-                    {isStop && (
-                      <span className="stop-edit-hint">{lang === 'en' ? 'Tap to edit visit duration ›' : 'タップして滞在時間を編集 ›'}</span>
-                    )}
                   </div>
+                  {isStop && <ChevronRight size={16} className="stop-chevron" />}
+                  {isStart && (
+                    <div className="start-actions">
+                      <div className="start-actions-row">
+                        <button
+                          className="locate-btn"
+                          onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); }}
+                          disabled={locating}
+                        >
+                          <Navigation size={13} />
+                          {locating
+                            ? (lang === 'en' ? 'Locating…' : '取得中…')
+                            : originIsMyLocation
+                              ? (lang === 'en' ? 'Update my location' : '現在地を更新')
+                              : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
+                        </button>
+                      </div>
+                      {(originIsMyLocation || originIsCustom) && (
+                        <button
+                          className="locate-origin-reset"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRouteOrigin('airport');
+                            setCustomOriginName('');
+                            const { stops, distances, modes } = computeRouteFrom(AIRPORT);
+                            setRouteStops(stops);
+                            setLegDistances(distances);
+                            setLegModes(modes);
+                          }}
+                        >
+                          {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
+                        </button>
+                      )}
+                      {locationError && <p className="locate-error">{locationError}</p>}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -3058,6 +2978,35 @@ export default function MairuDemo() {
         </div>
       )}
 
+      {showOtherMenu && (
+        <div className="overlay-backdrop" onClick={() => setShowOtherMenu(false)}>
+          <div className="plan-dialog-card" onClick={(e) => e.stopPropagation()}>
+            <button className="plan-dialog-x" onClick={() => setShowOtherMenu(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}>
+              <X size={16} />
+            </button>
+            <h3 className="plan-dialog-title">{lang === 'en' ? 'Other' : 'その他'}</h3>
+            <p className="plan-dialog-desc">
+              {lang === 'en' ? 'Choose a category to browse.' : '見たいカテゴリを選んでください。'}
+            </p>
+            <div className="other-menu-list">
+              <button
+                className="other-menu-item"
+                onClick={() => {
+                  setActiveCategory('roadside');
+                  setLinkedId(null);
+                  if (selectMode === 'candidates' || selectMode === 'decided') {
+                    setSelectMode(lastBrowseMode);
+                  }
+                  setShowOtherMenu(false);
+                }}
+              >
+                <Store size={16} /> {lang === 'en' ? 'Rest stop' : '道の駅'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSaveDialog && (
         <div className="overlay-backdrop" onClick={() => setShowSaveDialog(false)}>
           <div className="plan-dialog-card" onClick={(e) => e.stopPropagation()}>
@@ -3177,11 +3126,12 @@ export default function MairuDemo() {
             </>
             )}
 
-            {!(isIsahaya && view === 'select') && (
-            <button className="floating-back-btn" onClick={() => setAppStage('region')}>
+            <button
+              className="floating-back-btn"
+              onClick={() => { if (isIsahaya && view === 'route') { setView('select'); } else { setAppStage('region'); } }}
+            >
               {lang === 'en' ? '← Back' : '← 戻る'}
             </button>
-            )}
           </div>
         );
       })()}
