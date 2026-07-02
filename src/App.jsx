@@ -4,6 +4,7 @@ import {
   Footprints, Bus, Car, Clock, RotateCcw, Map as MapIcon, LayoutGrid, Flag, Compass, Navigation, Route,
   Save, Share2, Download, Upload, X, FolderOpen, Trash2, ExternalLink,
   Sun, Cloud, CloudSun, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, Calendar,
+  Wallet, ChevronDown,
 } from 'lucide-react';
 
 /* ---------------------------------------------------------
@@ -122,17 +123,17 @@ const KYUSHU_VIEW_H = 640;
 const ACTIVE_PREF_ID = '42'; // 長崎県(現在体験可能な唯一の県)
 
 // 九州7県の輪郭(国土数値情報より簡略化・滑らかな曲線に加工。長崎県以外は県単位のみ)
-const KYUSHU_OUTLINE_PATHS = ["M219.4,183.4 L207.7,182.1 L200.2,170.5 L178.8,186.6 L192.8,221.3", "M121.0,142.2 L131.9,152.1 L127.5,142.8 L134.6,128.3 L119.7,118.7 L123.7,112.3 L132.8,118.7 L130.6,97.8 L135.7,105.9 L139.4,99.0 L149.9,103.1 L151.8,118.4 L164.2,115.4", "M220.2,384.1 L257.4,329.2 L251.4,308.7 L272.4,288.5 L237.5,293.5 L263.2,271.6 L264.4,255.2 L234.7,230.0 L229.5,211.8", "M192.8,221.3 L192.8,226.2 L184.2,232.5 L187.9,238.5 L183.4,243.7 L209.4,236.2 L208.8,252.8 L210.6,242.7 L217.1,241.6 L223.4,255.4 L222.6,266.1 L217.5,280.5 L202.8,283.8 L198.2,292.2 L187.1,296.7 L180.0,283.2 L180.7,277.8 L192.2,270.3 L193.5,262.4 L188.8,254.3 L181.2,251.5 L162.0,261.7 L155.9,260.8 L149.9,265.3 L139.3,281.7 L129.4,286.1 L124.2,296.0 L111.8,301.0 L119.1,294.0 L130.5,269.7 L126.0,269.7 L122.7,257.9 L110.9,251.5 L102.5,242.2 L99.6,233.2 L93.3,226.3 L92.4,215.8 L98.4,211.2 L95.8,203.5 L101.1,190.8 L115.9,201.2 L116.3,206.9 L126.7,216.7 L121.1,218.0 L125.8,222.4 L121.5,241.2 L126.1,247.7 L131.7,240.5 L138.3,241.3 L139.5,236.5 L153.5,245.1 L158.1,244.0 L145.3,226.8 L150.1,213.1 L136.0,198.1 L123.1,197.3 L121.5,182.6 L114.1,181.2 L106.9,187.4 L96.4,175.3 L95.3,169.2 L101.7,161.1 L94.4,163.4 L92.1,171.9 L79.3,166.1 L84.6,151.0 L93.1,140.1 L101.2,130.2 L106.1,139.3 L121.0,142.2", "M229.5,211.8 L230.1,197.6 L219.4,183.4", "M164.2,115.4 L184.0,101.6 L186.0,96.7 L177.7,99.5 L173.0,92.0 L193.9,74.7 L205.0,92.2 L227.0,88.5 L232.2,70.5 L219.5,79.6 L207.9,70.7 L213.5,76.1 L226.4,71.0 L238.8,57.0 L240.5,35.4 L273.2,27.5 L276.2,19.0 L299.2,21.1 L286.5,31.8 L296.6,32.1 L300.9,22.6 L312.7,29.2 L325.1,13.9 L335.0,13.7 L325.7,45.4 L331.6,44.1 L328.5,50.5 L347.9,83.7 L363.8,85.2", "M363.8,85.2 L406.6,94.0 L418.4,74.2 L433.5,69.5 L452.1,80.1 L461.3,100.4 L454.0,128.4 L442.2,125.0 L443.7,134.9 L418.5,138.0 L417.9,144.4 L420.7,156.9 L434.1,161.7 L450.1,154.8 L463.7,162.8 L488.7,157.1 L470.6,186.2 L488.3,184.7 L480.1,194.1 L490.4,198.7 L506.0,192.5 L508.4,200.4 L493.4,201.6 L486.5,214.1 L520.5,226.3 L501.8,228.3 L508.4,235.0 L495.7,246.3 L507.2,247.8 L500.8,255.4 L486.6,252.7 L485.8,264.9", "M359.5,529.8 L350.7,526.9 L334.9,544.3 L334.7,551.5 L350.4,556.8 L345.3,568.9 L353.7,568.3 L334.5,578.1 L324.7,596.8 L272.6,626.3 L271.2,610.8 L287.6,596.2 L297.2,555.6 L279.0,529.6 L279.0,510.5 L268.2,512.4 L260.5,503.4 L275.5,495.3 L280.4,510.2 L290.6,509.0 L300.7,489.7 L277.1,473.4 L264.7,480.7 L246.8,523.9 L256.9,560.3 L273.6,570.0 L268.2,586.6 L248.0,591.0 L238.1,573.5 L194.8,573.7 L196.4,561.0 L187.7,558.3 L193.9,553.5 L176.4,538.3 L185.0,534.3 L196.7,542.8 L204.8,537.2 L215.7,504.1 L212.2,489.3 L186.5,461.3 L196.4,437.0 L187.2,400.9 L196.4,392.3 L211.2,396.4 L220.2,384.1", "M485.8,264.9 L452.4,301.6 L450.9,313.8 L458.4,317.1 L446.3,319.1 L443.4,328.2 L451.5,331.5 L434.8,355.5 L417.1,418.1 L413.3,492.0 L398.1,510.5 L392.5,549.0 L376.1,546.6 L373.7,537.0 L359.5,529.8"];
+const KYUSHU_OUTLINE_PATHS = ["M219.4,183.4 L207.6,182.1 L200.2,170.5 L183.4,189.1 L178.7,186.6 L177.1,191.5 L195.9,217.5 L192.8,221.3", "M121.0,142.2 L131.9,152.1 L127.4,142.8 L134.5,128.3 L119.7,118.7 L123.6,112.3 L132.8,118.7 L130.5,97.8 L135.6,105.9 L139.4,99.0 L149.8,103.1 L146.4,113.6 L151.8,118.4 L164.2,115.4", "M220.2,384.1 L227.4,370.2 L234.0,369.9 L235.7,359.2 L242.7,357.6 L238.3,351.4 L245.5,345.7 L242.7,343.2 L257.3,329.2 L251.8,316.5 L257.2,313.6 L251.3,308.7 L267.6,294.5 L264.8,291.4 L271.2,292.3 L272.3,288.5 L237.4,293.5 L237.5,288.1 L263.3,271.6 L260.3,261.1 L264.3,255.2 L259.1,245.1 L248.6,243.0 L248.6,236.9 L234.7,230.0 L229.5,211.8", "M192.8,221.3 L192.8,226.2 L184.2,232.5 L187.9,238.5 L183.4,243.7 L209.4,236.2 L208.8,252.8 L210.6,242.7 L217.1,241.6 L223.4,255.4 L222.6,266.1 L217.5,280.5 L202.8,283.8 L198.2,292.2 L187.1,296.7 L180.0,283.2 L180.7,277.8 L192.2,270.3 L193.5,262.4 L188.8,254.3 L181.2,251.5 L162.0,261.7 L155.9,260.8 L149.9,265.3 L139.3,281.7 L129.4,286.1 L124.2,296.0 L111.8,301.0 L119.1,294.0 L130.5,269.7 L126.0,269.7 L122.7,257.9 L110.9,251.5 L102.5,242.2 L99.6,233.2 L93.3,226.3 L92.4,215.8 L98.4,211.2 L95.8,203.5 L101.1,190.8 L115.9,201.2 L116.3,206.9 L126.7,216.7 L121.1,218.0 L125.8,222.4 L121.5,241.2 L126.1,247.7 L131.7,240.5 L138.3,241.3 L139.5,236.5 L153.5,245.1 L158.1,244.0 L145.3,226.8 L150.1,213.1 L136.0,198.1 L123.1,197.3 L121.5,182.6 L114.1,181.2 L106.9,187.4 L96.4,175.3 L95.3,169.2 L101.7,161.1 L94.4,163.4 L92.1,171.9 L79.3,166.1 L84.6,151.0 L93.1,140.1 L101.2,130.2 L106.1,139.3 L121.0,142.2", "M229.5,211.8 L219.4,183.4", "M164.2,115.4 L165.2,110.0 L184.0,101.6 L186.0,96.7 L177.6,99.5 L180.7,95.2 L172.9,92.0 L182.9,89.5 L193.8,74.7 L197.7,85.2 L204.9,86.2 L205.0,92.2 L226.9,88.5 L232.1,70.5 L219.5,79.6 L208.9,75.6 L207.9,70.7 L213.5,76.1 L226.4,71.0 L238.7,57.0 L234.7,44.3 L239.7,43.5 L240.5,35.4 L247.4,34.9 L248.7,28.8 L273.2,27.5 L276.2,19.0 L287.6,21.9 L291.4,16.9 L288.7,22.5 L299.3,21.1 L296.3,28.5 L286.4,31.8 L297.1,28.5 L296.6,32.1 L304.2,21.0 L312.7,29.2 L325.0,13.9 L335.0,13.7 L325.7,45.4 L331.5,44.1 L328.5,50.5 L333.5,51.9 L332.2,57.7 L347.8,83.7 L363.8,85.2", "M363.8,85.2 L381.8,93.0 L406.5,94.0 L418.4,74.2 L433.4,69.5 L452.0,80.1 L461.2,100.4 L454.0,128.4 L442.1,125.0 L443.7,134.9 L435.5,135.8 L433.7,140.9 L418.5,138.0 L417.9,144.4 L420.6,156.9 L434.1,161.7 L450.0,154.8 L463.6,162.8 L488.6,157.1 L470.6,186.2 L488.3,184.7 L490.9,186.6 L480.1,194.1 L490.4,198.7 L495.4,192.5 L495.6,197.9 L501.0,199.6 L506.0,192.5 L508.4,200.4 L493.4,201.6 L486.4,214.1 L498.5,223.6 L501.2,219.9 L502.5,224.9 L506.2,220.9 L506.3,226.4 L511.4,221.9 L520.5,226.4 L510.5,225.6 L507.2,231.8 L501.8,228.3 L503.4,235.4 L508.4,235.0 L495.7,246.3 L507.1,247.8 L500.7,255.4 L497.8,252.1 L488.7,256.7 L486.5,252.7 L487.6,260.8 L484.7,255.5 L482.8,259.0 L485.8,264.9", "M359.5,529.8 L350.6,526.9 L334.9,544.3 L334.6,551.5 L350.4,556.8 L344.3,564.9 L345.3,568.9 L352.8,565.9 L353.7,568.3 L343.1,578.0 L334.5,578.1 L324.6,596.8 L287.5,612.6 L272.5,626.3 L275.5,614.2 L271.2,610.8 L287.6,596.2 L290.8,588.0 L288.6,581.7 L294.9,572.8 L297.1,555.6 L289.3,538.2 L279.0,529.6 L278.9,510.5 L268.3,512.4 L260.4,503.4 L266.7,496.9 L275.4,495.3 L282.1,500.7 L280.4,510.2 L287.8,510.0 L294.4,504.1 L300.6,489.7 L295.7,480.3 L285.8,479.2 L277.1,473.4 L264.6,480.7 L265.1,489.6 L255.1,502.2 L254.7,512.4 L247.6,521.2 L249.8,525.2 L246.8,523.9 L256.8,560.3 L265.8,568.2 L273.6,570.0 L271.5,580.2 L267.2,581.4 L268.1,586.6 L260.9,588.2 L259.6,592.9 L254.0,588.3 L248.0,591.0 L245.9,581.1 L238.0,573.5 L219.0,573.5 L208.1,569.6 L205.7,574.2 L194.8,573.7 L197.3,567.2 L192.5,566.9 L192.2,563.8 L196.4,561.0 L187.6,558.3 L193.9,553.5 L176.4,538.3 L181.1,539.9 L185.0,534.3 L196.6,542.8 L204.8,537.2 L213.4,519.5 L215.6,504.1 L212.3,489.3 L201.5,478.7 L201.3,474.3 L194.5,469.2 L189.8,470.6 L186.4,461.3 L196.3,437.0 L192.7,422.3 L187.6,420.5 L192.9,404.4 L187.1,400.9 L188.5,396.4 L196.3,392.3 L211.2,396.4 L218.7,390.7 L220.2,384.1", "M485.8,264.9 L479.5,270.3 L479.7,275.7 L473.9,273.5 L462.3,285.5 L466.0,286.2 L464.4,292.1 L454.9,297.7 L450.5,306.4 L450.9,313.8 L455.9,311.5 L458.4,317.1 L452.5,321.9 L446.3,319.1 L443.3,328.2 L448.4,328.5 L448.9,325.1 L450.2,329.1 L445.5,330.6 L451.4,331.5 L443.4,334.7 L440.9,348.0 L434.7,355.5 L415.7,422.8 L410.3,452.8 L416.5,463.0 L409.9,484.8 L413.2,492.0 L398.0,510.5 L399.2,525.1 L389.4,543.5 L392.4,549.0 L386.9,549.1 L385.4,544.5 L376.0,546.6 L373.6,537.0 L359.5,529.8"];
 const KYUSHU_INTERNAL_BORDERS = ["M219.4,183.4 L250.7,141.6 L205.7,113.7 L164.2,115.4", "M121.0,142.2 L125.9,174.5 L192.8,221.3", "M282.9,398.0 L350.5,385.7 L334.7,306.2 L388.9,246.9", "M220.2,384.1 L263.7,380.3 L282.9,398.0", "M303.6,190.9 L273.7,180.0 L229.5,211.8", "M388.9,246.9 L351.7,175.2 L326.3,207.5 L303.6,190.9", "M303.6,190.9 L313.2,120.3 L362.4,107.6 L363.8,85.2", "M388.9,246.9 L420.1,259.0 L481.1,249.2 L485.8,264.9", "M359.5,529.8 L367.2,505.7 L311.4,458.9 L282.9,398.0"];
 
 const KYUSHU_PREFS = [
-  { id: '40', name: '福岡県', nameEn: 'Fukuoka Prefecture', cx: 260.0, cy: 83.9, d: 'M363.8,85.2 L362.4,107.6 L313.2,120.3 L303.6,190.9 L273.7,180.0 L229.5,211.8 L230.1,197.6 L219.4,183.4 L250.7,141.6 L205.7,113.7 L164.2,115.4 L184.0,101.6 L186.0,96.7 L177.7,99.5 L173.0,92.0 L193.9,74.7 L205.0,92.2 L227.0,88.5 L232.2,70.5 L219.5,79.6 L207.9,70.7 L213.5,76.1 L226.4,71.0 L238.8,57.0 L240.5,35.4 L273.2,27.5 L276.2,19.0 L299.2,21.1 L286.5,31.8 L296.6,32.1 L300.9,22.6 L312.7,29.2 L325.1,13.9 L335.0,13.7 L325.7,45.4 L331.6,44.1 L328.5,50.5 L347.9,83.7 Z' },
-  { id: '41', name: '佐賀県', nameEn: 'Saga Prefecture', cx: 159.2, cy: 139.4, d: 'M164.2,115.4 L205.7,113.7 L250.7,141.6 L219.4,183.4 L207.7,182.1 L200.2,170.5 L178.8,186.6 L192.8,221.3 L125.9,174.5 L121.0,142.2 L131.9,152.1 L127.5,142.8 L134.6,128.3 L119.7,118.7 L123.7,112.3 L132.8,118.7 L130.6,97.8 L135.7,105.9 L139.4,99.0 L149.9,103.1 L151.8,118.4 Z' },
+  { id: '40', name: '福岡県', nameEn: 'Fukuoka Prefecture', cx: 257.2, cy: 72.4, d: 'M363.8,85.2 L362.4,107.6 L313.2,120.3 L303.6,190.9 L273.7,180.0 L229.5,211.8 L219.4,183.4 L250.7,141.6 L205.7,113.7 L164.2,115.4 L165.2,110.0 L184.0,101.6 L186.0,96.7 L177.6,99.5 L180.7,95.2 L172.9,92.0 L182.9,89.5 L193.8,74.7 L197.7,85.2 L204.9,86.2 L205.0,92.2 L226.9,88.5 L232.1,70.5 L219.5,79.6 L208.9,75.6 L207.9,70.7 L213.5,76.1 L226.4,71.0 L238.7,57.0 L234.7,44.3 L239.7,43.5 L240.5,35.4 L247.4,34.9 L248.7,28.8 L273.2,27.5 L276.2,19.0 L287.6,21.9 L291.4,16.9 L288.7,22.5 L299.3,21.1 L296.3,28.5 L286.4,31.8 L297.1,28.5 L296.6,32.1 L304.2,21.0 L312.7,29.2 L325.0,13.9 L335.0,13.7 L325.7,45.4 L331.5,44.1 L328.5,50.5 L333.5,51.9 L332.2,57.7 L347.8,83.7 Z' },
+  { id: '41', name: '佐賀県', nameEn: 'Saga Prefecture', cx: 161.8, cy: 145.6, d: 'M164.2,115.4 L205.7,113.7 L250.7,141.6 L219.4,183.4 L207.6,182.1 L200.2,170.5 L183.4,189.1 L178.7,186.6 L177.1,191.5 L195.9,217.5 L192.8,221.3 L125.9,174.5 L121.0,142.2 L131.9,152.1 L127.4,142.8 L134.5,128.3 L119.7,118.7 L123.6,112.3 L132.8,118.7 L130.5,97.8 L135.6,105.9 L139.4,99.0 L149.8,103.1 L146.4,113.6 L151.8,118.4 Z' },
   { id: '42', name: '長崎県', nameEn: 'Nagasaki Prefecture', cx: 142.0, cy: 229.0, d: 'M121.0,142.2 L125.9,174.5 L192.8,221.3 L192.8,226.2 L184.2,232.5 L187.9,238.5 L183.4,243.7 L209.4,236.2 L208.8,252.8 L210.6,242.7 L217.1,241.6 L223.4,255.4 L222.6,266.1 L217.5,280.5 L202.8,283.8 L198.2,292.2 L187.1,296.7 L180.0,283.2 L180.7,277.8 L192.2,270.3 L193.5,262.4 L188.8,254.3 L181.2,251.5 L162.0,261.7 L155.9,260.8 L149.9,265.3 L139.3,281.7 L129.4,286.1 L124.2,296.0 L111.8,301.0 L119.1,294.0 L130.5,269.7 L126.0,269.7 L122.7,257.9 L110.9,251.5 L102.5,242.2 L99.6,233.2 L93.3,226.3 L92.4,215.8 L98.4,211.2 L95.8,203.5 L101.1,190.8 L115.9,201.2 L116.3,206.9 L126.7,216.7 L121.1,218.0 L125.8,222.4 L121.5,241.2 L126.1,247.7 L131.7,240.5 L138.3,241.3 L139.5,236.5 L153.5,245.1 L158.1,244.0 L145.3,226.8 L150.1,213.1 L136.0,198.1 L123.1,197.3 L121.5,182.6 L114.1,181.2 L106.9,187.4 L96.4,175.3 L95.3,169.2 L101.7,161.1 L94.4,163.4 L92.1,171.9 L79.3,166.1 L84.6,151.0 L93.1,140.1 L101.2,130.2 L106.1,139.3 Z' },
-  { id: '43', name: '熊本県', nameEn: 'Kumamoto Prefecture', cx: 283.7, cy: 280.2, d: 'M388.9,246.9 L334.7,306.2 L350.5,385.7 L282.9,398.0 L263.7,380.3 L220.2,384.1 L257.4,329.2 L251.4,308.7 L272.4,288.5 L237.5,293.5 L263.2,271.6 L264.4,255.2 L234.7,230.0 L229.5,211.8 L273.7,180.0 L303.6,190.9 L326.3,207.5 L351.7,175.2 Z' },
-  { id: '44', name: '大分県', nameEn: 'Oita Prefecture', cx: 446.2, cy: 176.3, d: 'M485.8,264.9 L481.1,249.2 L420.1,259.0 L388.9,246.9 L351.7,175.2 L326.3,207.5 L303.6,190.9 L313.2,120.3 L362.4,107.6 L363.8,85.2 L406.6,94.0 L418.4,74.2 L433.5,69.5 L452.1,80.1 L461.3,100.4 L454.0,128.4 L442.2,125.0 L443.7,134.9 L418.5,138.0 L417.9,144.4 L420.7,156.9 L434.1,161.7 L450.1,154.8 L463.7,162.8 L488.7,157.1 L470.6,186.2 L488.3,184.7 L480.1,194.1 L490.4,198.7 L506.0,192.5 L508.4,200.4 L493.4,201.6 L486.5,214.1 L520.5,226.3 L501.8,228.3 L508.4,235.0 L495.7,246.3 L507.2,247.8 L500.8,255.4 L486.6,252.7 Z' },
-  { id: '45', name: '宮崎県', nameEn: 'Miyazaki Prefecture', cx: 403.9, cy: 388.0, d: 'M485.8,264.9 L452.4,301.6 L450.9,313.8 L458.4,317.1 L446.3,319.1 L443.4,328.2 L451.5,331.5 L434.8,355.5 L417.1,418.1 L413.3,492.0 L398.1,510.5 L392.5,549.0 L376.1,546.6 L373.7,537.0 L359.5,529.8 L367.2,505.7 L311.4,458.9 L282.9,398.0 L350.5,385.7 L334.7,306.2 L388.9,246.9 L420.1,259.0 L481.1,249.2 Z' },
-  { id: '46', name: '鹿児島県', nameEn: 'Kagoshima Prefecture', cx: 263.5, cy: 519.1, d: 'M282.9,398.0 L311.4,458.9 L367.2,505.7 L359.5,529.8 L350.7,526.9 L334.9,544.3 L334.7,551.5 L350.4,556.8 L345.3,568.9 L353.7,568.3 L334.5,578.1 L324.7,596.8 L272.6,626.3 L271.2,610.8 L287.6,596.2 L297.2,555.6 L279.0,529.6 L279.0,510.5 L268.2,512.4 L260.5,503.4 L275.5,495.3 L280.4,510.2 L290.6,509.0 L300.7,489.7 L277.1,473.4 L264.7,480.7 L246.8,523.9 L256.9,560.3 L273.6,570.0 L268.2,586.6 L248.0,591.0 L238.1,573.5 L194.8,573.7 L196.4,561.0 L187.7,558.3 L193.9,553.5 L176.4,538.3 L185.0,534.3 L196.7,542.8 L204.8,537.2 L215.7,504.1 L212.2,489.3 L186.5,461.3 L196.4,437.0 L187.2,400.9 L196.4,392.3 L211.2,396.4 L220.2,384.1 L263.7,380.3 Z' }
+  { id: '43', name: '熊本県', nameEn: 'Kumamoto Prefecture', cx: 266.8, cy: 294.9, d: 'M388.9,246.9 L334.7,306.2 L350.5,385.7 L282.9,398.0 L263.7,380.3 L220.2,384.1 L227.4,370.2 L234.0,369.9 L235.7,359.2 L242.7,357.6 L238.3,351.4 L245.5,345.7 L242.7,343.2 L257.3,329.2 L251.8,316.5 L257.2,313.6 L251.3,308.7 L267.6,294.5 L264.8,291.4 L271.2,292.3 L272.3,288.5 L237.4,293.5 L237.5,288.1 L263.3,271.6 L260.3,261.1 L264.3,255.2 L259.1,245.1 L248.6,243.0 L248.6,236.9 L234.7,230.0 L229.5,211.8 L273.7,180.0 L303.6,190.9 L326.3,207.5 L351.7,175.2 Z' },
+  { id: '44', name: '大分県', nameEn: 'Oita Prefecture', cx: 460.1, cy: 188.8, d: 'M485.8,264.9 L481.1,249.2 L420.1,259.0 L388.9,246.9 L351.7,175.2 L326.3,207.5 L303.6,190.9 L313.2,120.3 L362.4,107.6 L363.8,85.2 L381.8,93.0 L406.5,94.0 L418.4,74.2 L433.4,69.5 L452.0,80.1 L461.2,100.4 L454.0,128.4 L442.1,125.0 L443.7,134.9 L435.5,135.8 L433.7,140.9 L418.5,138.0 L417.9,144.4 L420.6,156.9 L434.1,161.7 L450.0,154.8 L463.6,162.8 L488.6,157.1 L470.6,186.2 L488.3,184.7 L490.9,186.6 L480.1,194.1 L490.4,198.7 L495.4,192.5 L495.6,197.9 L501.0,199.6 L506.0,192.5 L508.4,200.4 L493.4,201.6 L486.4,214.1 L498.5,223.6 L501.2,219.9 L502.5,224.9 L506.2,220.9 L506.3,226.4 L511.4,221.9 L520.5,226.4 L510.5,225.6 L507.2,231.8 L501.8,228.3 L503.4,235.4 L508.4,235.0 L495.7,246.3 L507.1,247.8 L500.7,255.4 L497.8,252.1 L488.7,256.7 L486.5,252.7 L487.6,260.8 L484.7,255.5 L482.8,259.0 Z' },
+  { id: '45', name: '宮崎県', nameEn: 'Miyazaki Prefecture', cx: 421.1, cy: 380.2, d: 'M485.8,264.9 L479.5,270.3 L479.7,275.7 L473.9,273.5 L462.3,285.5 L466.0,286.2 L464.4,292.1 L454.9,297.7 L450.5,306.4 L450.9,313.8 L455.9,311.5 L458.4,317.1 L452.5,321.9 L446.3,319.1 L443.3,328.2 L448.4,328.5 L448.9,325.1 L450.2,329.1 L445.5,330.6 L451.4,331.5 L443.4,334.7 L440.9,348.0 L434.7,355.5 L415.7,422.8 L410.3,452.8 L416.5,463.0 L409.9,484.8 L413.2,492.0 L398.0,510.5 L399.2,525.1 L389.4,543.5 L392.4,549.0 L386.9,549.1 L385.4,544.5 L376.0,546.6 L373.6,537.0 L359.5,529.8 L367.2,505.7 L311.4,458.9 L282.9,398.0 L350.5,385.7 L334.7,306.2 L388.9,246.9 L420.1,259.0 L481.1,249.2 Z' },
+  { id: '46', name: '鹿児島県', nameEn: 'Kagoshima Prefecture', cx: 256.2, cy: 523.4, d: 'M282.9,398.0 L311.4,458.9 L367.2,505.7 L359.5,529.8 L350.6,526.9 L334.9,544.3 L334.6,551.5 L350.4,556.8 L344.3,564.9 L345.3,568.9 L352.8,565.9 L353.7,568.3 L343.1,578.0 L334.5,578.1 L324.6,596.8 L287.5,612.6 L272.5,626.3 L275.5,614.2 L271.2,610.8 L287.6,596.2 L290.8,588.0 L288.6,581.7 L294.9,572.8 L297.1,555.6 L289.3,538.2 L279.0,529.6 L278.9,510.5 L268.3,512.4 L260.4,503.4 L266.7,496.9 L275.4,495.3 L282.1,500.7 L280.4,510.2 L287.8,510.0 L294.4,504.1 L300.6,489.7 L295.7,480.3 L285.8,479.2 L277.1,473.4 L264.6,480.7 L265.1,489.6 L255.1,502.2 L254.7,512.4 L247.6,521.2 L249.8,525.2 L246.8,523.9 L256.8,560.3 L265.8,568.2 L273.6,570.0 L271.5,580.2 L267.2,581.4 L268.1,586.6 L260.9,588.2 L259.6,592.9 L254.0,588.3 L248.0,591.0 L245.9,581.1 L238.0,573.5 L219.0,573.5 L208.1,569.6 L205.7,574.2 L194.8,573.7 L197.3,567.2 L192.5,566.9 L192.2,563.8 L196.4,561.0 L187.6,558.3 L193.9,553.5 L176.4,538.3 L181.1,539.9 L185.0,534.3 L196.6,542.8 L204.8,537.2 L213.4,519.5 L215.6,504.1 L212.3,489.3 L201.5,478.7 L201.3,474.3 L194.5,469.2 L189.8,470.6 L186.4,461.3 L196.3,437.0 L192.7,422.3 L187.6,420.5 L192.9,404.4 L187.1,400.9 L188.5,396.4 L196.3,392.3 L211.2,396.4 L218.7,390.7 L220.2,384.1 L263.7,380.3 Z' }
 ];
 
 // 離島(対馬・壱岐は長崎県、種子島・屋久島は鹿児島県)。地図の隅に区画したインセット表示用の個別座標系
@@ -403,6 +404,7 @@ export default function MairuDemo() {
   const [detourCategory, setDetourCategory] = useState('all'); // 寄り道モードのカテゴリ絞り込み
   const [linkedId, setLinkedId] = useState(null); // 地図ピン⇄リストを相互ハイライト中のスポット(1回目タップ用。選択画面・寄り道モードで共用)
   const [budget, setBudget] = useState(20000); // 予算(円)
+  const [showBudget, setShowBudget] = useState(false); // 予算バーの開閉状態(初期は閉じておき、ボタンで開閉する)
   const [travelers, setTravelers] = useState(1); // 人数
   const [myLocation, setMyLocation] = useState(null); // 取得した現在地のSVG座標 {x,y}
   const [locating, setLocating] = useState(false); // 現在地取得中フラグ
@@ -1265,6 +1267,9 @@ export default function MairuDemo() {
           display:block;
           padding-bottom:100px;
         }
+        .region-scroll.has-bottom-toolbar {
+          padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px));
+        }
         .entry-header {
           background:#fff;
           padding:40px 28px 24px;
@@ -1405,8 +1410,14 @@ export default function MairuDemo() {
         .tab { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink:0; white-space:nowrap; }
         .tab-active { border-color: var(--cat-color); background: var(--cat-color); color:#fff; }
 
-        .select-view { padding:22px 18px 96px; }
+        .select-view { padding:22px 18px; }
 
+        .budget-toggle-btn { display:flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; margin-bottom:14px; -webkit-tap-highlight-color:transparent; }
+        .budget-toggle-btn.is-over-budget { border-color:#D9534F; }
+        .budget-toggle-label { color:var(--muted); font-weight:600; }
+        .budget-toggle-amount { font-family:'JetBrains Mono', monospace; font-weight:700; }
+        .budget-toggle-chevron { transition: transform .15s ease; color:var(--muted); flex-shrink:0; }
+        .budget-toggle-chevron.is-open { transform: rotate(180deg); }
         .budget-bar { background:#F6F6F4; border-radius:14px; padding:12px 16px; margin-bottom:14px; }
         .budget-inputs-row { display:flex; align-items:stretch; gap:0; flex-wrap:nowrap; margin-bottom:8px; }
         .budget-input-row { display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:600; color:var(--ink); flex:1; padding:0 14px; }
@@ -1483,7 +1494,7 @@ export default function MairuDemo() {
 
         .map-scroll { width:100%; border-radius:18px; }
         .map-frame { position:relative; width:100%; aspect-ratio: ${VIEW_W} / ${VIEW_H}; background:#fff; border-radius:18px; overflow:hidden; box-shadow: 0 2px 12px rgba(26,46,59,0.08); }
-        .map-location-label { position:absolute; left:10px; top:10px; z-index:2; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
+        .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
         .city-outline { fill:#FFFFFF; stroke:#23262B; stroke-width:2.2; stroke-linejoin:round; stroke-linecap:round; }
 
@@ -1561,11 +1572,11 @@ export default function MairuDemo() {
         .chip button { background:none; border:none; display:flex; cursor:pointer; color:inherit; padding:0; }
         .dock-empty { font-size:12px; color:var(--muted); }
 
-        .route-fab-cluster { position:fixed; right:20px; bottom:20px; z-index:40; display:flex; flex-direction:row; align-items:center; gap:10px; }
-        .route-fab { display:flex; align-items:center; gap:7px; padding:14px 20px; border-radius:999px; border:1px solid rgba(255,255,255,0.5); background:rgba(33,38,44,0.78); backdrop-filter:blur(3px); color:#fff; font-size:13.5px; font-weight:700; letter-spacing:0.02em; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.28); }
-        .route-fab:disabled { background:rgba(201,204,209,0.7); border-color:transparent; color:var(--muted); box-shadow:none; cursor:not-allowed; }
-        .fab-secondary { display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:999px; border:1px solid rgba(255,255,255,0.5); background:rgba(33,38,44,0.62); backdrop-filter:blur(3px); color:#fff; font-size:12.5px; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.18); }
-        .fab-secondary.is-open { background:rgba(33,38,44,0.85); }
+        .bottom-toolbar { position:fixed; left:18px; right:18px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); z-index:40; display:flex; background:#fff; border-radius:18px; overflow:hidden; }
+        .bottom-toolbar-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:14px 10px; border-radius:0; border:none; background:transparent; color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+        .bottom-toolbar-btn.is-active { background:#F3F3F1; color:var(--ink); }
+        .bottom-toolbar-btn-primary { background:#E2613D; color:#fff; font-weight:700; }
+        .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
         .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:28px 16px; }
@@ -1676,7 +1687,7 @@ export default function MairuDemo() {
         .budget-warning-text { font-size:11.5px; color:#D9534F; background:#FBEAEA; padding:8px 10px; border-radius:8px; margin:0 0 14px; line-height:1.5; }
         .detail-meta { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:5px; margin:0 0 16px; }
         .detail-actions { display:flex; gap:8px; }
-        .action-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px; border-radius:9px; border:1.5px solid transparent; background:#EFEFEC; color:var(--ink); font-size:12px; font-weight:700; cursor:pointer; }
+        .action-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px; border-radius:999px; border:1.5px solid transparent; background:#EFEFEC; color:var(--ink); font-size:13px; font-weight:700; cursor:pointer; }
         .action-btn.action-active { background:var(--cat-color); color:#fff; }
 
         .route-view { padding:24px 18px 50px; }
@@ -1776,7 +1787,7 @@ export default function MairuDemo() {
 
         @media (max-width:560px) {
           .header { padding:14px 16px; }
-          .select-view { padding:16px 16px 88px; }
+          .select-view { padding:16px; }
           .route-view { padding:18px 16px 40px; }
           .spot-pin { --pin-size: 22px; }
           .spot-index-name { font-size:10.5px; }
@@ -1788,9 +1799,8 @@ export default function MairuDemo() {
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
           .region-map-frame { --frame-pad:18px; }
-          .route-fab-cluster { right:14px; bottom:14px; gap:6px; }
-          .route-fab { padding:12px 16px; font-size:12.5px; }
-          .fab-secondary { padding:8px 11px; font-size:11px; }
+          .bottom-toolbar { left:16px; right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
+          .bottom-toolbar-btn { padding:11px 6px; font-size:10.5px; gap:4px; }
 
           .budget-bar { padding:10px 10px; }
           .budget-inputs-row { flex-wrap:nowrap; gap:0; }
@@ -2238,7 +2248,7 @@ export default function MairuDemo() {
         const cityName = cityMap ? (lang === 'en' ? cityMap.nameEn : cityMap.name) : selectedCity;
         const isIsahaya = selectedCity === '42204';
         return (
-          <div className="entry-view region-scroll">
+          <div className={`entry-view region-scroll ${isIsahaya && view === 'select' ? 'has-bottom-toolbar' : ''}`}>
             <div className="entry-header">
               <div className="entry-header-row">
                 <div className="entry-header-text">
@@ -2315,6 +2325,20 @@ export default function MairuDemo() {
 
       {view === 'select' && (
         <main className="select-view">
+          <button
+            type="button"
+            className={`budget-toggle-btn ${remainingBudget < 0 ? 'is-over-budget' : ''}`}
+            onClick={() => setShowBudget((v) => !v)}
+            aria-expanded={showBudget}
+          >
+            <Wallet size={14} />
+            <span className="budget-toggle-label">{lang === 'en' ? 'Budget' : '予算'}</span>
+            <span className={`budget-toggle-amount ${remainingBudget < 0 ? 'over-budget-text' : ''}`}>
+              {lang === 'en' ? `¥${remainingBudget.toLocaleString()} left` : `残り ¥${remainingBudget.toLocaleString()}`}
+            </span>
+            <ChevronDown size={14} className={`budget-toggle-chevron ${showBudget ? 'is-open' : ''}`} />
+          </button>
+          {showBudget && (
           <div className="budget-bar">
             <div className="budget-inputs-row">
               <label className="budget-input-row">
@@ -2393,6 +2417,7 @@ export default function MairuDemo() {
               </p>
             )}
           </div>
+          )}
 
           <div className="mode-switch" role="group" aria-label={lang === 'en' ? 'Switch display mode' : '表示方法を切り替え'}>
             <button className={selectMode === 'map' ? 'active' : ''} onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}>
@@ -2415,7 +2440,11 @@ export default function MairuDemo() {
             <>
               <div className="map-scroll">
                 <div className="map-frame">
-                  <span className="map-location-label">{lang === 'en' ? 'Nagasaki Pref., Isahaya City' : '長崎県 諫早市'}</span>
+                  <span className="map-location-label">
+                    <span>{lang === 'en' ? 'Nagasaki Pref.' : '長崎県'}</span>
+                    <span className="lang-toggle-sep">/</span>
+                    <span>{lang === 'en' ? 'Isahaya City' : '諫早市'}</span>
+                  </span>
                   <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="map-svg" aria-hidden="true">
                     <path
                       d={ISAHAYA_OUTLINE_PATH}
@@ -2464,15 +2493,8 @@ export default function MairuDemo() {
                 </div>
               </div>
 
+              {(travelFromMe || locationError) && (
               <div className="locate-row">
-                <button className="locate-btn" onClick={() => locateMe()} disabled={locating}>
-                  <Navigation size={13} />
-                  {locating
-                    ? (lang === 'en' ? 'Locating…' : '取得中…')
-                    : myLocation
-                      ? (lang === 'en' ? 'Update my location' : '現在地を更新')
-                      : (lang === 'en' ? 'Show my location' : '現在地を表示')}
-                </button>
                 {myLocation && travelFromMe && (
                   <div className="locate-travel-panel">
                     <span className="locate-travel-distance">{lang === 'en' ? `${travelFromMe.km.toFixed(1)} km` : `約${travelFromMe.km.toFixed(1)}km`}</span>
@@ -2484,6 +2506,7 @@ export default function MairuDemo() {
                 )}
                 {locationError && <p className="locate-error">{locationError}</p>}
               </div>
+              )}
 
               <div className="spot-index-grid">
                 {visibleSpots.map((spot) => {
@@ -2535,22 +2558,29 @@ export default function MairuDemo() {
       )}
 
       {view === 'select' && (
-        <div className="route-fab-cluster">
+        <div className="bottom-toolbar">
+          <button className="bottom-toolbar-btn" onClick={() => setAppStage('region')}>
+            {lang === 'en' ? '← Back' : '← 戻る'}
+          </button>
+          <button className={`bottom-toolbar-btn ${myLocation ? 'is-active' : ''}`} onClick={() => locateMe()} disabled={locating}>
+            <Navigation size={14} />
+            {locating ? (lang === 'en' ? 'Locating…' : '取得中…') : (lang === 'en' ? 'Locate' : '現在地')}
+          </button>
           <button
-            className={`fab-secondary ${selectMode === 'candidates' ? 'is-open' : ''}`}
+            className={`bottom-toolbar-btn ${selectMode === 'candidates' ? 'is-active' : ''}`}
             onClick={() => setSelectMode('candidates')}
           >
             <Star size={15} /> {lang === 'en' ? 'Saved' : '候補'} {candidates.length > 0 && `(${candidates.length})`}
           </button>
           <button
-            className={`fab-secondary ${selectMode === 'decided' ? 'is-open' : ''}`}
+            className={`bottom-toolbar-btn ${selectMode === 'decided' ? 'is-active' : ''}`}
             onClick={() => setSelectMode('decided')}
           >
             <Check size={15} /> {lang === 'en' ? 'Picked' : '決定'} {decided.length > 0 && `(${decided.length})`}
           </button>
-          <button className="route-fab" disabled={!canCreateRoute || calculating} onClick={buildRoute}>
-            <Route size={18} />
-            {lang === 'en' ? 'Create route' : 'ルート作成'}
+          <button className="bottom-toolbar-btn bottom-toolbar-btn-primary" disabled={!canCreateRoute || calculating} onClick={buildRoute}>
+            <Route size={16} />
+            {lang === 'en' ? 'Create route' : 'ルート検索'}
           </button>
         </div>
       )}
@@ -3147,9 +3177,11 @@ export default function MairuDemo() {
             </>
             )}
 
+            {!(isIsahaya && view === 'select') && (
             <button className="floating-back-btn" onClick={() => setAppStage('region')}>
               {lang === 'en' ? '← Back' : '← 戻る'}
             </button>
+            )}
           </div>
         );
       })()}
