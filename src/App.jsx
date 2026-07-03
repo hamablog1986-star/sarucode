@@ -305,6 +305,7 @@ function minutesForMode(d, mode) {
 }
 const MODE_LABEL = { walk: { ja: '徒歩', en: 'Walk' }, bus: { ja: '公共機関', en: 'Public transit' }, taxi: { ja: '車', en: 'Car' } };
 const MODE_ICON = { walk: Footprints, bus: Bus, taxi: Car };
+const MODE_COLOR = { walk: '#9AA0A6', bus: '#3B5E91', taxi: '#E2613D' };
 function addMinutes(timeStr, mins) {
   const [h, m] = timeStr.split(':').map(Number);
   const total = h * 60 + m + mins;
@@ -1618,7 +1619,7 @@ function MairuDemoInner() {
 
         .locate-btn { display:flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; flex-shrink:0; }
         .locate-btn.is-active { background:var(--ink); border-color:var(--ink); color:#fff; }
-        .start-actions-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+        .start-actions-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .locate-btn:disabled { opacity:0.6; cursor:not-allowed; }
         .locate-travel-panel { display:flex; align-items:center; gap:7px; flex:1; min-width:0; padding:6px 12px; border-radius:999px; background:#F6F6F4; overflow-x:auto; }
         .locate-travel-distance { font-size:11.5px; font-weight:700; color:var(--ink); white-space:nowrap; flex-shrink:0; }
@@ -1755,13 +1756,12 @@ function MairuDemoInner() {
         .action-btn.action-active { background:var(--cat-color); color:#fff; }
 
         .route-view { padding:16px 22px 50px; }
-        .route-actions { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+        .route-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
         .route-action-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); font-size:13px; font-weight:500; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; white-space:nowrap; }
         .route-action-btn.active { background:var(--ink); border-color:var(--ink); color:#fff; font-weight:700; }
         .summary-label { display:block; font-size:11px; color:var(--muted); margin-bottom:2px; }
         .summary-value { font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; white-space:nowrap; }
-        .timeline-stop.timeline-stop-start { align-items:center; }
-        .start-actions { display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:auto; flex-shrink:0; text-align:right; }
+        .start-actions { display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; margin-left:auto; padding-left:10px; flex-shrink:0; text-align:right; }
         .locate-origin-reset { background:none; border:none; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; cursor:pointer; padding:0; }
 
         .trip-date-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:20px; }
@@ -1803,37 +1803,44 @@ function MairuDemoInner() {
         .route-stop-marker.is-hotel { width:30px; height:30px; }
         .route-map-caption { font-size:11px; color:var(--muted); margin-top:12px; text-align:center; }
 
-        .timeline { display:flex; flex-direction:column; gap:2px; }
-        .timeline-stop {
-          display:flex;
-          align-items:center;
-          gap:14px;
-          padding:16px;
+        .timeline { display:flex; flex-direction:column; gap:8px; }
+        .t-row { display:flex; align-items:stretch; gap:0; }
+        .t-row-stop { gap:10px; }
+        .t-row-stop {
+          background:#fff;
+          border:1.5px solid var(--line);
           border-radius:14px;
-          background:#F6F6F4;
+          padding:0 14px;
+          box-shadow:0 2px 6px rgba(26,46,59,0.05);
+          flex-wrap:wrap;
         }
-        .timeline-stop.clickable { cursor:pointer; transition: background .15s; -webkit-tap-highlight-color: transparent; }
+        .t-node-col { position:relative; flex-shrink:0; width:44px; display:flex; align-items:center; justify-content:center; }
+        .t-row-travel .t-node-col::before {
+          content:'';
+          position:absolute;
+          top:0; bottom:0; left:50%;
+          width:3px;
+          margin-left:-1.5px;
+          background:var(--mode-color);
+        }
+        .t-node { position:relative; z-index:1; flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
+        .t-mode-badge { position:relative; z-index:1; flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; border:2.5px solid var(--mode-color); display:flex; align-items:center; justify-content:center; color:var(--mode-color); box-shadow:0 0 0 4px #EFF1F2; }
+        .t-content-col { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:4px; padding:14px 0; }
+        .t-time-inline { font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600; color:#7C828A; }
+        .t-time-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .t-row-stop.clickable { cursor:pointer; transition: border-color .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent; }
         @media (hover: hover) and (pointer: fine) {
-          .timeline-stop.clickable:hover { background:#ECECE8; }
+          .t-row-stop.clickable:hover { border-color:#C7CBD1; box-shadow:0 3px 10px rgba(26,46,59,0.09); }
         }
-        .stop-chevron { flex-shrink:0; color:#B7BBC0; }
-        .timeline-travel {
-          display:flex;
-          align-items:center;
-          gap:12px;
-          padding:10px 16px 10px 0;
-          margin-left:34px;
-          border-left:2px dashed var(--line);
-        }
-        .stop-dot { flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
-        .travel-icon-wrap { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; box-shadow:0 0 0 1.5px var(--line) inset; display:flex; align-items:center; justify-content:center; color:var(--ink); margin-left:-13px; }
-        .stop-content { display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
-        .stop-name { font-weight:700; font-size:16px; line-height:1.3; }
-        .stop-time-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .stop-time { font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:600; color:var(--ink); letter-spacing:0.01em; }
-        .stop-stay-badge { font-size:10.5px; font-weight:600; color:#5B616A; background:#fff; border-radius:999px; padding:2px 8px; }
-        .travel-info { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; flex:1; min-width:0; background:#fff; border-radius:10px; padding:7px 10px; }
-        .travel-label { font-size:12.5px; color:#5B616A; font-weight:500; }
+        .stop-chevron { flex-shrink:0; align-self:center; color:#B7BBC0; margin-left:6px; }
+        .stop-name { font-weight:800; font-size:15.5px; line-height:1.3; }
+        .stop-stay-badge { font-size:10.5px; font-weight:600; color:#5B616A; background:#F6F6F4; border-radius:999px; padding:2px 8px; }
+        .t-card-actions { display:flex; flex-direction:row; align-items:center; gap:6px; margin-left:auto; padding-left:10px; flex-shrink:0; }
+        .t-card-action-btn-confirm { margin-left:0; }
+        .t-card-action-btn { display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:11px; font-weight:600; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; }
+        .t-card-action-btn.active { background:#E9F3EC; border-color:#3F8753; color:#2E7D4F; }
+        .travel-info { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+        .travel-label { font-size:12px; color:var(--mode-color); font-weight:700; }
         .mode-toggle { display:flex; align-items:center; gap:5px; }
         .mode-toggle-divider { width:1px; height:18px; background:var(--line); margin:0 2px; }
         .mode-btn { display:flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:#5B616A; cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; }
@@ -1853,6 +1860,7 @@ function MairuDemoInner() {
           .mode-switch-wrap { padding:0 16px; }
           .select-view { padding:16px; }
           .route-view { padding:14px 16px 40px; }
+          .route-action-btn { padding:7px 12px; font-size:12px; gap:5px; }
           .spot-pin { --pin-size: 22px; }
           .spot-index-name { font-size:10.5px; }
 
@@ -1879,15 +1887,13 @@ function MairuDemoInner() {
           .locate-travel-chip { font-size:10.5px; }
           .locate-error { order:4; }
 
-          .timeline-stop { padding:14px; gap:12px; }
-          .timeline-stop.timeline-stop-start { flex-wrap:wrap; }
-          .start-actions { align-items:flex-start; text-align:left; margin-left:44px; width:100%; }
-          .timeline-travel { padding:8px 14px 8px 0; margin-left:30px; }
-          .stop-dot { width:32px; height:32px; }
-          .travel-icon-wrap { margin-left:-11px; }
-          .stop-name { font-size:15px; }
+          .t-time-col { width:44px; padding:12px 6px 12px 0; }
+          .t-time-big { font-size:13px; }
+          .t-node-col { width:36px; }
+          .t-node { width:32px; height:32px; }
+          .t-content-col { padding:12px 0; }
+          .stop-name { font-size:14.5px; }
           .mode-btn { width:28px; height:28px; }
-          .travel-info { padding:6px 8px; }
         }
         @media (max-width:380px) {
           .budget-input-row { font-size:9.5px; padding:0 4px; }
@@ -2721,46 +2727,50 @@ function MairuDemoInner() {
                 const legIndex = (idx - 1) / 2;
                 const ActiveIcon = MODE_ICON[item.mode];
                 return (
-                  <div key={idx} className="timeline-travel">
-                    <span className="travel-icon-wrap"><ActiveIcon size={13} /></span>
-                    <div className="travel-info">
-                      <span className="travel-label">
-                        {modeLabel(item.mode)} ・ {lang === 'en' ? `approx. ${item.minutes} min` : `約${item.minutes}分`} ・ {item.distance}km
-                      </span>
-                      <div className="mode-toggle" role="group" aria-label={lang === 'en' ? 'Choose transport mode' : '移動手段を選択'}>
-                        {['walk', 'bus', 'taxi'].map((m) => {
-                          const MIcon = MODE_ICON[m];
-                          return (
-                            <button
-                              key={m}
-                              className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
-                              onClick={() => updateLegMode(legIndex, m)}
-                              aria-label={modeLabel(m)}
-                              title={modeLabel(m)}
-                              aria-pressed={item.mode === m}
-                            >
-                              <MIcon size={15} />
-                            </button>
-                          );
-                        })}
-                        <span className="mode-toggle-divider" />
-                        <button
-                          className="mode-btn"
-                          aria-label="ナビ"
-                          title="ナビ"
-                          onClick={() => {
-                            const leg = naviLegs[legIndex];
-                            if (!leg) return;
-                            const ok = window.confirm(
-                              lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
+                  <div key={idx} className="t-row t-row-travel" style={{ '--mode-color': MODE_COLOR[item.mode] }}>
+                    <div className="t-node-col">
+                      <span className="t-mode-badge"><ActiveIcon size={13} /></span>
+                    </div>
+                    <div className="t-content-col">
+                      <div className="travel-info">
+                        <span className="travel-label">
+                          {modeLabel(item.mode)} ・ {lang === 'en' ? `approx. ${item.minutes} min` : `約${item.minutes}分`} ・ {item.distance}km
+                        </span>
+                        <div className="mode-toggle" role="group" aria-label={lang === 'en' ? 'Choose transport mode' : '移動手段を選択'}>
+                          {['walk', 'bus', 'taxi'].map((m) => {
+                            const MIcon = MODE_ICON[m];
+                            return (
+                              <button
+                                key={m}
+                                className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
+                                onClick={() => updateLegMode(legIndex, m)}
+                                aria-label={modeLabel(m)}
+                                title={modeLabel(m)}
+                                aria-pressed={item.mode === m}
+                              >
+                                <MIcon size={15} />
+                              </button>
                             );
-                            if (ok) {
-                              window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
-                            }
-                          }}
-                        >
-                          <Compass size={15} />
-                        </button>
+                          })}
+                          <span className="mode-toggle-divider" />
+                          <button
+                            className="mode-btn"
+                            aria-label="ナビ"
+                            title="ナビ"
+                            onClick={() => {
+                              const leg = naviLegs[legIndex];
+                              if (!leg) return;
+                              const ok = window.confirm(
+                                lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
+                              );
+                              if (ok) {
+                                window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
+                              }
+                            }}
+                          >
+                            <Compass size={15} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2771,34 +2781,52 @@ function MairuDemoInner() {
               const isStop = !isStart && !isEnd;
               const dotColor = isStart ? '#9AA0A6' : isEnd ? CATEGORY_META.lodging.color : CATEGORY_META[item.category].color;
               const StopIcon = isStart ? Navigation : isEnd ? CATEGORY_META.lodging.icon : CATEGORY_META[item.category].icon;
+              const timeInline = isStart
+                ? (lang === 'en' ? `Depart ${item.time}` : `${item.time} 出発`)
+                : isEnd
+                  ? (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)
+                  : (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 着`);
+              const isDestination = isStop || isEnd;
+              const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
+              const destIsReserved = isDestination && reserved.includes(item.spotId);
               return (
                 <div
                   key={idx}
-                  className={`timeline-stop ${isStop ? 'clickable' : ''} ${isStart ? 'timeline-stop-start' : ''}`}
-                  onClick={isStop ? () => setSelectedId(item.spotId) : undefined}
+                  className={`t-row t-row-stop ${isDestination ? 'clickable' : ''}`}
+                  onClick={isDestination ? () => setSelectedId(item.spotId) : undefined}
                 >
-                  <span className="stop-dot" style={{ background: dotColor }}><StopIcon size={14} /></span>
-                  <div className="stop-content">
+                  <div className="t-node-col">
+                    <span className="t-node" style={{ background: dotColor }}><StopIcon size={15} /></span>
+                  </div>
+                  <div className="t-content-col">
                     <span className="stop-name">{item.label}</span>
-                    <div className="stop-time-row">
-                      <span className="stop-time">
-                        {isStart && (lang === 'en' ? `Depart ${item.time}` : `${item.time} 出発`)}
-                        {isEnd && (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)}
-                        {isStop && (
-                          lang === 'en'
-                            ? `${item.arrive} → ${item.depart}`
-                            : `${item.arrive} 着 → ${item.depart} 発`
-                        )}
-                      </span>
+                    <div className="t-time-row">
+                      <span className="t-time-inline">{timeInline}</span>
                       {isStop && (
-                        <span className="stop-stay-badge">{lang === 'en' ? `${item.stay} min` : `滞在${item.stay}分`}</span>
+                        <span className="stop-stay-badge">{lang === 'en' ? `Stay ${item.stay} min` : `滞在${item.stay}分`}</span>
                       )}
                     </div>
                   </div>
-                  {isStop && <ChevronRight size={16} className="stop-chevron" />}
+                  {isDestination && (
+                    <div className="t-card-actions">
+                      {destSpot && needsReservation(destSpot) && (
+                        <button
+                          className={`t-card-action-btn ${destIsReserved ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleReserved(item.spotId); }}
+                        >
+                          <Calendar size={12} /> {destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
+                        </button>
+                      )}
+                      <button
+                        className="t-card-action-btn t-card-action-btn-confirm"
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.spotId); }}
+                      >
+                        <ChevronRight size={12} /> {lang === 'en' ? 'Details' : '確認'}
+                      </button>
+                    </div>
+                  )}
                   {isStart && (
                     <div className="start-actions">
-                      <div className="start-actions-row">
                         <button
                           className="locate-btn"
                           onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); }}
@@ -2811,24 +2839,23 @@ function MairuDemoInner() {
                               ? (lang === 'en' ? 'Update my location' : '現在地を更新')
                               : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
                         </button>
-                      </div>
-                      {(originIsMyLocation || originIsCustom) && (
-                        <button
-                          className="locate-origin-reset"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setRouteOrigin('airport');
-                            setCustomOriginName('');
-                            const { stops, distances, modes } = computeRouteFrom(AIRPORT);
-                            setRouteStops(stops);
-                            setLegDistances(distances);
-                            setLegModes(modes);
-                          }}
-                        >
-                          {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
-                        </button>
-                      )}
-                      {locationError && <p className="locate-error">{locationError}</p>}
+                        {(originIsMyLocation || originIsCustom) && (
+                          <button
+                            className="locate-origin-reset"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRouteOrigin('airport');
+                              setCustomOriginName('');
+                              const { stops, distances, modes } = computeRouteFrom(AIRPORT);
+                              setRouteStops(stops);
+                              setLegDistances(distances);
+                              setLegModes(modes);
+                            }}
+                          >
+                            {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
+                          </button>
+                        )}
+                        {locationError && <p className="locate-error">{locationError}</p>}
                     </div>
                   )}
                 </div>
