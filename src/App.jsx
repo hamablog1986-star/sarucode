@@ -4373,6 +4373,9 @@ function MairuDemoInner() {
               <div className="region-map-frame nagasaki-sea-bg" style={{ aspectRatio: `${prefViewBox.w} / ${prefViewBox.h}` }}>
                 <span className="map-location-label">{lang === 'en' ? prefNameEn : prefName}</span>
                 <svg viewBox={`${prefViewBox.x} ${prefViewBox.y} ${prefViewBox.w} ${prefViewBox.h}`} className="map-svg" aria-hidden="true">
+                  {KYUSHU_PREFS.filter((p) => p.id !== selectedPrefId).map((p) => (
+                    <path key={`neighbor-${p.id}`} d={p.d} className="neighbor-muni-outline" />
+                  ))}
                   {prefOutlinePaths.map((d, i) => (
                     <path key={`land-${i}`} d={d} className="region-land-fill" />
                   ))}
