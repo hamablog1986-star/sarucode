@@ -5812,23 +5812,26 @@ function MairuDemoInner() {
   }, [appStage, purposeCategory, purposePrefId]);
 
   // 地図の「道の駅」ピン表示用: 九州ページでONにした場合は全県分、県ページでONにした場合はその県分だけ取得する。
+  // CITY_CONFIGSにはまだ一部の市町村しか登録されていないため、道の駅は
+  // KYUSHU_MUNICIPALITIES(全市町村のリスト)を使って、conotavi.com/data/○○市.json を
+  // 市町村名で直接取得する(各市町村のデータファイルには、その市町村の道の駅も含まれている)。
   useEffect(() => {
     if (!showRoadsidePins) return;
     if (appStage !== 'kyushu' && appStage !== 'region') return;
     let cancelled = false;
     setRoadsideMapLoading(true);
 
-    const cityIds = appStage === 'region'
-      ? Object.keys(CITY_CONFIGS).filter((id) => CITY_CONFIGS[id].prefId === selectedPrefId)
-      : Object.keys(CITY_CONFIGS);
+    const targetMunis = appStage === 'region'
+      ? KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId)
+      : KYUSHU_MUNICIPALITIES;
 
     Promise.all(
-      cityIds.map((cityId) => {
-        const cfg = CITY_CONFIGS[cityId];
-        return fetch(cfg.dataUrl)
+      targetMunis.map((m) => {
+        const url = `https://conotavi.com/data/${encodeURIComponent(m.name)}.json`;
+        return fetch(url)
           .then((r) => (r.ok ? r.json() : []))
           .then((rows) => (Array.isArray(rows) ? rows : []))
-          .then((rows) => rows.map((row) => ({ ...row, cityId, prefId: cfg.prefId })))
+          .then((rows) => rows.map((row) => ({ ...row, cityId: m.id ?? m.name, prefId: m.prefId })))
           .catch(() => []);
       })
     ).then((results) => {
