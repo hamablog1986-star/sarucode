@@ -5186,18 +5186,12 @@ function MairuDemoInner() {
     const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
     if (!munis.length) return;
     const fvb = computePannableViewBox(rvb, munis);
-    // 市町村の図形データ(パス)には、その市町村が管轄する離島が地続きのまま
-    // 埋め込まれていることがあり、図形の実描画範囲(getBBox等)で中心を求めると
-    // その離島に引きずられてしまう。そのため、図形ではなく各市町村の代表点(cx/cy)を使い、
-    // さらに県の「本島クロップ範囲(regionViewBox)」内にある代表点だけに絞ることで、
-    // 長崎県・鹿児島県のような本島から離れた別市町村としての離島(対馬・種子島等)も
-    // 正しく除外しつつ、本当の本島の中心を求める。
-    const withinRegion = munis.filter((m) => m.cx >= rvb.x && m.cx <= rvb.x + rvb.w && m.cy >= rvb.y && m.cy <= rvb.y + rvb.h);
-    const use = withinRegion.length ? withinRegion : munis;
-    const xs = use.map((m) => m.cx);
-    const ys = use.map((m) => m.cy);
-    const mainlandCx = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const mainlandCy = (Math.min(...ys) + Math.max(...ys)) / 2; // 本島(離島を除く)の縦横それぞれの中心
+    // 県ごとに用意されている表示範囲(regionViewBox)自体が、その県の本島を
+    // 綺麗に収める形であらかじめ調整されているため、中心もそのままその範囲の中心を使う。
+    // (市町村の代表点から計算し直すと、県によって市町村の分布に偏りがあり、
+    // 長崎県・福岡県・宮崎県・鹿児島県などでズレが生じていたため)
+    const mainlandCx = rvb.x + rvb.w / 2;
+    const mainlandCy = rvb.y + rvb.h / 2;
     const apply = () => {
       // ウィンドウの縦横比を固定したことで、X方向とY方向の拡大率が異なる場合があるため、別々に計算する
       const scaleX = el.scrollWidth / fvb.w;
@@ -7065,11 +7059,11 @@ function MairuDemoInner() {
         .kyushu-fullmap-view { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; background:#D9E8F0; }
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
-        .kyushu-float-header { position:absolute; top:14px; left:14px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; box-shadow:0 2px 10px rgba(26,46,59,0.12); }
+        .kyushu-float-header { position:absolute; top:14px; left:14px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
         .kyushu-float-title-btn { background:none; border:none; padding:0; cursor:pointer; }
         .kyushu-float-title { font-size:16px; font-weight:800; color:#1A2E3B; margin:0; letter-spacing:0.03em; }
         .kyushu-float-lang { display:flex; align-items:center; gap:4px; }
-        .kyushu-float-tabs { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; margin:0; box-shadow:0 2px 10px rgba(26,46,59,0.12); }
+        .kyushu-float-tabs { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; margin:0; }
         .kyushu-float-tabs button { padding:8px 12px; }
         .show-names-inline-btn.icon-only { display:inline-flex; align-items:center; justify-content:center; }
         @media (max-width:560px) {
@@ -7081,7 +7075,7 @@ function MairuDemoInner() {
         .map-scroll.muni-fullmap-scroll { position:fixed; inset:0; width:100%; height:100vh; height:100dvh; margin-bottom:0; border-radius:0; z-index:1; background:#D9E8F0; }
         .map-frame-wrap.muni-fullmap-frame-wrap { position:relative; width:100%; height:100%; }
         .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
-        .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; box-shadow:0 2px 10px rgba(26,46,59,0.12); max-width:calc(100% - 32px); }
+        .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; max-width:calc(100% - 32px); }
         .tabs-on-frame.muni-float-category-tabs .tabs { margin:0; }
         .entry-fullmap-view { background:#D9E8F0; }
         .entry-fullmap-view .kyushu-float-header {
@@ -7104,8 +7098,8 @@ function MairuDemoInner() {
           padding:16px 20px; justify-content:space-between;
           box-shadow:none; z-index:10;
         }
-        .kyushu-topbar-view .kyushu-float-title { font-size:22px; color:#1A2E3B; text-shadow:0 1px 4px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.7); }
-        .kyushu-topbar-view .kyushu-float-lang { background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; box-shadow:0 1px 6px rgba(0,0,0,0.1); }
+        .kyushu-topbar-view .kyushu-float-title { font-size:22px; color:#1A2E3B; }
+        .kyushu-topbar-view .kyushu-float-lang { background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt { color:var(--muted); }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt.active { color:var(--ink); }
         .kyushu-topbar-view .kyushu-float-tabs { top:80px; flex-wrap:nowrap; }
@@ -7134,7 +7128,7 @@ function MairuDemoInner() {
         }
         .entry-fullmap-bg { position:absolute; inset:0; z-index:0; }
         .entry-cards-float { position:absolute; left:0; right:0; top:92px; z-index:5; padding:0 18px; max-width:460px; margin:0 auto; }
-        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:rgba(255,255,255,0.92); border-radius:999px; box-shadow:0 2px 10px rgba(26,46,59,0.12); }
+        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:rgba(255,255,255,0.92); border-radius:999px; }
         .entry-footer-wrap.kyushu-footer-float {
           left:0; right:0; bottom:14px; transform:none; width:100%; height:32px;
           border-radius:0; background:transparent;
@@ -7142,7 +7136,7 @@ function MairuDemoInner() {
         }
         .entry-footer-float .entry-footer-links { background:none; padding:8px 18px; }
         .kyushu-footer-float .entry-footer-links { background:none; padding:0 18px; }
-        .kyushu-footer-float .entry-footer-link { text-shadow:0 1px 4px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.7); }
+        .kyushu-footer-float .entry-footer-link { }
         .kyushu-footer-float.kyushu-float-header-dimmed .entry-footer-links { background:none; }
         .kyushu-footer-float.kyushu-float-header-dimmed .entry-footer-link { color:#fff; text-shadow:none; }
         @media (max-width:560px) {
@@ -7153,11 +7147,11 @@ function MairuDemoInner() {
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .show-names-inline-btn { font-size:11px; font-weight:700; color:var(--ink); background:none; border:none; padding:0; cursor:pointer; pointer-events:auto; }
         .map-toggle-group { position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; }
-        .map-zoom-group { position:absolute; right:10px; bottom:10px; z-index:2; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; box-shadow:0 1px 6px rgba(0,0,0,0.1); }
+        .map-zoom-group { position:absolute; right:10px; bottom:10px; z-index:2; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; }
         .zoom-btn { width:auto; height:auto; border:none; background:none; color:var(--ink); font-size:16px; font-weight:700; line-height:1; cursor:pointer; box-shadow:none; padding:0; }
         .zoom-btn:disabled { opacity:0.4; cursor:default; }
         .locate-me-btn { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:#1F6E45; background:rgba(255,255,255,0.55); border:1px solid var(--line); padding:5px 10px; border-radius:999px; cursor:pointer; }
-        .map-toggle-group-solid .locate-me-btn { background:rgba(255,255,255,0.96); box-shadow:0 1px 6px rgba(0,0,0,0.15); }
+        .map-toggle-group-solid .locate-me-btn { background:rgba(255,255,255,0.96); }
         .locate-me-btn.icon-only { padding:8px; width:32px; height:32px; justify-content:center; position:relative; }
         .icon-label-peek {
           position:absolute; right:100%; top:50%; transform:translateY(-50%);
@@ -7791,7 +7785,7 @@ function MairuDemoInner() {
                       const effectiveH = kyushuMapSize.h; // 地図はヘッダー・フッターの裏まで全面表示(余白は拡大率側で調整)
                       const scaleW = effectiveW / kyushuSizingBox.w;
                       const scaleH = effectiveH / kyushuSizingBox.h; // 本島基準の拡大率(奄美群島の分は含めない)
-                      const scale = Math.min(scaleW, scaleH); // 本島全体が画面に収まるようにする(はみ出させない)
+                      const scale = Math.min(scaleW, scaleH) * 1.15; // 少しだけ大きめに表示して画面を埋める(端は多少見切れる)
                       wPct = (scale * kyushuPanBox.w / effectiveW) * 100;
                       hPct = (scale * kyushuPanBox.h / effectiveH) * 100;
                     }
