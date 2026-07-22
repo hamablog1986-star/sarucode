@@ -5229,8 +5229,7 @@ function MairuDemoInner() {
     const prefViewBox = currentPref.regionViewBox;
     const fvbBase = computePannableViewBox(prefViewBox, munis);
     // 端の市町村でも中央まで持って来られるよう、本島サイズを基準に余白を広げる(県ページの表示計算と同じロジック)
-    const mainlandMunis = munis.filter((x) => x.cx >= prefViewBox.x && x.cx <= prefViewBox.x + prefViewBox.w && x.cy >= prefViewBox.y && x.cy <= prefViewBox.y + prefViewBox.h);
-    const sizingBox = computePannableViewBox(prefViewBox, mainlandMunis.length ? mainlandMunis : munis);
+    const sizingBox = prefViewBox;
     const sizingPadded = { x: sizingBox.x - sizingBox.w / 2, y: sizingBox.y - sizingBox.h / 2, w: sizingBox.w * 2, h: sizingBox.h * 2 };
     const minX = Math.min(fvbBase.x, sizingPadded.x);
     const minY = Math.min(fvbBase.y, sizingPadded.y);
@@ -8066,11 +8065,10 @@ function MairuDemoInner() {
         // どの市町村を選んでも画面の真ん中まで動かせるように、パン可能領域(prefFullViewBox)を
         // 必要最小限の範囲まで動的に広げる(詳細はcomputePannableViewBox参照)。
         const prefFullViewBoxBase = computePannableViewBox(prefViewBox, prefMunicipalities);
-        // ↑には離島(鹿児島県の奄美群島など)も市町村として含まれているため、そのままでは
-        // 拡大率の計算に使うと本島が縮んで見えてしまう。表示範囲(regionViewBox)内に
-        // 収まる市町村だけに絞った「本島サイズ計算用」の範囲も別に用意する。
-        const prefMainlandMunicipalities = prefMunicipalities.filter((m) => m.cx >= prefViewBox.x && m.cx <= prefViewBox.x + prefViewBox.w && m.cy >= prefViewBox.y && m.cy <= prefViewBox.y + prefViewBox.h);
-        const prefSizingViewBox = computePannableViewBox(prefViewBox, prefMainlandMunicipalities.length ? prefMainlandMunicipalities : prefMunicipalities);
+        // 拡大率(本島がぴったり収まる基準)は、県ごとに用意されている表示範囲(regionViewBox)を
+        // そのまま使う。離島を含む市町村リストから毎回計算し直すと、長崎県・鹿児島県のように
+        // 離島が多い県で計算がおかしくなり、本島が小さく/一部しか見えなくなる問題があったため。
+        const prefSizingViewBox = prefViewBox;
         // 端にある市町村でも拡大なしで画面中央まで持って来られるよう、本島サイズを基準に
         // さらに大きめの余白を確保する(computePannableViewBoxだけだと足りない場合があるため)。
         const prefSizingPadded = {
@@ -8200,7 +8198,7 @@ function MairuDemoInner() {
                     if (regionMapSize && regionMapSize.w > 0 && regionMapSize.h > 0) {
                       const effectiveW = regionMapSize.w; // 地図はフレーム全面に表示(左右の要素は地図の上に重ねるだけ)
                       const effectiveH = regionMapSize.h; // 地図はヘッダー・フッターの裏まで全面表示(余白は拡大率側で調整)
-                      const scaleW = effectiveW / prefFullViewBox.w;
+                      const scaleW = effectiveW / prefSizingViewBox.w; // 本島基準の拡大率(離島の分は含めない)
                       const scaleH = effectiveH / prefSizingViewBox.h; // 本島基準の拡大率(離島の分は含めない)
                       const scale = Math.max(scaleW, scaleH);
                       wPct = (scale * prefFullViewBox.w / effectiveW) * 100;
