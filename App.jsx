@@ -5147,9 +5147,6 @@ function MairuDemoInner() {
     return () => clearTimeout(t);
   }, [iconLabelPeek]);
   const [regionZoom, setRegionZoom] = useState(1); // 県ページの拡大率
-  useEffect(() => {
-    if (appStage !== 'region') setRegionZoom(1); // 県ページ以外に移動したら拡大率をリセットする
-  }, [appStage]);
   const muniMapFrameRef = useRef(null); // 市町村ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
   const [muniMapSize, setMuniMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const kyushuMapFrameRef = useRef(null); // 九州ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
@@ -5162,6 +5159,9 @@ function MairuDemoInner() {
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
+  useEffect(() => {
+    setRegionZoom(1); // 県ページ以外に移動した時・選んでいる県が変わった時は拡大率をリセットする
+  }, [appStage, selectedPrefId]);
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
 
   // 九州ページ⇔県ページを移動したら、空港・フェリー・道の駅のピン表示は一旦リセットする。
@@ -5185,7 +5185,16 @@ function MairuDemoInner() {
     const rvb = currentPref.regionViewBox;
     const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
     if (!munis.length) return;
-    const fvb = computePannableViewBox(rvb, munis);
+    const fvbBase = computePannableViewBox(rvb, munis);
+    // 実際に描画される地図の座標範囲(prefFullViewBox)は、県ページの表示コードと全く同じ
+    // 計算(本島サイズを2倍に広げた範囲との合成)を使う必要がある。ここだけ別の(狭い)範囲を
+    // 基準にスクロール量を計算していたため、県によって中心がズレる原因になっていた。
+    const sizingPadded = { x: rvb.x - rvb.w / 2, y: rvb.y - rvb.h / 2, w: rvb.w * 2, h: rvb.h * 2 };
+    const boxMinX = Math.min(fvbBase.x, sizingPadded.x);
+    const boxMinY = Math.min(fvbBase.y, sizingPadded.y);
+    const boxMaxX = Math.max(fvbBase.x + fvbBase.w, sizingPadded.x + sizingPadded.w);
+    const boxMaxY = Math.max(fvbBase.y + fvbBase.h, sizingPadded.y + sizingPadded.h);
+    const fvb = { x: boxMinX, y: boxMinY, w: boxMaxX - boxMinX, h: boxMaxY - boxMinY };
     // 県ごとに用意されている表示範囲(regionViewBox)自体が、その県の本島を
     // 綺麗に収める形であらかじめ調整されているため、中心もそのままその範囲の中心を使う。
     // (市町村の代表点から計算し直すと、県によって市町村の分布に偏りがあり、
