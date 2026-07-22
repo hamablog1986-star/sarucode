@@ -2477,6 +2477,18 @@ const DEFAULT_FERRIES = {
   shibushi: { name: '志布志港', nameEn: 'Shibushi Port', lat: 31.4783, lon: 131.1136 },
 };
 FERRIES = DEFAULT_FERRIES;
+// 道の駅も、フェリーと同じ理由(データ取得に失敗した時に何も表示されない問題)で、
+// 代表的な道の駅を県ごとに1つずつ既定値として用意しておく。実際のデータ取得に
+// 成功すればこちらに追加され、失敗・空だった場合でもこの既定値が表示される。
+const DEFAULT_ROADSIDE = [
+  { id: 'rs-fukuoka-ukiha', name: '道の駅うきは', nameEn: 'Michi-no-Eki Ukiha', prefId: '40', category: '道の駅', x: 520.37, y: 350.09 },
+  { id: 'rs-saga-yoshinogari', name: '道の駅吉野ヶ里', nameEn: 'Michi-no-Eki Yoshinogari', prefId: '41', category: '道の駅', x: 441.88, y: 358.39 },
+  { id: 'rs-nagasaki-mikawa', name: '道の駅みかわ', nameEn: 'Michi-no-Eki Mikawa', prefId: '42', category: '道の駅', x: 309.93, y: 472.06 },
+  { id: 'rs-kumamoto-aso', name: '道の駅阿蘇', nameEn: 'Michi-no-Eki Aso', prefId: '43', category: '道の駅', x: 590.94, y: 448.17 },
+  { id: 'rs-oita-yufuin', name: '道の駅ゆふいん', nameEn: 'Michi-no-Eki Yufuin', prefId: '44', category: '道の駅', x: 645.26, y: 363.16 },
+  { id: 'rs-miyazaki-takachiho', name: '道の駅高千穂', nameEn: 'Michi-no-Eki Takachiho', prefId: '45', category: '道の駅', x: 632.43, y: 503.50 },
+  { id: 'rs-kagoshima-kiire', name: '道の駅喜入', nameEn: 'Michi-no-Eki Kiire', prefId: '46', category: '道の駅', x: 472.25, y: 826.67 },
+];
 let MUNI_FERRY_OVERRIDE = {};
 function getFerryInfo(cityCode) {
   const key = MUNI_FERRY_OVERRIDE[cityCode];
@@ -5822,7 +5834,13 @@ function MairuDemoInner() {
     ).then((results) => {
       if (cancelled) return;
       const merged = results.flat().filter((s) => s.category === '道の駅' && typeof s.x === 'number' && typeof s.y === 'number');
-      setRoadsideMapSpots(merged);
+      if (merged.length) {
+        setRoadsideMapSpots(merged);
+      } else {
+        // 実データが取得できなかった場合(通信環境・プレビューなど)は既定値を使う
+        const fallback = appStage === 'region' ? DEFAULT_ROADSIDE.filter((s) => s.prefId === selectedPrefId) : DEFAULT_ROADSIDE;
+        setRoadsideMapSpots(fallback);
+      }
       setRoadsideMapLoading(false);
     });
 
