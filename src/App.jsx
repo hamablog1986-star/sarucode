@@ -2437,6 +2437,19 @@ const DEFAULT_MUNI_AIRPORT_OVERRIDE = {
 };
 // 実際に参照される可変の空港データ。起動時にdata/airports.jsonの取得に成功すれば、その内容で置き換わる。
 let AIRPORTS = DEFAULT_AIRPORTS;
+// 奄美群島など地図の端に近い離島は、緯度経度からの変換だけだと実際の地図データ(手描きの市町村形状)と
+// 数十px単位でズレることがあるため、既存の市町村データ(cx/cy)に合わせた手動の座標補正を用意する。
+// 該当する空港のみ、地図上の表示位置をこの座標で上書きする(距離計算などには影響しない)。
+const AIRPORT_SVG_OVERRIDE = {
+  amami: { x: 215.1, y: 1595.1 }, // 奄美市の位置に合わせる
+  kikai: { x: 330.6, y: 1606.9 }, // 喜界町の位置に合わせる
+  tokunoshima: { x: 106.4, y: 1718.9 }, // 徳之島町の位置に合わせる
+  okinoerabu: { x: 31.3, y: 1811.7 }, // 和泊町の位置に合わせる
+  yoron: { x: -15.4, y: 1897.9 }, // 与論町の位置に合わせる
+};
+function airportSvgPos(id, a) {
+  return AIRPORT_SVG_OVERRIDE[id] || geoToSvg(a.lat, a.lon);
+}
 let PREF_AIRPORT = DEFAULT_PREF_AIRPORT;
 let MUNI_AIRPORT_OVERRIDE = DEFAULT_MUNI_AIRPORT_OVERRIDE;
 function getAirportInfo(cityCode, prefId) {
@@ -2448,6 +2461,22 @@ function getAirportInfo(cityCode, prefId) {
 // 市町村だけに対応する(該当が無ければnullを返す=その市町村はフェリーの対象外)。
 // 起動時にdata/ferries.json(スプレッドシート「フェリー」シート由来)の取得に成功すれば置き換わる。
 let FERRIES = {};
+// フェリーは県ごとの既定値が無いため、data/ferries.jsonの取得に失敗した場合(オフライン・
+// プレビュー環境など)にボタンを押しても何も表示されない問題が起きていた。
+// 空港と同様、代表的なフェリーターミナルを既定値として用意しておく。
+const DEFAULT_FERRIES = {
+  hakata: { name: '博多港', nameEn: 'Hakata Port', lat: 33.6056, lon: 130.4025 },
+  shinmoji: { name: '新門司港', nameEn: 'Shin-Moji Port', lat: 33.9214, lon: 130.9989 },
+  beppu: { name: '別府港', nameEn: 'Beppu Port', lat: 33.2967, lon: 131.4989 },
+  oita_port: { name: '大分港', nameEn: 'Oita Port', lat: 33.2461, lon: 131.6633 },
+  nagasaki_port: { name: '長崎港', nameEn: 'Nagasaki Port', lat: 32.7392, lon: 129.8656 },
+  izuhara: { name: '厳原港', nameEn: 'Izuhara Port (Tsushima)', lat: 34.2011, lon: 129.2933 },
+  ashibe: { name: '芦辺港', nameEn: 'Ashibe Port (Iki)', lat: 33.7889, lon: 129.7189 },
+  kumamoto_port: { name: '熊本港', nameEn: 'Kumamoto Port', lat: 32.8283, lon: 130.5636 },
+  kagoshima_port: { name: '鹿児島港(北ふ頭)', nameEn: 'Kagoshima Port', lat: 31.5966, lon: 130.5642 },
+  shibushi: { name: '志布志港', nameEn: 'Shibushi Port', lat: 31.4783, lon: 131.1136 },
+};
+FERRIES = DEFAULT_FERRIES;
 let MUNI_FERRY_OVERRIDE = {};
 function getFerryInfo(cityCode) {
   const key = MUNI_FERRY_OVERRIDE[cityCode];
@@ -2480,11 +2509,11 @@ const ACTIVE_PREF_ID = '42'; // 長崎県(現在体験可能な唯一の県)
 
 // 九州7県の輪郭(国土数値情報より簡略化・滑らかな曲線に加工。長崎県以外は県単位のみ)
 const KYUSHU_OUTLINE_PATHS = [
-  "M348.92 1604.90L345.15 1607.99L337.80 1609.09L327.38 1608.11L314.60 1605.13L300.33 1600.35L285.53 1594.09L271.23 1586.78L258.39 1578.92L247.89 1571.05L240.45 1563.69L236.57 1557.36L236.51 1552.48L240.28 1549.39L247.63 1548.29L258.05 1549.26L270.83 1552.24L285.11 1557.03L299.90 1563.29L314.20 1570.59L327.04 1578.45L337.54 1586.33L344.98 1593.68L348.87 1600.02Z", // 奄美大島(簡易形状・実寸に合わせて配置)
-  "M354.59 1568.50L353.37 1570.91L351.16 1572.86L348.11 1574.23L344.42 1574.92L340.36 1574.88L336.19 1574.13L332.20 1572.70L328.66 1570.70L325.81 1568.26L323.85 1565.54L322.91 1562.75L323.06 1560.05L324.28 1557.65L326.49 1555.69L329.54 1554.33L333.23 1553.64L337.29 1553.67L341.46 1554.43L345.45 1555.86L348.99 1557.86L351.84 1560.30L353.80 1563.01L354.73 1565.81Z", // 喜界島(簡易形状・実寸に合わせて配置)
-  "M140.54 1737.48L138.56 1740.19L134.98 1742.09L130.04 1743.04L124.07 1742.97L117.48 1741.90L110.72 1739.89L104.25 1737.08L98.51 1733.67L93.89 1729.88L90.71 1725.98L89.19 1722.22L89.42 1718.87L91.39 1716.16L94.97 1714.26L99.92 1713.32L105.89 1713.38L112.48 1714.46L119.24 1716.47L125.71 1719.27L131.45 1722.69L136.07 1726.47L139.24 1730.38L140.77 1734.13Z", // 徳之島(簡易形状・実寸に合わせて配置)
-  "M74.93 1843.89L72.70 1843.00L70.79 1841.23L69.33 1838.69L68.42 1835.56L68.12 1832.04L68.46 1828.38L69.40 1824.83L70.88 1821.63L72.81 1818.99L75.05 1817.11L77.44 1816.09L79.84 1816.03L82.06 1816.91L83.97 1818.68L85.43 1821.22L86.34 1824.35L86.64 1827.87L86.31 1831.53L85.37 1835.08L83.88 1838.28L81.96 1840.92L79.72 1842.81L77.32 1843.82Z", // 沖永良部島(簡易形状・実寸に合わせて配置)
-  "M18.04 1930.75L17.19 1931.78L16.01 1932.52L14.59 1932.92L13.01 1932.94L11.39 1932.60L9.84 1931.90L8.46 1930.91L7.36 1929.68L6.59 1928.30L6.22 1926.87L6.27 1925.48L6.74 1924.22L7.59 1923.19L8.77 1922.45L10.20 1922.06L11.77 1922.03L13.39 1922.38L14.94 1923.07L16.32 1924.07L17.42 1925.29L18.19 1926.67L18.56 1928.11L18.51 1929.50Z", // 与論島(簡易形状・実寸に合わせて配置)
+  "M355.61 1660.62L348.10 1667.55L333.91 1670.84L313.76 1670.34L288.67 1666.06L259.89 1658.22L228.86 1647.22L197.14 1633.61L166.33 1618.06L137.96 1601.36L113.45 1584.35L94.05 1567.88L80.71 1552.77L74.11 1539.79L74.59 1529.58L82.10 1522.65L96.29 1519.36L116.44 1519.86L141.53 1524.14L170.31 1531.98L201.34 1542.98L233.06 1556.59L263.87 1572.14L292.24 1588.84L316.75 1605.85L336.15 1622.32L349.49 1637.43L356.09 1650.41Z", // 奄美大島(簡易形状・既存の市町村データの位置に合わせて配置)
+  "M370.01 1617.46L367.29 1623.64L362.74 1628.99L356.57 1633.22L349.10 1636.14L340.70 1637.59L331.80 1637.50L322.84 1635.88L314.26 1632.80L306.51 1628.43L299.96 1622.97L294.95 1616.71L291.72 1609.96L290.45 1603.05L291.19 1596.34L293.91 1590.16L298.46 1584.81L304.63 1580.58L312.10 1577.66L320.50 1576.21L329.40 1576.30L338.36 1577.92L346.94 1581.00L354.69 1585.37L361.24 1590.83L366.25 1597.09L369.48 1603.84L370.75 1610.75Z", // 喜界島(簡易形状・既存の市町村データの位置に合わせて配置)
+  "M170.30 1742.16L166.33 1748.09L159.35 1752.56L149.71 1755.34L137.91 1756.29L124.52 1755.37L110.23 1752.62L95.74 1748.18L81.79 1742.27L69.07 1735.19L58.23 1727.29L49.80 1718.97L44.21 1710.65L41.73 1702.74L42.50 1695.64L46.47 1689.71L53.45 1685.24L63.09 1682.46L74.89 1681.51L88.28 1682.43L102.57 1685.18L117.06 1689.62L131.01 1695.53L143.73 1702.61L154.57 1710.51L163.00 1718.83L168.59 1727.15L171.07 1735.06Z", // 徳之島(簡易形状・既存の市町村データの位置に合わせて配置)
+  "M25.16 1846.52L18.74 1844.49L12.95 1840.81L8.08 1835.68L4.37 1829.34L2.02 1822.12L1.13 1814.37L1.76 1806.49L3.86 1798.87L7.35 1791.90L12.03 1785.92L17.68 1781.23L24.01 1778.07L30.71 1776.59L37.44 1776.88L43.86 1778.91L49.65 1782.59L54.52 1787.72L58.23 1794.06L60.58 1801.28L61.47 1809.03L60.84 1816.91L58.74 1824.53L55.25 1831.50L50.57 1837.48L44.92 1842.17L38.59 1845.33L31.89 1846.81Z", // 沖永良部島(簡易形状・既存の市町村データの位置に合わせて配置)
+  "M14.60 1897.90L13.85 1904.58L11.63 1910.92L8.05 1916.60L3.30 1921.35L-2.38 1924.93L-8.72 1927.15L-15.40 1927.90L-22.08 1927.15L-28.42 1924.93L-34.10 1921.35L-38.85 1916.60L-42.43 1910.92L-44.65 1904.58L-45.40 1897.90L-44.65 1891.22L-42.43 1884.88L-38.85 1879.20L-34.10 1874.45L-28.42 1870.87L-22.08 1868.65L-15.40 1867.90L-8.72 1868.65L-2.38 1870.87L3.30 1874.45L8.05 1879.20L11.63 1884.88L13.85 1891.22Z", // 与論島(簡易形状・既存の市町村データの位置に合わせて配置)
   "M155.27,361.41L155.94,364.21L157.79,362.84L161.77,366.98L168.11,366.94L168.15,363.87L173.78,361.41L170.89,360.28L170.01,354.72L167.85,353.55L165.96,356.80L160.21,357.22L155.27,361.41Z",
   "M155.88,365.42L153.98,366.36L154.57,363.46L152.83,364.88L155.09,368.10L156.43,367.18L155.88,365.42Z",
   "M153.56,372.72L155.21,374.69L156.30,373.60L154.65,372.19L153.56,372.72Z",
@@ -5087,11 +5116,11 @@ function MairuDemoInner() {
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const [regionZoom, setRegionZoom] = useState(1); // 県ページの拡大率
   const muniMapFrameRef = useRef(null); // 市町村ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
-  const [muniMapSize, setMuniMapSize] = useState(null); // 上記フレームの実測サイズ { w, h }(px)
+  const [muniMapSize, setMuniMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const kyushuMapFrameRef = useRef(null); // 九州ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
-  const [kyushuMapSize, setKyushuMapSize] = useState(null); // 上記フレームの実測サイズ { w, h }(px)
+  const [kyushuMapSize, setKyushuMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const regionMapFrameRef = useRef(null); // 県ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
-  const [regionMapSize, setRegionMapSize] = useState(null); // 上記フレームの実測サイズ { w, h }(px)
+  const [regionMapSize, setRegionMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
 
   const [showAllCityNames, setShowAllCityNames] = useState(false); // 県ページの「地名を表示」ボタン:長崎県のみ試験導入
   const regionMapScrollRef = useRef(null); // 県ページの地図(本島+離島)のスクロール領域
@@ -5133,16 +5162,15 @@ function MairuDemoInner() {
     const xs = use.map((m) => m.cx);
     const ys = use.map((m) => m.cy);
     const mainlandCx = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const mainlandTopY = Math.min(...ys); // 縦方向は中央ではなく、本島の一番上(北側)の位置を使う
+    const mainlandCy = (Math.min(...ys) + Math.max(...ys)) / 2; // 本島(離島を除く)の縦横それぞれの中心
     const apply = () => {
       // ウィンドウの縦横比を固定したことで、X方向とY方向の拡大率が異なる場合があるため、別々に計算する
       const scaleX = el.scrollWidth / fvb.w;
       const scaleY = el.scrollHeight / fvb.h;
       const mainlandCenterX = (mainlandCx - fvb.x) * scaleX;
-      const mainlandTopPx = (mainlandTopY - fvb.y) * scaleY;
-      const topPadding = el.clientHeight * 0.08; // 上端ぴったりだと窮屈なので少し余白を持たせる
+      const mainlandCenterY = (mainlandCy - fvb.y) * scaleY;
       el.scrollLeft = mainlandCenterX - el.clientWidth / 2;
-      el.scrollTop = Math.max(0, mainlandTopPx - topPadding);
+      el.scrollTop = mainlandCenterY - el.clientHeight / 2;
     };
     // モバイルなどでレイアウト確定が1フレームで間に合わないことがあるため、
     // サイズが取得できるまで数フレーム試行する
@@ -5267,6 +5295,37 @@ function MairuDemoInner() {
     };
   }
   const handlePanMouseDown = makePanMouseDown(regionMapScrollRef);
+  // ピンチズーム(スマホでの2本指ズーム)用の状態。指の距離の変化に合わせてズーム値を更新する。
+  const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1 });
+  function makePinchHandlers(setZoom) {
+    function getDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    }
+    return {
+      onTouchStart: (e) => {
+        if (e.touches.length === 2) {
+          setZoom((z) => {
+            pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z };
+            return z;
+          });
+        }
+      },
+      onTouchMove: (e) => {
+        if (e.touches.length === 2 && pinchRef.current.active) {
+          e.preventDefault();
+          const dist = getDist(e.touches);
+          const ratio = dist / pinchRef.current.startDist;
+          const next = Math.min(3, Math.max(1, +(pinchRef.current.startZoom * ratio).toFixed(2)));
+          setZoom(next);
+        }
+      },
+      onTouchEnd: (e) => {
+        if (e.touches.length < 2) pinchRef.current.active = false;
+      },
+    };
+  }
   const kyushuMapScrollRef = useRef(null); // 九州全体図のスクロール領域
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
   // 九州ページのパン可能範囲。県ページと同じ考え方で、端にある県(長崎県など)を選んでも
@@ -6957,15 +7016,15 @@ function MairuDemoInner() {
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt.active { color:#fff; font-weight:800; }
         .map-toggle-divider { width:22px; height:1px; background:var(--line); margin:2px 0; }
         @media (max-width:560px) {
-          .kyushu-topbar-view .kyushu-float-header { padding:14px 18px; }
+          .kyushu-topbar-view .kyushu-float-header { padding:calc(env(safe-area-inset-top, 0px) + 14px) 18px 14px; }
           .kyushu-topbar-view .kyushu-float-title { font-size:18px; }
           .kyushu-topbar-view .kyushu-float-tabs { top:auto; bottom:14px; }
           .kyushu-topbar-view .kyushu-float-tabs button { padding:6px 9px; font-size:11px; gap:3px; }
           .kyushu-topbar-view .map-location-label { top:70px; }
           .kyushu-topbar-view .map-toggle-group { top:70px; }
           .kyushu-icons-consolidated .map-location-label { top:auto; bottom:64px; left:14px; }
-          .kyushu-icons-consolidated .map-toggle-group { top:60px; }
-          .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:70px; }
+          .kyushu-icons-consolidated .map-toggle-group { top:calc(env(safe-area-inset-top, 0px) + 66px); }
+          .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:calc(env(safe-area-inset-top, 0px) + 76px); }
         }
         .entry-fullmap-bg { position:absolute; inset:0; z-index:0; }
         .entry-cards-float { position:absolute; left:0; right:0; top:92px; z-index:5; padding:0 18px; max-width:460px; margin:0 auto; }
@@ -6975,6 +7034,8 @@ function MairuDemoInner() {
           border-radius:0; background:rgba(217,232,240,0.7);
           box-shadow:none; padding:14px 20px; display:flex; justify-content:center; z-index:6;
         }
+        .kyushu-footer-float.kyushu-float-header-dimmed { background:transparent; }
+        .kyushu-footer-float.kyushu-float-header-dimmed .entry-footer-link { color:#fff; }
         .entry-footer-float .entry-footer-links { background:none; padding:8px 18px; }
         @media (max-width:560px) {
           .tabs-on-frame.muni-float-category-tabs { bottom:12px; }
@@ -6983,7 +7044,7 @@ function MairuDemoInner() {
         .map-frame { position:relative; width:100%; aspect-ratio: ${VIEW_W} / ${VIEW_H}; background:#D9E8F0; border-radius:18px; overflow:hidden; box-shadow: 0 2px 12px rgba(26,46,59,0.08); }
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .show-names-inline-btn { font-size:11px; font-weight:700; color:var(--ink); background:none; border:none; padding:0; cursor:pointer; pointer-events:auto; }
-        .map-toggle-group { position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+        .map-toggle-group { position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; }
         .map-zoom-group { position:absolute; right:10px; bottom:10px; z-index:2; display:flex; flex-direction:column; gap:4px; }
         .zoom-btn { width:32px; height:32px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,0.92); color:var(--ink); font-size:18px; font-weight:700; line-height:1; cursor:pointer; box-shadow:0 1px 5px rgba(0,0,0,0.12); }
         .zoom-btn:disabled { opacity:0.4; cursor:default; }
@@ -7034,6 +7095,7 @@ function MairuDemoInner() {
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
         .map-pan-scroll { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-x pan-y; scrollbar-width:none; -ms-overflow-style:none; cursor:grab; user-select:none; border-radius:14px; }
+        .kyushu-icons-consolidated .map-pan-scroll { width:calc(100% - var(--frame-pad, 0) * 2 - 48px); }
         .map-pan-scroll::-webkit-scrollbar { display:none; }
         .map-pan-scroll.is-panning { cursor:grabbing; }
         .map-pan-content { position:relative; min-width:100%; min-height:100%; }
@@ -7601,12 +7663,14 @@ function MairuDemoInner() {
                   ref={kyushuMapScrollRef}
                   onMouseDown={handleKyushuPanMouseDown}
                   onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
+                  {...makePinchHandlers(setKyushuZoom)}
                 >
                   <div className="map-pan-content" style={(() => {
                     let wPct = (kyushuPanBox.w / KYUSHU_MAINLAND_VIEWBOX.w) * 100;
                     let hPct = (kyushuPanBox.h / KYUSHU_MAINLAND_VIEWBOX.h) * 100;
                     if (kyushuMapSize && kyushuMapSize.w > 0 && kyushuMapSize.h > 0) {
-                      const scaleW = kyushuMapSize.w / kyushuPanBox.w;
+                      const effectiveW = Math.max(1, kyushuMapSize.w - 48); // 右側アイコン分を差し引いた実際のスクロール領域幅
+                      const scaleW = effectiveW / kyushuPanBox.w;
                       const scaleH = kyushuMapSize.h / kyushuPanBox.h;
                       const scale = Math.max(scaleW, scaleH);
                       wPct = (scale / scaleW) * 100;
@@ -7663,7 +7727,7 @@ function MairuDemoInner() {
                       </div>
                     )}
                     {showAirportPins && clusterPins(
-                      Object.entries(AIRPORTS).map(([id, a]) => { const svg = geoToSvg(a.lat, a.lon); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; }),
+                      Object.entries(AIRPORTS).map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; }),
                       poiClusterCellSize
                     ).map((cluster) => {
                       const key = cluster.items.map((i) => i.id).join('|');
@@ -7815,7 +7879,7 @@ function MairuDemoInner() {
             ←
           </button>
 
-          <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
+          <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
               <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
               <span className="entry-footer-dot-sep">・</span>
@@ -7919,7 +7983,7 @@ function MairuDemoInner() {
         return (
         regionMode === 'map' ? (
         <div className="kyushu-fullmap-view kyushu-topbar-view kyushu-icons-consolidated">
-          <div className="kyushu-float-header">
+          <div className={`kyushu-float-header ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
             <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
               <h1 className="kyushu-float-title">CONOTAVI</h1>
             </button>
@@ -8021,12 +8085,14 @@ function MairuDemoInner() {
                   ref={regionMapScrollRef}
                   onMouseDown={handlePanMouseDown}
                   onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
+                  {...makePinchHandlers(setRegionZoom)}
                 >
                   <div className="map-pan-content" style={(() => {
                     let wPct = (prefFullViewBox.w / prefViewBox.w) * 100;
                     let hPct = (prefFullViewBox.h / prefViewBox.h) * 100;
                     if (regionMapSize && regionMapSize.w > 0 && regionMapSize.h > 0) {
-                      const scaleW = regionMapSize.w / prefFullViewBox.w;
+                      const effectiveW = Math.max(1, regionMapSize.w - 48); // 右側アイコン分を差し引いた実際のスクロール領域幅
+                      const scaleW = effectiveW / prefFullViewBox.w;
                       const scaleH = regionMapSize.h / prefFullViewBox.h;
                       const scale = Math.max(scaleW, scaleH);
                       wPct = (scale / scaleW) * 100;
@@ -8102,7 +8168,7 @@ function MairuDemoInner() {
                     )}
                     {showAirportPins && clusterPins(
                       Object.entries(AIRPORTS)
-                        .map(([id, a]) => { const svg = geoToSvg(a.lat, a.lon); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; })
+                        .map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; })
                         .filter((p) => p.x >= prefFullViewBox.x && p.x <= prefFullViewBox.x + prefFullViewBox.w
                           && p.y >= prefFullViewBox.y && p.y <= prefFullViewBox.y + prefFullViewBox.h),
                       poiClusterCellSize
@@ -8263,7 +8329,7 @@ function MairuDemoInner() {
             ←
           </button>
 
-          <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
+          <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
               <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
               <span className="entry-footer-dot-sep">・</span>
@@ -8596,7 +8662,7 @@ function MairuDemoInner() {
                   )}
 
                   {showAirportPins && Object.entries(AIRPORTS).map(([id, a]) => {
-                    const svg = geoToSvg(a.lat, a.lon);
+                    const svg = airportSvgPos(id, a);
                     if (svg.x < muniMapBox.x || svg.x > muniMapBox.x + muniMapBox.w || svg.y < muniMapBox.y || svg.y > muniMapBox.y + muniMapBox.h) return null;
                     return (
                       <div
@@ -9338,6 +9404,16 @@ function MairuDemoInner() {
             >
               {isMapFull ? '←' : (lang === 'en' ? '← Back' : '← 戻る')}
             </button>
+
+            {isMapFull && (
+              <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
+                <div className="entry-footer-links">
+                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+                  <span className="entry-footer-dot-sep">・</span>
+                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
