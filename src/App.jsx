@@ -5402,6 +5402,9 @@ function MairuDemoInner() {
       onTouchStart: (e) => {
         if (e.touches.length === 2) {
           captureZoomAnchor(scrollRef, anchorRef);
+          // ピンチ中はブラウザ自身のタッチスクロールを止め、こちらの計算だけで動かす
+          // (両方が同時に動こうとするとガクつく・変な場所にズレる原因になるため)
+          if (scrollRef.current) scrollRef.current.style.touchAction = 'none';
           setZoom((z) => {
             pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z, pendingZoom: null, raf: null };
             return z;
@@ -5434,6 +5437,7 @@ function MairuDemoInner() {
             cancelAnimationFrame(pinchRef.current.raf);
             pinchRef.current.raf = null;
           }
+          if (scrollRef.current) scrollRef.current.style.touchAction = '';
         }
       },
     };
