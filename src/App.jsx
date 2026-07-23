@@ -5168,6 +5168,7 @@ function MairuDemoInner() {
 
   const [showAllCityNames, setShowAllCityNames] = useState(false); // 県ページの「地名を表示」ボタン:長崎県のみ試験導入
   const regionMapScrollRef = useRef(null); // 県ページの地図(本島+離島)のスクロール領域
+  const regionMapContentRef = useRef(null); // 県ページの地図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
@@ -5197,22 +5198,26 @@ function MairuDemoInner() {
     const rvb = currentPref.regionViewBox;
     const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
     if (!munis.length) return;
-    const fvbBase = computePannableViewBox(rvb, munis);
     // 実際に描画される地図の座標範囲(prefFullViewBox)は、県ページの表示コードと全く同じ
-    // 計算(本島サイズを2倍に広げた範囲との合成)を使う必要がある。ここだけ別の(狭い)範囲を
-    // 基準にスクロール量を計算していたため、県によって中心がズレる原因になっていた。
-    const sizingPadded = { x: rvb.x - rvb.w / 2, y: rvb.y - rvb.h / 2, w: rvb.w * 2, h: rvb.h * 2 };
-    const boxMinX = Math.min(fvbBase.x, sizingPadded.x);
-    const boxMinY = Math.min(fvbBase.y, sizingPadded.y);
-    const boxMaxX = Math.max(fvbBase.x + fvbBase.w, sizingPadded.x + sizingPadded.w);
-    const boxMaxY = Math.max(fvbBase.y + fvbBase.h, sizingPadded.y + sizingPadded.h);
-    const fvb = { x: boxMinX, y: boxMinY, w: boxMaxX - boxMinX, h: boxMaxY - boxMinY };
+    // 計算を使う必要がある。本島をそのまま基準にしつつ、離島がある方向にだけ届く分の
+    // 余白を追加する(使わない方向にまで均等に広げると無駄な余白になるため)。
+    const muniXsA = munis.map((m) => m.cx);
+    const muniYsA = munis.map((m) => m.cy);
+    const bufA = Math.max(rvb.w, rvb.h) * 0.5;
+    const fvbMinX = Math.min(rvb.x, ...muniXsA) - bufA;
+    const fvbMinY = Math.min(rvb.y, ...muniYsA) - bufA;
+    const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
+    const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
+    const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
     // 県ごとに用意されている表示範囲(regionViewBox)自体が、その県の本島を
-    // 綺麗に収める形であらかじめ調整されているため、中心もそのままその範囲の中心を使う。
-    // (市町村の代表点から計算し直すと、県によって市町村の分布に偏りがあり、
-    // 長崎県・福岡県・宮崎県・鹿児島県などでズレが生じていたため)
-    const mainlandCx = rvb.x + rvb.w / 2;
-    const mainlandCy = rvb.y + rvb.h / 2;
+    // 綺麗に収める形であらかじめ調整されているため、基本的には中心もそのままその範囲の中心を使う。
+    // ただし長崎県・鹿児島県は、それでもまだズレて見えるとのフィードバックがあったため、
+    // 代わりに分かりやすい目印(大村市・鹿児島市)の位置を直接中心にする。
+    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: 0 }, '46': { name: '鹿児島市', offsetX: 25 } };
+    const override = REGION_CENTER_OVERRIDE[selectedPrefId];
+    const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
+    const mainlandCx = overrideMuni ? overrideMuni.cx + (override.offsetX || 0) : rvb.x + rvb.w / 2;
+    const mainlandCy = overrideMuni ? overrideMuni.cy : rvb.y + rvb.h / 2;
     const apply = () => {
       // ウィンドウの縦横比を固定したことで、X方向とY方向の拡大率が異なる場合があるため、別々に計算する
       const scaleX = el.scrollWidth / fvb.w;
@@ -5248,15 +5253,15 @@ function MairuDemoInner() {
     if (!el) return;
     const munis = KYUSHU_MUNICIPALITIES.filter((x) => x.prefId === selectedPrefId);
     const prefViewBox = currentPref.regionViewBox;
-    const fvbBase = computePannableViewBox(prefViewBox, munis);
-    // 端の市町村でも中央まで持って来られるよう、本島サイズを基準に余白を広げる(県ページの表示計算と同じロジック)
-    const sizingBox = prefViewBox;
-    const sizingPadded = { x: sizingBox.x - sizingBox.w / 2, y: sizingBox.y - sizingBox.h / 2, w: sizingBox.w * 2, h: sizingBox.h * 2 };
-    const minX = Math.min(fvbBase.x, sizingPadded.x);
-    const minY = Math.min(fvbBase.y, sizingPadded.y);
-    const maxX = Math.max(fvbBase.x + fvbBase.w, sizingPadded.x + sizingPadded.w);
-    const maxY = Math.max(fvbBase.y + fvbBase.h, sizingPadded.y + sizingPadded.h);
-    const fvb = { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    // 本島をそのまま基準にしつつ、離島がある方向にだけ届く分の余白を追加する。
+    const muniXsB = munis.map((x) => x.cx);
+    const muniYsB = munis.map((x) => x.cy);
+    const bufB = Math.max(prefViewBox.w, prefViewBox.h) * 0.5;
+    const fvbMinXB = Math.min(prefViewBox.x, ...muniXsB) - bufB;
+    const fvbMinYB = Math.min(prefViewBox.y, ...muniYsB) - bufB;
+    const fvbMaxXB = Math.max(prefViewBox.x + prefViewBox.w, ...muniXsB) + bufB;
+    const fvbMaxYB = Math.max(prefViewBox.y + prefViewBox.h, ...muniYsB) + bufB;
+    const fvb = { x: fvbMinXB, y: fvbMinYB, w: fvbMaxXB - fvbMinXB, h: fvbMaxYB - fvbMinYB };
     const apply = () => {
       const scaleX = el.scrollWidth / fvb.w;
       const scaleY = el.scrollHeight / fvb.h;
@@ -5359,93 +5364,88 @@ function MairuDemoInner() {
     };
   }
   const handlePanMouseDown = makePanMouseDown(regionMapScrollRef);
-  // ピンチズーム(スマホでの2本指ズーム)用の状態。指の距離の変化に合わせてズーム値を更新する。
-  const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1 });
-  // ズーム(+/−ボタン・ピンチ操作)を「今見えている画面の中心」を基準に行うための仕組み。
-  // ズーム変更の直前に「今どのあたりを見ているか(0〜1の割合)」を記録しておき、
-  // ズーム後のコンテンツサイズに対して同じ割合の位置がまた画面中心に来るようスクロールし直す。
-  const kyushuZoomAnchorRef = useRef(null);
-  const regionZoomAnchorRef = useRef(null);
-  function captureZoomAnchor(scrollRef, anchorRef) {
-    const el = scrollRef.current;
-    if (!el || el.scrollWidth <= 0 || el.scrollHeight <= 0) return;
-    anchorRef.current = {
-      fracX: (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth,
-      fracY: (el.scrollTop + el.clientHeight / 2) / el.scrollHeight,
-      pending: true,
-    };
-  }
-  function useApplyZoomAnchor(scrollRef, anchorRef, zoomValue) {
-    useEffect(() => {
-      const anchor = anchorRef.current;
-      if (!anchor) return undefined;
-      const el = scrollRef.current;
-      if (!el) return undefined;
-      const raf = requestAnimationFrame(() => {
-        el.scrollLeft = anchor.fracX * el.scrollWidth - el.clientWidth / 2;
-        el.scrollTop = anchor.fracY * el.scrollHeight - el.clientHeight / 2;
-        // ピンチ中(2本指で連続してズームが変わる間)は同じ基準点を使い続けたいので、
-        // ボタン操作(1回だけの変更)の時だけここで基準をクリアする。
-        if (!pinchRef.current.active) anchorRef.current = null;
-      });
-      return () => cancelAnimationFrame(raf);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zoomValue]);
-  }
-  function makePinchHandlers(setZoom, scrollRef, anchorRef) {
+  // ピンチズーム(スマホでの2本指ズーム)。
+  // スクロール位置を自分で計算し直す方式は何度か試したがうまくいかなかったため、
+  // CSSの transform(scale + transform-origin)に任せる、素直なやり方に変更する。
+  // transform-origin を「つまんだ位置」に設定しておけば、拡大縮小はブラウザが
+  // 自動でその位置を中心に行ってくれるため、自分でスクロール位置を計算し直す必要がない。
+  const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1, raf: null, pendingScale: null });
+  function makePinchHandlers(setZoom, contentRef, scrollRef) {
     function getDist(touches) {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
       return Math.hypot(dx, dy);
     }
+    function getMid(touches, content) {
+      const rect = content.getBoundingClientRect();
+      const midX = (touches[0].clientX + touches[1].clientX) / 2 - rect.left;
+      const midY = (touches[0].clientY + touches[1].clientY) / 2 - rect.top;
+      return { x: midX, y: midY };
+    }
     return {
       onTouchStart: (e) => {
-        if (e.touches.length === 2) {
-          captureZoomAnchor(scrollRef, anchorRef);
-          // ピンチ中はブラウザ自身のタッチスクロールを止め、こちらの計算だけで動かす
-          // (両方が同時に動こうとするとガクつく・変な場所にズレる原因になるため)
-          if (scrollRef.current) scrollRef.current.style.touchAction = 'none';
+        const content = contentRef.current;
+        const el = scrollRef.current;
+        if (e.touches.length === 2 && content && el) {
+          const mid = getMid(e.touches, content);
+          content.style.transformOrigin = `${mid.x}px ${mid.y}px`;
           setZoom((z) => {
-            pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z, pendingZoom: null, raf: null };
+            pinchRef.current = {
+              active: true, startDist: getDist(e.touches), startZoom: z, raf: null, pendingScale: 1,
+              midX: mid.x, midY: mid.y, scrollLeftBefore: el.scrollLeft, scrollTopBefore: el.scrollTop,
+            };
             return z;
           });
         }
       },
       onTouchMove: (e) => {
-        if (e.touches.length === 2 && pinchRef.current.active) {
+        const p = pinchRef.current;
+        const content = contentRef.current;
+        if (e.touches.length === 2 && p.active && content) {
           e.preventDefault();
           const dist = getDist(e.touches);
-          const ratio = dist / pinchRef.current.startDist;
-          const next = Math.min(3, Math.max(1, +(pinchRef.current.startZoom * ratio).toFixed(2)));
-          // 指を動かすたびに毎回setZoomすると計算が重なってガクつくため、
-          // 最新の値だけ覚えておき、1フレームに1回だけ実際に反映する。
-          pinchRef.current.pendingZoom = next;
-          if (!pinchRef.current.raf) {
-            pinchRef.current.raf = requestAnimationFrame(() => {
-              pinchRef.current.raf = null;
-              if (pinchRef.current.active && pinchRef.current.pendingZoom != null) {
-                setZoom(pinchRef.current.pendingZoom);
-              }
+          const scale = Math.min(3 / p.startZoom, Math.max(1 / p.startZoom, dist / p.startDist));
+          p.pendingScale = scale;
+          if (!p.raf) {
+            p.raf = requestAnimationFrame(() => {
+              p.raf = null;
+              if (p.active && content) content.style.transform = `scale(${p.pendingScale})`;
             });
           }
         }
       },
       onTouchEnd: (e) => {
         if (e.touches.length < 2) {
-          pinchRef.current.active = false;
-          if (pinchRef.current.raf) {
-            cancelAnimationFrame(pinchRef.current.raf);
-            pinchRef.current.raf = null;
+          const p = pinchRef.current;
+          const content = contentRef.current;
+          const el = scrollRef.current;
+          if (p.active && content && el && p.pendingScale != null) {
+            const finalZoom = Math.min(3, Math.max(1, +(p.startZoom * p.pendingScale).toFixed(2)));
+            const ratio = finalZoom / p.startZoom;
+            // つまんだ場所が画面上で同じ位置に見え続けるよう、通常表示(width/height方式)に
+            // 戻すタイミングでスクロール位置を計算し直す
+            const newScrollLeft = p.midX * (ratio - 1) + p.scrollLeftBefore;
+            const newScrollTop = p.midY * (ratio - 1) + p.scrollTopBefore;
+            content.style.transform = '';
+            content.style.transformOrigin = '';
+            setZoom(finalZoom);
+            // Reactが新しいサイズを実際に反映し終えるまで待ってからスクロール位置を設定する
+            // (すぐ後だと、まだ古いサイズのままでスクロール位置がおかしくなることがあるため)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                el.scrollLeft = newScrollLeft;
+                el.scrollTop = newScrollTop;
+              });
+            });
           }
-          if (scrollRef.current) scrollRef.current.style.touchAction = '';
+          p.active = false;
         }
       },
     };
   }
   const kyushuMapScrollRef = useRef(null); // 九州全体図のスクロール領域
+  const kyushuMapContentRef = useRef(null); // 九州全体図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
-  useApplyZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef, kyushuZoom);
-  useApplyZoomAnchor(regionMapScrollRef, regionZoomAnchorRef, regionZoom);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
   // 含む、九州本土のもともとの表示範囲)に少しだけ余白を足したものを使う。
   const KYUSHU_PAN_PADDING = 30;
@@ -5460,7 +5460,7 @@ function MairuDemoInner() {
   // (大分県のように端にある県でも中央に来せるために必要な余白)。
   // さらに奄美群島(与論島など)がぎりぎり収まる分だけ下にも延長する。
   const islandMaxY = Math.max(...Object.values(AIRPORT_SVG_OVERRIDE).map((p) => p.y));
-  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.75;
+  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.3;
   const kyushuVPad = kyushuSizingBox.h * 0.4;
   const kyushuPanBoxBase = {
     x: kyushuSizingBox.x - kyushuHPad,
@@ -7826,14 +7826,14 @@ function MairuDemoInner() {
                 <div className="map-zoom-group">
                   <button
                     className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef); setKyushuZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                    onClick={() => setKyushuZoom((z) => Math.min(3, +(z + 0.5).toFixed(1)))}
                     disabled={kyushuZoom >= 3}
                     title={lang === 'en' ? 'Zoom in' : '拡大'}
                   >+</button>
                   <span className="lang-toggle-sep">/</span>
                   <button
                     className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef); setKyushuZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                    onClick={() => setKyushuZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))}
                     disabled={kyushuZoom <= 1}
                     title={lang === 'en' ? 'Zoom out' : '縮小'}
                   >−</button>
@@ -7843,10 +7843,9 @@ function MairuDemoInner() {
                   ref={kyushuMapScrollRef}
                   onMouseDown={handleKyushuPanMouseDown}
                   onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
-                  {...makePinchHandlers(setKyushuZoom, kyushuMapScrollRef, kyushuZoomAnchorRef)}
+                  {...makePinchHandlers(setKyushuZoom, kyushuMapContentRef, kyushuMapScrollRef)}
                 >
-                  <div className="map-pan-content kyushu-contain-fit" style={(() => {
-                    let wPct = (kyushuPanBox.w / KYUSHU_MAINLAND_VIEWBOX.w) * 100;
+                  <div ref={kyushuMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
                     let hPct = (kyushuPanBox.h / KYUSHU_MAINLAND_VIEWBOX.h) * 100;
                     if (kyushuMapSize && kyushuMapSize.w > 0 && kyushuMapSize.h > 0) {
                       const effectiveW = kyushuMapSize.w; // 地図はフレーム全面に表示(左右の要素は地図の上に重ねるだけ)
@@ -8157,26 +8156,22 @@ function MairuDemoInner() {
         const prefMunicipalities = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
         const prefOutlinePaths = [currentPref.d];
         const prefViewBox = currentPref.regionViewBox;
-        // どの市町村を選んでも画面の真ん中まで動かせるように、パン可能領域(prefFullViewBox)を
-        // 必要最小限の範囲まで動的に広げる(詳細はcomputePannableViewBox参照)。
-        const prefFullViewBoxBase = computePannableViewBox(prefViewBox, prefMunicipalities);
+        // どの市町村を選んでも画面の真ん中まで動かせるように、パン可能領域(prefFullViewBox)を用意する。
         // 拡大率(本島がぴったり収まる基準)は、県ごとに用意されている表示範囲(regionViewBox)を
         // そのまま使う。離島を含む市町村リストから毎回計算し直すと、長崎県・鹿児島県のように
         // 離島が多い県で計算がおかしくなり、本島が小さく/一部しか見えなくなる問題があったため。
         const prefSizingViewBox = prefViewBox;
-        // 端にある市町村でも拡大なしで画面中央まで持って来られるよう、本島サイズを基準に
-        // さらに大きめの余白を確保する(computePannableViewBoxだけだと足りない場合があるため)。
-        const prefSizingPadded = {
-          x: prefSizingViewBox.x - prefSizingViewBox.w / 2,
-          y: prefSizingViewBox.y - prefSizingViewBox.h / 2,
-          w: prefSizingViewBox.w * 2,
-          h: prefSizingViewBox.h * 2,
-        };
-        const prefBoxMinX = Math.min(prefFullViewBoxBase.x, prefSizingPadded.x);
-        const prefBoxMinY = Math.min(prefFullViewBoxBase.y, prefSizingPadded.y);
-        const prefBoxMaxX = Math.max(prefFullViewBoxBase.x + prefFullViewBoxBase.w, prefSizingPadded.x + prefSizingPadded.w);
-        const prefBoxMaxY = Math.max(prefFullViewBoxBase.y + prefFullViewBoxBase.h, prefSizingPadded.y + prefSizingPadded.h);
-        const prefFullViewBox = { x: prefBoxMinX, y: prefBoxMinY, w: prefBoxMaxX - prefBoxMinX, h: prefBoxMaxY - prefBoxMinY };
+        // パン可能範囲は、本島(regionViewBox)をそのまま基準にしつつ、離島(対馬・奄美群島など)
+        // がある方向にだけ、そこまで届く分の余白を追加する(使わない方向にまで余白を
+        // 均等に広げると、その分だけ無駄な余白ができてしまうため、必要な方向だけ広げる)。
+        const prefMuniXs2 = prefMunicipalities.map((m) => m.cx);
+        const prefMuniYs2 = prefMunicipalities.map((m) => m.cy);
+        const buf = Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.5; // 端の市町村でも画面中央まで来られるようにする余裕分
+        const fullMinX = Math.min(prefViewBox.x, ...prefMuniXs2) - buf;
+        const fullMinY = Math.min(prefViewBox.y, ...prefMuniYs2) - buf;
+        const fullMaxX = Math.max(prefViewBox.x + prefViewBox.w, ...prefMuniXs2) + buf;
+        const fullMaxY = Math.max(prefViewBox.y + prefViewBox.h, ...prefMuniYs2) + buf;
+        const prefFullViewBox = { x: fullMinX, y: fullMinY, w: fullMaxX - fullMinX, h: fullMaxY - fullMinY };
         const scrollContentWPct = (prefFullViewBox.w / prefViewBox.w) * 100;
         const scrollContentHPct = (prefFullViewBox.h / prefViewBox.h) * 100;
         return (
@@ -8268,14 +8263,14 @@ function MairuDemoInner() {
                 <div className="map-zoom-group">
                   <button
                     className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(regionMapScrollRef, regionZoomAnchorRef); setRegionZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                    onClick={() => setRegionZoom((z) => Math.min(3, +(z + 0.5).toFixed(1)))}
                     disabled={regionZoom >= 3}
                     title={lang === 'en' ? 'Zoom in' : '拡大'}
                   >+</button>
                   <span className="lang-toggle-sep">/</span>
                   <button
                     className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(regionMapScrollRef, regionZoomAnchorRef); setRegionZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                    onClick={() => setRegionZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))}
                     disabled={regionZoom <= 1}
                     title={lang === 'en' ? 'Zoom out' : '縮小'}
                   >−</button>
@@ -8285,9 +8280,9 @@ function MairuDemoInner() {
                   ref={regionMapScrollRef}
                   onMouseDown={handlePanMouseDown}
                   onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
-                  {...makePinchHandlers(setRegionZoom, regionMapScrollRef, regionZoomAnchorRef)}
+                  {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef)}
                 >
-                  <div className="map-pan-content kyushu-contain-fit" style={(() => {
+                  <div ref={regionMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
                     let wPct = (prefFullViewBox.w / prefViewBox.w) * 100;
                     let hPct = (prefFullViewBox.h / prefViewBox.h) * 100;
                     if (regionMapSize && regionMapSize.w > 0 && regionMapSize.h > 0) {
@@ -8295,7 +8290,7 @@ function MairuDemoInner() {
                       const effectiveH = regionMapSize.h; // 地図はヘッダー・フッターの裏まで全面表示(余白は拡大率側で調整)
                       const scaleW = effectiveW / prefSizingViewBox.w; // 本島基準の拡大率(離島の分は含めない)
                       const scaleH = effectiveH / prefSizingViewBox.h; // 本島基準の拡大率(離島の分は含めない)
-                      const scale = Math.min(scaleW, scaleH); // 選んだ県が画面に収まるようにする(はみ出させない)
+                      const scale = Math.min(scaleW, scaleH) * 1.2; // 少しだけ大きめに表示する(端は多少見切れる)
                       wPct = (scale * prefFullViewBox.w / effectiveW) * 100;
                       hPct = (scale * prefFullViewBox.h / effectiveH) * 100;
                     }
