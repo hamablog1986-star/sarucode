@@ -5403,7 +5403,7 @@ function MairuDemoInner() {
         if (e.touches.length === 2) {
           captureZoomAnchor(scrollRef, anchorRef);
           setZoom((z) => {
-            pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z };
+            pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z, pendingZoom: null, raf: null };
             return z;
           });
         }
@@ -5414,11 +5414,27 @@ function MairuDemoInner() {
           const dist = getDist(e.touches);
           const ratio = dist / pinchRef.current.startDist;
           const next = Math.min(3, Math.max(1, +(pinchRef.current.startZoom * ratio).toFixed(2)));
-          setZoom(next);
+          // 指を動かすたびに毎回setZoomすると計算が重なってガクつくため、
+          // 最新の値だけ覚えておき、1フレームに1回だけ実際に反映する。
+          pinchRef.current.pendingZoom = next;
+          if (!pinchRef.current.raf) {
+            pinchRef.current.raf = requestAnimationFrame(() => {
+              pinchRef.current.raf = null;
+              if (pinchRef.current.active && pinchRef.current.pendingZoom != null) {
+                setZoom(pinchRef.current.pendingZoom);
+              }
+            });
+          }
         }
       },
       onTouchEnd: (e) => {
-        if (e.touches.length < 2) pinchRef.current.active = false;
+        if (e.touches.length < 2) {
+          pinchRef.current.active = false;
+          if (pinchRef.current.raf) {
+            cancelAnimationFrame(pinchRef.current.raf);
+            pinchRef.current.raf = null;
+          }
+        }
       },
     };
   }
@@ -7175,7 +7191,7 @@ function MairuDemoInner() {
         }
         .entry-fullmap-bg { position:absolute; inset:0; z-index:0; }
         .entry-cards-float { position:absolute; left:0; right:0; top:92px; z-index:5; padding:0 18px; max-width:460px; margin:0 auto; }
-        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:rgba(255,255,255,0.92); border-radius:999px; }
+        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:none; }
         .entry-footer-wrap.kyushu-footer-float {
           left:0; right:0; bottom:14px; transform:none; width:100%; height:32px;
           border-radius:0; background:transparent;
@@ -7240,6 +7256,7 @@ function MairuDemoInner() {
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
         .poi-pin-label { position:absolute; bottom:32px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5; }
+        .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; }
         .show-names-inline-btn.active { color:#E2613D; text-decoration:underline; }
@@ -7987,6 +8004,7 @@ function MairuDemoInner() {
                       return KYUSHU_PREFS.filter((p) => countByPref[p.id]).map((p) => {
                         const key = `roadside-pref-${p.id}`;
                         const count = countByPref[p.id];
+                        const isNearRightEdge = (p.cx - kyushuPanBox.x) / kyushuPanBox.w > 0.62; // 右のアイコン列に吹き出しが重ならないよう、右寄りの県は吹き出しを左にずらす
                         return (
                           <div
                             key={key}
@@ -7996,12 +8014,12 @@ function MairuDemoInner() {
                           >
                             <span className={`poi-pin-cluster poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><Store size={11} />{count}</span>
                             {peekRoadsideId === key && (
-                              <span className="poi-pin-label">
+                              <span className={`poi-pin-label ${isNearRightEdge ? 'poi-pin-label-left' : ''}`}>
                                 <span className="poi-pin-label-name">
-                                  {lang === 'en' ? `${mName(p)}: ${count} roadside stations` : `${mName(p)}:道の駅 ${count}件`}
+                                  {lang === 'en' ? `${mName(p)} / ${count} roadside stations` : `${mName(p)} / 道の駅 ${count}か所`}
                                 </span>
                                 <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); }}>
-                                  {lang === 'en' ? 'View this prefecture ›' : 'この県を見る ›'}
+                                  {lang === 'en' ? 'View roadside stations ›' : '道の駅を確認する ›'}
                                 </button>
                               </span>
                             )}
