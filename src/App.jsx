@@ -7445,7 +7445,7 @@ function MairuDemoInner() {
         .entry-view.muni-map-fullscreen { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; }
         .map-scroll.muni-fullmap-scroll { position:fixed; inset:0; width:100%; height:100vh; height:100dvh; margin-bottom:0; border-radius:0; z-index:1; background:#D9E8F0; }
         .map-frame-wrap.muni-fullmap-frame-wrap { position:relative; width:100%; height:100%; }
-        .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
+        .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; touch-action:none; }
         .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; max-width:calc(100% - 32px); }
         .tabs-on-frame.muni-float-category-tabs .tabs { margin:0; }
         .entry-fullmap-view { background:#D9E8F0; }
@@ -7693,8 +7693,13 @@ function MairuDemoInner() {
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
         .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
-        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:88px 58px 28px 16px; }
-        .detail-card { position:relative; background:none; border-radius:16px; padding:0; max-width:640px; width:100%; box-shadow:none; overflow:hidden; }
+        .detail-card {
+          position:relative; background:none; border-radius:16px; padding:0; max-width:640px; width:100%; box-shadow:none;
+          max-height:calc(100dvh - 40px);
+          overflow-y:auto; overflow-x:hidden;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .detail-card::-webkit-scrollbar { display:none; }
         .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:16px 16px 0 0; }
         .detail-hero.has-image { height:auto; aspect-ratio:2.4 / 1; }
         .detail-hero-icon { color:var(--cat-color); }
@@ -9232,14 +9237,41 @@ function MairuDemoInner() {
         const muniPanLimitX = activeCityConfig.viewW / 2;
         const muniPanLimitY = activeCityConfig.viewH / 2;
         function handleMuniMapPanStart(e) {
-          const isTouch = e.touches && e.touches.length === 1;
-          if (e.touches && e.touches.length > 1) return; // 2本指はピンチ操作に譲る(パンは1本指のみ)
-          const startClientX = isTouch ? e.touches[0].clientX : e.clientX;
-          const startClientY = isTouch ? e.touches[0].clientY : e.clientY;
           const el = muniMapFrameRef.current;
           if (!el) return;
           const rect = el.getBoundingClientRect();
           if (rect.width <= 0 || rect.height <= 0) return;
+
+          if (e.touches && e.touches.length === 2) {
+            // 2本指のピンチ操作: 地図のズームとして扱い、ブラウザ本来のページ拡大縮小は起こさせない
+            const t0 = e.touches[0];
+            const t1 = e.touches[1];
+            const startDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY) || 1;
+            const startZoom = muniZoom;
+            const onPinchMove = (moveEvent) => {
+              if (!moveEvent.touches || moveEvent.touches.length < 2) return;
+              if (moveEvent.cancelable) moveEvent.preventDefault();
+              const mt0 = moveEvent.touches[0];
+              const mt1 = moveEvent.touches[1];
+              const dist = Math.hypot(mt1.clientX - mt0.clientX, mt1.clientY - mt0.clientY);
+              const nextZoom = Math.min(3, Math.max(1, +(startZoom * (dist / startDist)).toFixed(2)));
+              setMuniZoom(nextZoom);
+            };
+            const onPinchEnd = () => {
+              window.removeEventListener('touchmove', onPinchMove);
+              window.removeEventListener('touchend', onPinchEnd);
+              window.removeEventListener('touchcancel', onPinchEnd);
+            };
+            window.addEventListener('touchmove', onPinchMove, { passive: false });
+            window.addEventListener('touchend', onPinchEnd);
+            window.addEventListener('touchcancel', onPinchEnd);
+            return;
+          }
+          if (e.touches && e.touches.length > 1) return; // 3本指以上は何もしない
+
+          const isTouch = e.touches && e.touches.length === 1;
+          const startClientX = isTouch ? e.touches[0].clientX : e.clientX;
+          const startClientY = isTouch ? e.touches[0].clientY : e.clientY;
           const scaleX = muniMapBox.w / rect.width;
           const scaleY = muniMapBox.h / rect.height;
           const startPanX = muniPanX;
@@ -9248,13 +9280,13 @@ function MairuDemoInner() {
           const onMove = (moveEvent) => {
             const mIsTouch = moveEvent.touches && moveEvent.touches.length === 1;
             if (moveEvent.touches && moveEvent.touches.length > 1) return;
+            if (moveEvent.cancelable) moveEvent.preventDefault(); // ネイティブスクロールが割り込まないよう、動いた量に関わらず毎回止める
             const mx = mIsTouch ? moveEvent.touches[0].clientX : moveEvent.clientX;
             const my = mIsTouch ? moveEvent.touches[0].clientY : moveEvent.clientY;
             const dx = mx - startClientX;
             const dy = my - startClientY;
             if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
             if (moved) {
-              if (moveEvent.cancelable) moveEvent.preventDefault();
               const nextX = Math.min(muniPanLimitX, Math.max(-muniPanLimitX, startPanX - dx * scaleX));
               const nextY = Math.min(muniPanLimitY, Math.max(-muniPanLimitY, startPanY - dy * scaleY));
               setMuniPanX(nextX);
