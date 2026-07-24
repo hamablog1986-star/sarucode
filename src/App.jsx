@@ -8019,6 +8019,7 @@ function MairuDemoInner() {
                   {...makePinchHandlers(setKyushuZoom, kyushuMapContentRef, kyushuMapScrollRef)}
                 >
                   <div ref={kyushuMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
+                    let wPct = (kyushuPanBox.w / KYUSHU_MAINLAND_VIEWBOX.w) * 100;
                     let hPct = (kyushuPanBox.h / KYUSHU_MAINLAND_VIEWBOX.h) * 100;
                     if (kyushuMapSize && kyushuMapSize.w > 0 && kyushuMapSize.h > 0) {
                       const effectiveW = kyushuMapSize.w; // 地図はフレーム全面に表示(左右の要素は地図の上に重ねるだけ)
