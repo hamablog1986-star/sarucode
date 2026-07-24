@@ -8536,7 +8536,8 @@ function MairuDemoInner() {
                       const effectiveH = regionMapSize.h; // 地図はヘッダー・フッターの裏まで全面表示(余白は拡大率側で調整)
                       const scaleW = effectiveW / prefSizingViewBox.w; // 本島基準の拡大率(離島の分は含めない)
                       const scaleH = effectiveH / prefSizingViewBox.h; // 本島基準の拡大率(離島の分は含めない)
-                      const scale = Math.min(scaleW, scaleH) * 1.2; // 少しだけ大きめに表示する(端は多少見切れる)
+                      const REGION_ZOOM_BOOST = { '40': 1.0, '41': 1.0, '42': 1.2, '43': 1.0, '44': 1.0, '45': 1.0, '46': 1.2 }; // 40福岡 41佐賀 42長崎 43熊本 44大分 45宮崎 46鹿児島
+                      const scale = Math.min(scaleW, scaleH) * (REGION_ZOOM_BOOST[selectedPrefId] ?? 1.2); // 少しだけ大きめに表示する(端は多少見切れる)
                       wPct = (scale * prefFullViewBox.w / effectiveW) * 100;
                       hPct = (scale * prefFullViewBox.h / effectiveH) * 100;
                     }
