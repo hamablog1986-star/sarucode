@@ -2385,11 +2385,22 @@ function getCrowdLevel(dateStr) {
 }
 
 
+// 市町村ページの絞り込みタブで使うカテゴリ。色分けは未定のため、ひとまず全カテゴリ同じ色にしてある
+// (実データが揃い次第、カテゴリごとに色分けする想定)。
 const CATEGORY_META = {
-  sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#E2613D', tint: '#FBEAE4', icon: Landmark },
-  food: { label: { ja: '食事', en: 'Food' }, color: '#3F8753', tint: '#E9F3EC', icon: UtensilsCrossed },
-  lodging: { label: { ja: '宿泊', en: 'Lodging' }, color: '#3B5E91', tint: '#E9EDF6', icon: BedDouble },
-  roadside: { label: { ja: '道の駅', en: 'Rest stop' }, color: '#C9821A', tint: '#FBF1E2', icon: Store },
+  history: { label: { ja: '歴史', en: 'History' }, color: '#3B5E91', tint: '#E9EDF6', icon: BookOpen },
+  nature: { label: { ja: '自然', en: 'Nature' }, color: '#3B5E91', tint: '#E9EDF6', icon: Trees },
+  experience: { label: { ja: '体験', en: 'Experience' }, color: '#3B5E91', tint: '#E9EDF6', icon: Sparkles },
+  food: { label: { ja: '飲食', en: 'Dining' }, color: '#3B5E91', tint: '#E9EDF6', icon: Soup },
+  shopping: { label: { ja: '買物', en: 'Shopping' }, color: '#3B5E91', tint: '#E9EDF6', icon: ShoppingBag },
+  lodging: { label: { ja: '宿泊', en: 'Lodging' }, color: '#3B5E91', tint: '#E9EDF6', icon: Building2 },
+  roadside: { label: { ja: '道の駅', en: 'Roadside Station' }, color: '#3B5E91', tint: '#E9EDF6', icon: Store },
+  onsen: { label: { ja: '温泉', en: 'Hot Spring' }, color: '#3B5E91', tint: '#E9EDF6', icon: Droplet },
+  medical: { label: { ja: '医療', en: 'Medical' }, color: '#3B5E91', tint: '#E9EDF6', icon: Stethoscope },
+  event: { label: { ja: '催事', en: 'Events' }, color: '#3B5E91', tint: '#E9EDF6', icon: PartyPopper },
+  // 過去のデータ・画面(目的で探すページ等)との互換性のために残してある旧カテゴリ。
+  // 新規のスポット絞り込みタブでは使わず、上の history/nature/experience に分割済み。
+  sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#3B5E91', tint: '#E9EDF6', icon: Landmark },
 };
 
 // 地図右側のアイコン列に並べる、5つの大分類(移動・休憩宿泊・観る体験・食べる買う・医療)。
@@ -2411,24 +2422,24 @@ const ICON_CATEGORY_GROUPS = {
     label: '休憩・宿泊', labelEn: 'Rest & Stay', icon: Coffee,
     items: [
       { key: 'roadside', label: '道の駅', labelEn: 'Roadside Station', icon: Store, ready: true, spotCategory: 'roadside' },
-      { key: 'onsen', label: '温泉', labelEn: 'Hot Spring', icon: Droplet, ready: false },
+      { key: 'onsen', label: '温泉', labelEn: 'Hot Spring', icon: Droplet, ready: false, spotCategory: 'onsen' },
       { key: 'lodging', label: '宿泊', labelEn: 'Lodging', icon: Building2, ready: true, spotCategory: 'lodging' },
     ],
   },
   see: {
     label: '観る・体験', labelEn: 'See & Experience', icon: Mountain,
     items: [
-      { key: 'history', label: '歴史', labelEn: 'History', icon: BookOpen, ready: true, spotCategory: 'sightseeing' },
-      { key: 'nature', label: '自然', labelEn: 'Nature', icon: Trees, ready: true, spotCategory: 'sightseeing' },
-      { key: 'experience', label: '体験', labelEn: 'Experience', icon: Sparkles, ready: true, spotCategory: 'sightseeing' },
-      { key: 'event', label: '催事', labelEn: 'Events', icon: PartyPopper, ready: false },
+      { key: 'history', label: '歴史', labelEn: 'History', icon: BookOpen, ready: true, spotCategory: 'history' },
+      { key: 'nature', label: '自然', labelEn: 'Nature', icon: Trees, ready: true, spotCategory: 'nature' },
+      { key: 'experience', label: '体験', labelEn: 'Experience', icon: Sparkles, ready: true, spotCategory: 'experience' },
+      { key: 'event', label: '催事', labelEn: 'Events', icon: PartyPopper, ready: false, spotCategory: 'event' },
     ],
   },
   eat: {
     label: '食べる・買う', labelEn: 'Eat & Shop', icon: Wallet,
     items: [
       { key: 'food', label: '飲食', labelEn: 'Dining', icon: Soup, ready: true, spotCategory: 'food' },
-      { key: 'shopping', label: '買物', labelEn: 'Shopping', icon: ShoppingBag, ready: false },
+      { key: 'shopping', label: '買物', labelEn: 'Shopping', icon: ShoppingBag, ready: false, spotCategory: 'shopping' },
     ],
   },
   findBy: {
@@ -2555,14 +2566,19 @@ let SPOTS = [];
 // または0件だった場合のみ表示され、ルート検索の動作確認ができるようにするための一時的なもの。
 // 本物のデータが取得できるようになったら不要(このまま置いておいて問題ない)。
 const DEMO_SPOTS = [
-  { id: 'demo-a', category: 'sightseeing', name: 'A', nameEn: 'A', x: 363.6, y: 454.3, duration: 30, price: 0, desc: '仮の観光スポットです。', descEn: 'A placeholder sightseeing spot.', hours: null },
+  { id: 'demo-a', category: 'history', name: 'A', nameEn: 'A', x: 363.6, y: 454.3, duration: 30, price: 0, desc: '仮の観光スポットです。', descEn: 'A placeholder sightseeing spot.', hours: null },
   { id: 'demo-b', category: 'food', name: 'B', nameEn: 'B', x: 372.0, y: 463.6, duration: 45, price: 1200, desc: '仮の食事スポットです。', descEn: 'A placeholder dining spot.', hours: null },
   { id: 'demo-c', category: 'lodging', name: 'C', nameEn: 'C', x: 352.7, y: 470.8, duration: 0, price: 8000, desc: '仮の宿泊施設です。', descEn: 'A placeholder lodging spot.', hours: null },
   { id: 'demo-d', category: 'roadside', name: 'D', nameEn: 'D', x: 345.1, y: 455.7, duration: 20, price: 0, desc: '仮の道の駅です。', descEn: 'A placeholder roadside station.', hours: null },
 ];
 
 // スプレッドシートの「カテゴリ」列(日本語)を、このアプリが使う内部キーに変換する
-const CATEGORY_JA_TO_EN = { '観光': 'sightseeing', '食事': 'food', '宿泊': 'lodging', '道の駅': 'roadside' };
+const CATEGORY_JA_TO_EN = {
+  '観光': 'sightseeing', // 旧カテゴリ(互換性のため残す)
+  '歴史': 'history', '自然': 'nature', '体験': 'experience',
+  '食事': 'food', '飲食': 'food', // '食事'は旧ラベル、'飲食'が現行ラベル
+  '宿泊': 'lodging', '道の駅': 'roadside', '温泉': 'onsen', '医療': 'medical', '買物': 'shopping', '催事': 'event',
+};
 
 const KYUSHU_VIEW_W = 800;
 const KYUSHU_VIEW_H = 1502.5;
@@ -5392,6 +5408,22 @@ function MairuDemoInner() {
     return () => clearTimeout(t);
   }, [myLocationStatus]);
 
+  // 「リセット」ボタン用: 九州・県ページで表示中のピン・地名表示・展開中メニューなどを全て解除する。
+  function resetMapDisplay() {
+    setShowAirportPins(false);
+    setShowFerryPins(false);
+    setShowRoadsidePins(false);
+    setExpandedIconGroup(null);
+    setPeekAirportId(null);
+    setPeekFerryId(null);
+    setPeekRoadsideId(null);
+    setShowAllPrefNames(false);
+    setShowAllCityNames(false);
+    setPeekPrefId(null);
+    setPeekCityId(null);
+    setIconLabelPeek(null);
+  }
+
   // 近い場所に複数のピンが重なって見づらくなるのを防ぐため、指定した距離(データ座標系の単位)以内の
   // ピンを1つのクラスターにまとめる。ピンが多い九州全体ページで使う。
   function clusterPins(points, cellSize) {
@@ -5526,6 +5558,25 @@ function MairuDemoInner() {
     };
   }
   const kyushuMapScrollRef = useRef(null); // 九州全体図のスクロール領域
+  // +/−ボタンでの拡大縮小時、画面の中心を基準に拡大縮小されるようにする。
+  // (何もしないと、スクロール位置は変わらないまま中身だけ大きく/小さくなるため、
+  // 見た目上は左上が拡大・右下が縮小されるように見えてしまう)
+  function zoomStepAroundCenter(setZoom, scrollRef, updateZoomFn) {
+    const el = scrollRef.current;
+    if (!el) { setZoom(updateZoomFn); return; }
+    const oldScrollWidth = el.scrollWidth;
+    const oldScrollHeight = el.scrollHeight;
+    const ratioX = oldScrollWidth > 0 ? (el.scrollLeft + el.clientWidth / 2) / oldScrollWidth : 0.5;
+    const ratioY = oldScrollHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / oldScrollHeight : 0.5;
+    setZoom(updateZoomFn);
+    // Reactが新しいサイズを実際に反映し終えるまで待ってからスクロール位置を設定する
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.scrollLeft = ratioX * el.scrollWidth - el.clientWidth / 2;
+        el.scrollTop = ratioY * el.scrollHeight - el.clientHeight / 2;
+      });
+    });
+  }
   const kyushuMapContentRef = useRef(null); // 九州全体図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
@@ -5611,8 +5662,7 @@ function MairuDemoInner() {
     return () => cancelAnimationFrame(raf);
   }, [peekPrefId, appStage]);
 
-  const [activeCategory, setActiveCategory] = useState('sightseeing');
-  const [showOtherMenu, setShowOtherMenu] = useState(false); // 「その他」タブを押した際に開くウインドウの開閉状態
+  const [activeCategory, setActiveCategory] = useState('history');
   const [selectMode, setSelectMode] = useState('map'); // 'map' | 'card'
   const [lastBrowseMode, setLastBrowseMode] = useState('map'); // 候補/決定から戻る際に復元する表示モード('map' | 'card')
   const [selectedId, setSelectedId] = useState(null);
@@ -8114,7 +8164,7 @@ function MairuDemoInner() {
                       <div className="icon-group-submenu">
                         <button
                           className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setKyushuZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
                           disabled={kyushuZoom >= 3}
                           title={lang === 'en' ? 'Zoom in' : '拡大'}
                           aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
@@ -8123,7 +8173,7 @@ function MairuDemoInner() {
                         </button>
                         <button
                           className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setKyushuZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
                           disabled={kyushuZoom <= 1}
                           title={lang === 'en' ? 'Zoom out' : '縮小'}
                           aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
@@ -8140,6 +8190,14 @@ function MairuDemoInner() {
                     aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
                   >
                     <Route size={16} />
+                  </button>
+                  <button
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                  >
+                    <RotateCcw size={16} />
                   </button>
                   <button
                     className="locate-me-btn icon-only"
@@ -8628,7 +8686,7 @@ function MairuDemoInner() {
                       <div className="icon-group-submenu">
                         <button
                           className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setRegionZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
                           disabled={regionZoom >= 3}
                           title={lang === 'en' ? 'Zoom in' : '拡大'}
                           aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
@@ -8637,7 +8695,7 @@ function MairuDemoInner() {
                         </button>
                         <button
                           className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setRegionZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
                           disabled={regionZoom <= 1}
                           title={lang === 'en' ? 'Zoom out' : '縮小'}
                           aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
@@ -8654,6 +8712,14 @@ function MairuDemoInner() {
                     aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
                   >
                     <Route size={16} />
+                  </button>
+                  <button
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                  >
+                    <RotateCcw size={16} />
                   </button>
                   <button
                     className="locate-me-btn icon-only"
@@ -9002,28 +9068,30 @@ function MairuDemoInner() {
         const isIsahaya = ACTIVE_CITY_IDS.includes(selectedCity);
         const categoryTabs = (
           <nav className="tabs" aria-label={lang === 'en' ? 'Category selection' : 'カテゴリ選択'}>
-            {Object.entries(CATEGORY_META).map(([key, meta]) => {
+            <button
+              className="tab tab-icon-only"
+              onClick={() => { setActiveCategory(null); setLinkedId(null); }}
+              title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+              aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+            >
+              <RotateCcw size={16} />
+            </button>
+            {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => {
               const Icon = meta.icon;
-              const isOther = key === 'roadside';
               return (
                 <button
                   key={key}
                   className={`tab tab-icon-only ${activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided' ? 'tab-active' : ''}`}
                   onClick={() => {
-                    if (isOther) {
-                      setShowOtherMenu(true);
-                      return;
-                    }
                     setActiveCategory(key);
                     setLinkedId(null);
                     if (selectMode === 'candidates' || selectMode === 'decided') {
                       setSelectMode(lastBrowseMode);
                     }
                   }}
-                  title={isOther ? (lang === 'en' ? 'Other' : 'その他') : catLabel(meta)}
-                  aria-label={isOther ? (lang === 'en' ? 'Other' : 'その他') : catLabel(meta)}
-                  aria-haspopup={isOther ? 'dialog' : undefined}
-                  aria-pressed={!isOther && activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
+                  title={catLabel(meta)}
+                  aria-label={catLabel(meta)}
+                  aria-pressed={activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
                 >
                   <Icon size={16} />
                 </button>
@@ -9556,7 +9624,7 @@ function MairuDemoInner() {
                   <button className={detourCategory === 'all' ? 'active' : ''} onClick={() => { setDetourCategory('all'); setLinkedId(null); }}>
                     {lang === 'en' ? 'All' : 'すべて'}
                   </button>
-                  {Object.entries(CATEGORY_META).map(([key, meta]) => (
+                  {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => (
                     <button
                       key={key}
                       className={detourCategory === key ? 'active' : ''}
@@ -9988,35 +10056,6 @@ function MairuDemoInner() {
                 </a>
               )}
             </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showOtherMenu && (
-        <div className="overlay-backdrop" onClick={() => setShowOtherMenu(false)}>
-          <div className="plan-dialog-card" onClick={(e) => e.stopPropagation()}>
-            <button className="plan-dialog-x" onClick={() => setShowOtherMenu(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}>
-              <X size={16} />
-            </button>
-            <h3 className="plan-dialog-title">{lang === 'en' ? 'Other' : 'その他'}</h3>
-            <p className="plan-dialog-desc">
-              {lang === 'en' ? 'Choose a category to browse.' : '見たいカテゴリを選んでください。'}
-            </p>
-            <div className="other-menu-list">
-              <button
-                className="other-menu-item"
-                onClick={() => {
-                  setActiveCategory('roadside');
-                  setLinkedId(null);
-                  if (selectMode === 'candidates' || selectMode === 'decided') {
-                    setSelectMode(lastBrowseMode);
-                  }
-                  setShowOtherMenu(false);
-                }}
-              >
-                <Store size={16} /> {lang === 'en' ? 'Rest stop' : '道の駅'}
-              </button>
             </div>
           </div>
         </div>
