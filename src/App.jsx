@@ -7693,15 +7693,19 @@ function MairuDemoInner() {
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
         .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
+        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .detail-card {
-          position:relative; background:none; border-radius:16px; padding:0; max-width:640px; width:100%; box-shadow:none;
-          max-height:calc(100dvh - 40px);
+          position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
+          border:1px solid rgba(255,255,255,0.5);
+          max-height:calc(100vh - 112px);
+          max-height:calc(100dvh - 112px);
           overflow-y:auto; overflow-x:hidden;
+          overscroll-behavior:none;
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .detail-card::-webkit-scrollbar { display:none; }
-        .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:16px 16px 0 0; }
-        .detail-hero.has-image { height:auto; aspect-ratio:2.4 / 1; }
+        .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:0; }
+        .detail-hero.has-image { height:auto; aspect-ratio:900 / 381; }
         .detail-hero-icon { color:var(--cat-color); }
         .detail-hero-img { width:100%; height:100%; object-fit:contain; display:block; }
         .detail-textblock { background:none; padding:16px 22px 0; display:flex; flex-direction:column; align-items:stretch; gap:8px; text-align:left; }
