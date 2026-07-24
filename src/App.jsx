@@ -7493,7 +7493,11 @@ function MairuDemoInner() {
         .map-frame { position:relative; width:100%; aspect-ratio: ${VIEW_W} / ${VIEW_H}; background:#D9E8F0; border-radius:18px; overflow:hidden; box-shadow: 0 2px 12px rgba(26,46,59,0.08); }
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .show-names-inline-btn { font-size:11px; font-weight:700; color:var(--ink); background:none; border:none; padding:0; cursor:pointer; pointer-events:auto; }
-        .map-toggle-group { position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .map-toggle-group {
+          position:absolute; right:10px; top:10px; bottom:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
+          overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none; -webkit-overflow-scrolling:touch;
+        }
+        .map-toggle-group::-webkit-scrollbar { display:none; }
         .icon-group-wrap { position:relative; }
         .icon-group-submenu {
           position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
@@ -7568,7 +7572,7 @@ function MairuDemoInner() {
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
-        .map-pan-scroll { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-x pan-y; scrollbar-width:none; -ms-overflow-style:none; cursor:grab; user-select:none; border-radius:14px; }
+        .map-pan-scroll { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:none; touch-action:pan-x pan-y; scrollbar-width:none; -ms-overflow-style:none; cursor:grab; user-select:none; border-radius:14px; }
         .map-pan-scroll::-webkit-scrollbar { display:none; }
         .map-pan-scroll.is-panning { cursor:grabbing; }
         .map-pan-content { position:relative; min-width:100%; min-height:100%; }
@@ -7622,16 +7626,9 @@ function MairuDemoInner() {
         .spinner { width:30px; height:30px; border:3px solid var(--line); border-top-color:var(--ink); border-radius:50%; animation:spin .8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .my-location-marker { position:absolute; transform:translate(-50%,-50%); width:16px; height:16px; display:flex; align-items:center; justify-content:center; z-index:3; pointer-events:none; }
         .pin-travel-bubble { position:absolute; transform:translate(-50%,-130%); display:flex; flex-direction:column; align-items:center; gap:1px; background:#21262C; color:#fff; padding:5px 9px; border-radius:8px; font-size:11px; font-weight:600; white-space:nowrap; pointer-events:none; z-index:4; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
         .pin-travel-bubble-name { font-size:10px; font-weight:700; opacity:0.85; }
         .pin-travel-bubble-time { display:flex; align-items:center; gap:4px; }
-        .my-location-dot { position:relative; width:12px; height:12px; border-radius:50%; background:#1D9E75; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.35); }
-        .my-location-pulse { position:absolute; width:12px; height:12px; border-radius:50%; background:#1D9E75; opacity:0.45; animation: my-location-pulse 2s ease-out infinite; }
-        @keyframes my-location-pulse {
-          0% { transform:scale(1); opacity:0.45; }
-          100% { transform:scale(3.2); opacity:0; }
-        }
 
         .locate-btn { display:flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; flex-shrink:0; }
         .locate-btn.is-active { background:var(--ink); border-color:var(--ink); color:#fff; }
@@ -8344,8 +8341,8 @@ function MairuDemoInner() {
                         className="my-location-marker"
                         style={{ left: pct(myLocationXY.x - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(myLocationXY.y - kyushuPanBox.y, kyushuPanBox.h) + '%' }}
                       >
-                        <span className="my-location-dot" />
                         <span className="my-location-pulse" />
+                        <span className="my-location-dot" />
                       </div>
                     )}
                     {showAirportPins && clusterPins(
@@ -8878,8 +8875,8 @@ function MairuDemoInner() {
                         className="my-location-marker"
                         style={{ left: pct(myLocationXY.x - prefFullViewBox.x, prefFullViewBox.w) + '%', top: pct(myLocationXY.y - prefFullViewBox.y, prefFullViewBox.h) + '%' }}
                       >
-                        <span className="my-location-dot" />
                         <span className="my-location-pulse" />
+                        <span className="my-location-dot" />
                       </div>
                     )}
                     {showAirportPins && clusterPins(
@@ -9291,8 +9288,8 @@ function MairuDemoInner() {
                     <LangToggleIcon inColumn />
                     <button
                       className="locate-me-btn icon-only"
-                      onClick={handleLocateMe}
-                      disabled={myLocationStatus === 'loading'}
+                      onClick={() => locateMe()}
+                      disabled={myLocationStatus === 'loading' || locating}
                       title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                       aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     >
