@@ -7772,6 +7772,12 @@ function MairuDemoInner() {
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .detail-card::-webkit-scrollbar { display:none; }
+        @media (min-width:900px) {
+          .detail-card { max-width:820px; }
+        }
+        @media (min-width:1200px) {
+          .detail-card { max-width:980px; }
+        }
         .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:0; }
         .detail-hero.has-image { height:auto; aspect-ratio:900 / 381; }
         .detail-hero-icon { color:var(--cat-color); }
