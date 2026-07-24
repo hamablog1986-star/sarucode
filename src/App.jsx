@@ -2569,15 +2569,6 @@ let SPOTS = [];
 // カードのデザイン確認にそのまま使える。
 const DEMO_SPOTS = [
   {
-    id: 'S1782782864040', category: 'history', name: '眼鏡橋', nameEn: 'Meganebashi Bridge (Spectacles Bridge)',
-    x: 364.69770145294694, y: 468.4350531553658, duration: 25, price: 0, priceRangeText: '0〜',
-    accessible: 'あり', parking: 'あり', affiliateUrl: '',
-    image: 'https://conotavi.com/images/1782782862591-apbist.webp',
-    desc: '1839年（天保10年）に本明川に架けられた「眼鏡橋」は、江戸時代の二連アーチ式石橋としては日本一の規模を誇る歴史的建造物です。1957年には国の重要文化財に指定されました。1982年の長崎大水害で一部が流出しましたが、市民の熱い要望により、流された石を可能な限り回収して翌年に見事に復元されました。現在では諫早公園の象徴として多くの観光客に親しまれています。橋のアーチが水面に映る姿が丸い眼鏡のように見えることからその名がつきました。春には新緑、秋には紅葉と四季折々の風景が楽しめる市民の憩いの場でもあります。',
-    descEn: 'The Isahaya Meganebashi Bridge, also known as the "Spectacles Bridge," was originally constructed in 1839 over the Honmyo River. It is a historic stone arch bridge and remains the largest double-arch stone bridge from the Edo period in Japan. Designated as a National Important Cultural Property in 1957, the bridge faced a tragic partial collapse during the catastrophic Nagasaki flood in 1982. However, thanks to the dedicated efforts of local citizens, the original stones were salvaged and reconstructed, restoring the bridge to its former glory the following year. Today, it stands as an iconic landmark within Isahaya Park.',
-    hours: { week: [[[0, 1440]], [[0, 1440]], [[0, 1440]], [[0, 1440]], [[0, 1440]], [[0, 1440]], [[0, 1440]]] },
-  },
-  {
     id: 'S1782783588975', category: 'food', name: '山しげ', nameEn: 'Yamashige',
     x: 365.8846180844917, y: 469.13772943996065, duration: 50, price: 2000, priceRangeText: '1000〜2000',
     accessible: 'なし', parking: 'なし', affiliateUrl: '',
@@ -5716,7 +5707,7 @@ function MairuDemoInner() {
     return () => cancelAnimationFrame(raf);
   }, [peekPrefId, appStage]);
 
-  const [activeCategory, setActiveCategory] = useState('history');
+  const [activeCategory, setActiveCategory] = useState(null); // どのスポットカテゴリも選択されていない状態が初期状態
   const [selectMode, setSelectMode] = useState('map'); // 'map' | 'card'
   const [lastBrowseMode, setLastBrowseMode] = useState('map'); // 候補/決定から戻る際に復元する表示モード('map' | 'card')
   const [selectedId, setSelectedId] = useState(null);
@@ -6229,6 +6220,7 @@ function MairuDemoInner() {
   function handleSpotTap(id) {
     if (linkedId === id) {
       setSelectedId(id);
+      setLinkedId(null); // 詳細カードが透明な背景のため、背後の吹き出しは消しておく
     } else {
       setLinkedId(id);
     }
@@ -7494,10 +7486,15 @@ function MairuDemoInner() {
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .show-names-inline-btn { font-size:11px; font-weight:700; color:var(--ink); background:none; border:none; padding:0; cursor:pointer; pointer-events:auto; }
         .map-toggle-group {
-          position:absolute; right:10px; top:10px; bottom:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
-          overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none; -webkit-overflow-scrolling:touch;
+          position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
         }
-        .map-toggle-group::-webkit-scrollbar { display:none; }
+        @media (max-height:430px) {
+          /* 横向き画面など縦幅が狭い場合は、アイコンを少し小さくして画面内に収まるようにする */
+          .map-toggle-group { gap:3px; }
+          .locate-me-btn.icon-only { width:26px; height:26px; padding:5px; }
+          .icon-group-submenu { padding:4px 6px; gap:4px; }
+          .map-toggle-divider { margin:1px 0; }
+        }
         .icon-group-wrap { position:relative; }
         .icon-group-submenu {
           position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
@@ -7559,6 +7556,11 @@ function MairuDemoInner() {
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
         .poi-pin-label { position:absolute; bottom:32px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5; }
+        .spot-pin-peek-label {
+          position:absolute; transform:translate(-50%, calc(-100% - 44px));
+          white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
+          padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5;
+        }
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; }
@@ -7654,13 +7656,13 @@ function MairuDemoInner() {
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
         .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
-        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:28px 16px; }
-        .detail-card { position:relative; background:#fff; border-radius:16px; padding:0; max-width:360px; width:100%; box-shadow:0 14px 34px rgba(0,0,0,0.18); overflow:hidden; }
-        .detail-hero { height:140px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-        .detail-hero.has-image { height:200px; }
+        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:88px 58px 28px 16px; }
+        .detail-card { position:relative; background:none; border-radius:16px; padding:0; max-width:640px; width:100%; box-shadow:none; overflow:hidden; }
+        .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:16px 16px 0 0; }
+        .detail-hero.has-image { height:auto; aspect-ratio:2.4 / 1; }
         .detail-hero-icon { color:var(--cat-color); }
-        .detail-hero-img { width:100%; height:100%; object-fit:cover; display:block; }
-        .detail-textblock { background:#111111; padding:16px 20px 18px; display:flex; flex-direction:column; align-items:stretch; gap:8px; text-align:left; }
+        .detail-hero-img { width:100%; height:100%; object-fit:contain; display:block; }
+        .detail-textblock { background:none; padding:16px 22px 0; display:flex; flex-direction:column; align-items:stretch; gap:8px; text-align:left; }
         .detail-textblock-top { display:flex; align-items:center; justify-content:flex-start; gap:8px; }
         .detail-textblock-tag { display:inline-flex; align-items:center; gap:5px; background:var(--cat-color); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.02em; padding:4px 10px; border-radius:7px; }
         .detail-textblock-price { color:rgba(255,255,255,0.92); font-size:12.5px; font-weight:700; font-family:'JetBrains Mono', monospace; white-space:nowrap; }
@@ -7668,11 +7670,10 @@ function MairuDemoInner() {
         .detail-textblock-desc { color:rgba(255,255,255,0.82); font-size:13px; line-height:1.65; margin:0; text-align:left; }
         .detail-textblock-desc.is-clamped { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
         .detail-textblock-more { align-self:flex-start; background:none; border:none; padding:0; margin-top:-3px; color:rgba(255,255,255,0.62); font-size:12px; font-weight:700; text-decoration:underline; cursor:pointer; }
-        .detail-body { padding:18px 22px 22px; }
-        .detail-body-dark { background:#111111; padding-top:14px; }
-        .detail-body-dark .detail-price,
-        .detail-body-dark .duration-label,
-        .detail-body-dark .stepper-value { color:rgba(255,255,255,0.85); }
+        .detail-body { background:none; padding:18px 22px 22px; }
+        .detail-body .detail-price,
+        .detail-body .duration-label,
+        .detail-body .stepper-value { color:rgba(255,255,255,0.85); }
 
         .plan-dialog-card {
           position:relative;
@@ -7812,10 +7813,10 @@ function MairuDemoInner() {
         }
         .shared-plan-banner button { background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:22px; height:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; }
 
-        .detail-tag { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:var(--cat-color); border:1px solid var(--cat-color); padding:3px 9px; border-radius:999px; margin-bottom:10px; }
-        .detail-name { font-family:'Zen Kaku Gothic New', sans-serif; font-size:19px; margin:0 0 8px; }
-        .detail-desc { font-size:13px; color:#454A52; line-height:1.65; margin:0 0 10px; }
-        .detail-price { font-size:12.5px; font-weight:700; color:var(--ink); font-family:'JetBrains Mono', monospace; margin:0 0 12px; }
+        .detail-tag { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:#fff; background:var(--cat-color); border:none; padding:4px 10px; border-radius:999px; margin-bottom:10px; }
+        .detail-name { font-family:'Zen Kaku Gothic New', sans-serif; font-size:19px; margin:0 0 8px; color:#fff; }
+        .detail-desc { font-size:13px; color:rgba(255,255,255,0.82); line-height:1.65; margin:0 0 10px; }
+        .detail-price { font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.85); font-family:'JetBrains Mono', monospace; margin:0 0 12px; }
         .hours-status { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11.5px; font-weight:600; padding:7px 10px; border-radius:8px; margin:0 0 12px; }
         .travel-from-me { display:flex; flex-direction:column; gap:4px; background:#F6F6F4; border-radius:8px; padding:8px 10px; margin:0 0 12px; }
         .travel-from-me-label { font-size:11px; font-weight:700; color:var(--muted); }
@@ -9455,6 +9456,14 @@ function MairuDemoInner() {
                     </button>
                     <button
                       className="locate-me-btn icon-only"
+                      onClick={(e) => { e.stopPropagation(); resetMapDisplay(); setActiveCategory(null); setLinkedId(null); }}
+                      title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                      aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    >
+                      <RotateCcw size={16} />
+                    </button>
+                    <button
+                      className="locate-me-btn icon-only"
                       onClick={(e) => { e.stopPropagation(); if (isIsahaya && view === 'route') { setView('select'); } else { setAppStage('region'); } }}
                       title={lang === 'en' ? 'Back' : '戻る'}
                       aria-label={lang === 'en' ? 'Back' : '戻る'}
@@ -9482,18 +9491,29 @@ function MairuDemoInner() {
                     const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
                     const overBudget = wouldExceedBudget(spot);
                     const isLinked = linkedId === spot.id;
+                    const leftPct = pct(spot.x - muniMapBox.x, muniMapBox.w);
+                    const topPct = pct(spot.y - muniMapBox.y, muniMapBox.h);
                     return (
-                      <button
-                        key={spot.id}
-                        className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${overBudget ? 'is-over-budget' : ''} ${isLinked ? 'is-linked' : ''}`}
-                        style={{ left: pct(spot.x - muniMapBox.x, muniMapBox.w) + '%', top: pct(spot.y - muniMapBox.y, muniMapBox.h) + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                        onClick={() => handleSpotTap(spot.id)}
-                        aria-label={sName(spot)}
-                      >
-                        <span className="spot-pin-icon">
-                          {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
-                        </span>
-                      </button>
+                      <Fragment key={spot.id}>
+                        <button
+                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${overBudget ? 'is-over-budget' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={() => handleSpotTap(spot.id)}
+                          aria-label={sName(spot)}
+                        >
+                          <span className="spot-pin-icon">
+                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
+                          </span>
+                        </button>
+                        {isLinked && (
+                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
+                            <span className="poi-pin-label-name">{sName(spot)}</span>
+                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
+                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            </button>
+                          </div>
+                        )}
+                      </Fragment>
                     );
                   })}
 
@@ -9723,18 +9743,29 @@ function MairuDemoInner() {
                     const Icon = meta.icon;
                     const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
                     const isLinked = linkedId === spot.id;
+                    const leftPct = pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW);
+                    const topPct = pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH);
                     return (
-                      <button
-                        key={spot.id}
-                        className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                        onClick={() => handleSpotTap(spot.id)}
-                        aria-label={sName(spot)}
-                      >
-                        <span className="spot-pin-icon">
-                          {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
-                        </span>
-                      </button>
+                      <Fragment key={spot.id}>
+                        <button
+                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={() => handleSpotTap(spot.id)}
+                          aria-label={sName(spot)}
+                        >
+                          <span className="spot-pin-icon">
+                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
+                          </span>
+                        </button>
+                        {isLinked && (
+                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
+                            <span className="poi-pin-label-name">{sName(spot)}</span>
+                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
+                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            </button>
+                          </div>
+                        )}
+                      </Fragment>
                     );
                   })}
 
@@ -10012,7 +10043,7 @@ function MairuDemoInner() {
               </div>
             )}
 
-            <div className={`detail-body ${selectedSpot.image ? 'detail-body-dark' : ''}`}>
+            <div className="detail-body">
             {!selectedSpot.image && (
               <Fragment>
                 <div className="detail-tag">
