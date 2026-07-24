@@ -5128,6 +5128,33 @@ function diffMinutes(t1, t2) {
   const [h2, m2] = t2.split(':').map(Number);
   return (h2 * 60 + m2) - (h1 * 60 + m1);
 }
+// 市町村ページの地図の表示範囲(SVGのviewBoxに相当)を計算する。
+// レンダー内の表示と、Ctrl+ホイールズームの両方から同じ計算結果を使うための共通関数。
+function computeMuniMapBox(cityConfig, mapSize, zoom, panX, panY) {
+  const crop = cityConfig.crop;
+  let box = { x: crop.x, y: crop.y, w: cityConfig.viewW, h: cityConfig.viewH };
+  if (mapSize && mapSize.w > 0 && mapSize.h > 0) {
+    const containerAspect = mapSize.w / mapSize.h;
+    const viewAspect = cityConfig.viewW / cityConfig.viewH;
+    const ccx = crop.x + cityConfig.viewW / 2;
+    const ccy = crop.y + cityConfig.viewH / 2;
+    if (containerAspect > viewAspect) {
+      const w2 = containerAspect * cityConfig.viewH;
+      box = { x: ccx - w2 / 2, y: ccy - cityConfig.viewH / 2, w: w2, h: cityConfig.viewH };
+    } else {
+      const h2 = cityConfig.viewW / containerAspect;
+      box = { x: ccx - cityConfig.viewW / 2, y: ccy - h2 / 2, w: cityConfig.viewW, h: h2 };
+    }
+  }
+  if (zoom !== 1) {
+    const zcx = box.x + box.w / 2;
+    const zcy = box.y + box.h / 2;
+    const zw = box.w / zoom;
+    const zh = box.h / zoom;
+    box = { x: zcx - zw / 2, y: zcy - zh / 2, w: zw, h: zh };
+  }
+  return { ...box, x: box.x + panX, y: box.y + panY };
+}
 function formatDuration(mins, lang) {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -5607,7 +5634,7 @@ function MairuDemoInner() {
   // 一緒に拡大されてしまう)がこの地図ズームと同時に発生してしまうことがある。
   // そのため、地図のスクロール要素に直接、passive:false のネイティブイベントリスナーを
   // 登録することで、ブラウザ本来の拡大縮小を確実に止め、地図の中身だけがズームされるようにする。
-  function useCtrlWheelZoom(scrollRef, setZoom) {
+  function useCtrlWheelZoom(scrollRef, setZoom, reattachKey) {
     useEffect(() => {
       const el = scrollRef.current;
       if (!el) return undefined;
@@ -5635,10 +5662,15 @@ function MairuDemoInner() {
       };
       el.addEventListener('wheel', onWheel, { passive: false });
       return () => el.removeEventListener('wheel', onWheel);
-    }, [scrollRef, setZoom]);
+      // scrollRef/setZoomは値が変わらないため、reattachKey(ページの表示状態)が変わるたびに
+      // 実行し直すことで、地図要素がまだ存在しないマウント時に一度失敗しても、
+      // 実際にそのページが表示されたタイミングで確実に登録し直せるようにする。
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reattachKey]);
   }
-  useCtrlWheelZoom(kyushuMapScrollRef, setKyushuZoom);
-  useCtrlWheelZoom(regionMapScrollRef, setRegionZoom);
+  useCtrlWheelZoom(kyushuMapScrollRef, setKyushuZoom, `${appStage}-${kyushuMode}`);
+  useCtrlWheelZoom(regionMapScrollRef, setRegionZoom, `${appStage}-${regionMode}-${selectedPrefId}`);
+
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
   // 含む、九州本土のもともとの表示範囲)に少しだけ余白を足したものを使う。
@@ -5793,6 +5825,42 @@ function MairuDemoInner() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [appStage, selectedCity, view, selectMode]);
+
+  // 市町村ページ(全画面地図)向けのCtrl+ホイールズーム。
+  // 九州・県ページと違い、市町村ページはスクロール要素ではなくSVGのviewBoxを直接動かす方式のため、
+  // scrollLeft/scrollWidthではなく、共通関数(computeMuniMapBox)で表示範囲を計算し直してカーソル位置を基準にする。
+  useEffect(() => {
+    const el = muniMapFrameRef.current;
+    if (!el) return undefined;
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const factor = e.deltaY > 0 ? 0.92 : 1.08;
+      setMuniZoom((z) => {
+        const newZoom = Math.min(3, Math.max(1, +(z * factor).toFixed(2)));
+        // ズーム前の表示範囲を基準に、カーソルが指している地図上の座標を求めておく
+        const beforeBox = computeMuniMapBox(activeCityConfig, muniMapSize, z, muniPanX, muniPanY);
+        const pointX = beforeBox.x + (mouseX / rect.width) * beforeBox.w;
+        const pointY = beforeBox.y + (mouseY / rect.height) * beforeBox.h;
+        // ズーム後、その同じ地図上の座標がカーソルの位置にくるよう、パン位置を計算し直す
+        const afterBoxNoPan = computeMuniMapBox(activeCityConfig, muniMapSize, newZoom, 0, 0);
+        const limitX = activeCityConfig.viewW / 2;
+        const limitY = activeCityConfig.viewH / 2;
+        const nextPanX = Math.min(limitX, Math.max(-limitX, pointX - (mouseX / rect.width) * afterBoxNoPan.w - afterBoxNoPan.x));
+        const nextPanY = Math.min(limitY, Math.max(-limitY, pointY - (mouseY / rect.height) * afterBoxNoPan.h - afterBoxNoPan.y));
+        setMuniPanX(nextPanX);
+        setMuniPanY(nextPanY);
+        return newZoom;
+      });
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appStage, view, selectMode, selectedCity]);
   useEffect(() => {
     const el = kyushuMapFrameRef.current;
     if (!el) return undefined;
@@ -9207,34 +9275,7 @@ function MairuDemoInner() {
         );
         const isMapFull = isIsahaya && view === 'select' && selectMode === 'map';
         const muniCrop = activeCityConfig.crop;
-        let muniMapBox = { x: muniCrop.x, y: muniCrop.y, w: activeCityConfig.viewW, h: activeCityConfig.viewH };
-        if (muniMapSize && muniMapSize.w > 0 && muniMapSize.h > 0) {
-          const containerAspect = muniMapSize.w / muniMapSize.h;
-          const viewAspect = activeCityConfig.viewW / activeCityConfig.viewH;
-          const ccx = muniCrop.x + activeCityConfig.viewW / 2;
-          const ccy = muniCrop.y + activeCityConfig.viewH / 2;
-          if (containerAspect > viewAspect) {
-            // 画面の方が横長 → 横方向にビューボックスを広げて画面いっぱいに
-            const w2 = containerAspect * activeCityConfig.viewH;
-            muniMapBox = { x: ccx - w2 / 2, y: ccy - activeCityConfig.viewH / 2, w: w2, h: activeCityConfig.viewH };
-          } else {
-            // 画面の方が縦長 → 縦方向にビューボックスを広げて画面いっぱいに
-            const h2 = activeCityConfig.viewW / containerAspect;
-            muniMapBox = { x: ccx - activeCityConfig.viewW / 2, y: ccy - h2 / 2, w: activeCityConfig.viewW, h: h2 };
-          }
-        }
-        // 拡大率を反映する: 表示範囲(muniMapBox)自体を中心を基準に縮める。
-        // 地図の形・スポットのピンは両方ともこのmuniMapBoxを基準に位置を計算しているため、
-        // ここで一箇所調整するだけで、拡大してもズレずに一緒に拡大縮小される。
-        if (muniZoom !== 1) {
-          const zcx = muniMapBox.x + muniMapBox.w / 2;
-          const zcy = muniMapBox.y + muniMapBox.h / 2;
-          const zw = muniMapBox.w / muniZoom;
-          const zh = muniMapBox.h / muniZoom;
-          muniMapBox = { x: zcx - zw / 2, y: zcy - zh / 2, w: zw, h: zh };
-        }
-        // 目的地(ピン)選択時に、その地点を画面中心に移動するためのズレ(muniPanX/Y)を反映する
-        muniMapBox = { ...muniMapBox, x: muniMapBox.x + muniPanX, y: muniMapBox.y + muniPanY };
+        let muniMapBox = computeMuniMapBox(activeCityConfig, muniMapSize, muniZoom, muniPanX, muniPanY);
         // 地図をドラッグ(指/マウス)で動かせるようにする。ただし、動かせる範囲は
         // 「その市町村自体の範囲内で、輪郭線のどの部分でも中心に持ってこられる」程度に制限する
         // (隣の市町村など、関係ない場所まで際限なく動かせないようにするため)。
