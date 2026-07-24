@@ -5260,6 +5260,8 @@ function MairuDemoInner() {
   }
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const [muniZoom, setMuniZoom] = useState(1); // 市町村ページの地図拡大率
+  const [muniPanX, setMuniPanX] = useState(0); // 市町村ページの地図の中心位置ズレ(SVG座標単位、目的地選択で変化)
+  const [muniPanY, setMuniPanY] = useState(0);
   useEffect(() => {
     if (appStage !== 'kyushu') setKyushuZoom(1); // 九州ページ以外に移動したら拡大率をリセットする
   }, [appStage]);
@@ -5438,6 +5440,8 @@ function MairuDemoInner() {
     setPeekPrefId(null);
     setPeekCityId(null);
     setIconLabelPeek(null);
+    setMuniPanX(0);
+    setMuniPanY(0);
   }
 
   // 近い場所に複数のピンが重なって見づらくなるのを防ぐため、指定した距離(データ座標系の単位)以内の
@@ -5597,32 +5601,44 @@ function MairuDemoInner() {
   // PC画面向け: Ctrlキーを押しながらのマウスホイール操作で、カーソルの位置を基準に地図を拡大縮小する。
   // (トラックパッドのピンチ操作も、ブラウザ上ではctrlKey付きのwheelイベントとして送られてくるため、
   // この仕組みだけでトラックパッドのピンチズームにも対応できる)
-  function makeWheelZoomHandler(zoom, setZoom, scrollRef) {
-    return function handleWheelZoom(e) {
-      if (!e.ctrlKey) return; // Ctrlを押していない通常のスクロールは何もしない(そのままページ/一覧のスクロールとして機能させる)
-      e.preventDefault();
+  //
+  // 注意: Reactの onWheel(合成イベント)経由だと、ブラウザによっては passive:true 扱いになり
+  // e.preventDefault() が効かず、ブラウザ本来のページ拡大縮小(ヘッダー文字やアイコンまで
+  // 一緒に拡大されてしまう)がこの地図ズームと同時に発生してしまうことがある。
+  // そのため、地図のスクロール要素に直接、passive:false のネイティブイベントリスナーを
+  // 登録することで、ブラウザ本来の拡大縮小を確実に止め、地図の中身だけがズームされるようにする。
+  function useCtrlWheelZoom(scrollRef, setZoom) {
+    useEffect(() => {
       const el = scrollRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const oldScrollWidth = el.scrollWidth;
-      const oldScrollHeight = el.scrollHeight;
-      const ratioX = oldScrollWidth > 0 ? (el.scrollLeft + mouseX) / oldScrollWidth : 0.5;
-      const ratioY = oldScrollHeight > 0 ? (el.scrollTop + mouseY) / oldScrollHeight : 0.5;
-      const factor = e.deltaY > 0 ? 0.92 : 1.08; // 下スクロール(deltaYが正)で縮小、上スクロールで拡大
-      const newZoom = Math.min(3, Math.max(1, +(zoom * factor).toFixed(2)));
-      setZoom(newZoom);
-      // Reactが新しいサイズを実際に反映し終えるまで待ってから、カーソルの位置が
-      // ズーム前と同じ場所を指し続けるようスクロール位置を計算し直す
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          el.scrollLeft = ratioX * el.scrollWidth - mouseX;
-          el.scrollTop = ratioY * el.scrollHeight - mouseY;
+      if (!el) return undefined;
+      const onWheel = (e) => {
+        if (!e.ctrlKey) return; // Ctrlを押していない通常のスクロールは何もしない(そのままページ/一覧のスクロールとして機能させる)
+        e.preventDefault();
+        const rect = el.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const ratioX = el.scrollWidth > 0 ? (el.scrollLeft + mouseX) / el.scrollWidth : 0.5;
+        const ratioY = el.scrollHeight > 0 ? (el.scrollTop + mouseY) / el.scrollHeight : 0.5;
+        const factor = e.deltaY > 0 ? 0.92 : 1.08; // 下スクロール(deltaYが正)で縮小、上スクロールで拡大
+        setZoom((z) => {
+          const newZoom = Math.min(3, Math.max(1, +(z * factor).toFixed(2)));
+          // Reactが新しいサイズを実際に反映し終えるまで待ってから、カーソルの位置が
+          // ズーム前と同じ場所を指し続けるようスクロール位置を計算し直す
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              el.scrollLeft = ratioX * el.scrollWidth - mouseX;
+              el.scrollTop = ratioY * el.scrollHeight - mouseY;
+            });
+          });
+          return newZoom;
         });
-      });
-    };
+      };
+      el.addEventListener('wheel', onWheel, { passive: false });
+      return () => el.removeEventListener('wheel', onWheel);
+    }, [scrollRef, setZoom]);
   }
+  useCtrlWheelZoom(kyushuMapScrollRef, setKyushuZoom);
+  useCtrlWheelZoom(regionMapScrollRef, setRegionZoom);
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
   // 含む、九州本土のもともとの表示範囲)に少しだけ余白を足したものを使う。
@@ -6063,6 +6079,27 @@ function MairuDemoInner() {
       });
     return () => { cancelled = true; };
   }, [selectedCity]);
+
+  // 別の市に切り替えたら、地図のズーム・パン位置は初期状態に戻す
+  useEffect(() => {
+    setMuniZoom(1);
+    setMuniPanX(0);
+    setMuniPanY(0);
+  }, [selectedCity]);
+
+  // 市町村ページで目的地(ピン)が選ばれたら、その地点が画面の中心にくるよう地図を動かす
+  useEffect(() => {
+    if (!linkedId) return;
+    const spot = SPOTS.find((s) => s.id === linkedId);
+    if (!spot) return;
+    const crop = activeCityConfig.crop;
+    const cx = crop.x + activeCityConfig.viewW / 2;
+    const cy = crop.y + activeCityConfig.viewH / 2;
+    const limitX = activeCityConfig.viewW / 2;
+    const limitY = activeCityConfig.viewH / 2;
+    setMuniPanX(Math.min(limitX, Math.max(-limitX, spot.x - cx)));
+    setMuniPanY(Math.min(limitY, Math.max(-limitY, spot.y - cy)));
+  }, [linkedId]);
 
   // 「目的で探す」: 県を選ぶと、その県内の全市町村のスポットデータ(CITY_CONFIGSにdataUrlがあるもの)を
   // まとめて取得し、選択中のカテゴリ(今のところ道の駅のみ)に一致するものだけ抽出する。
@@ -8273,7 +8310,6 @@ function MairuDemoInner() {
                   ref={kyushuMapScrollRef}
                   onMouseDown={handleKyushuPanMouseDown}
                   onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
-                  onWheel={makeWheelZoomHandler(kyushuZoom, setKyushuZoom, kyushuMapScrollRef)}
                   {...makePinchHandlers(setKyushuZoom, kyushuMapContentRef, kyushuMapScrollRef)}
                 >
                   <div ref={kyushuMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
@@ -8796,7 +8832,6 @@ function MairuDemoInner() {
                   ref={regionMapScrollRef}
                   onMouseDown={handlePanMouseDown}
                   onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
-                  onWheel={makeWheelZoomHandler(regionZoom, setRegionZoom, regionMapScrollRef)}
                   {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef)}
                 >
                   <div ref={regionMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
@@ -9170,13 +9205,13 @@ function MairuDemoInner() {
           const ccx = muniCrop.x + activeCityConfig.viewW / 2;
           const ccy = muniCrop.y + activeCityConfig.viewH / 2;
           if (containerAspect > viewAspect) {
-            // 画面の方が横長 → 横方向にビューボックスを広げて画面いっぱいに(縦は変更しない)
+            // 画面の方が横長 → 横方向にビューボックスを広げて画面いっぱいに
             const w2 = containerAspect * activeCityConfig.viewH;
-            muniMapBox = { x: ccx - w2 / 2, y: muniCrop.y, w: w2, h: activeCityConfig.viewH };
+            muniMapBox = { x: ccx - w2 / 2, y: ccy - activeCityConfig.viewH / 2, w: w2, h: activeCityConfig.viewH };
           } else {
-            // 画面の方が縦長 → 縦方向にビューボックスを広げて画面いっぱいに(横は変更しない)
+            // 画面の方が縦長 → 縦方向にビューボックスを広げて画面いっぱいに
             const h2 = activeCityConfig.viewW / containerAspect;
-            muniMapBox = { x: muniCrop.x, y: ccy - h2 / 2, w: activeCityConfig.viewW, h: h2 };
+            muniMapBox = { x: ccx - activeCityConfig.viewW / 2, y: ccy - h2 / 2, w: activeCityConfig.viewW, h: h2 };
           }
         }
         // 拡大率を反映する: 表示範囲(muniMapBox)自体を中心を基準に縮める。
@@ -9188,6 +9223,54 @@ function MairuDemoInner() {
           const zw = muniMapBox.w / muniZoom;
           const zh = muniMapBox.h / muniZoom;
           muniMapBox = { x: zcx - zw / 2, y: zcy - zh / 2, w: zw, h: zh };
+        }
+        // 目的地(ピン)選択時に、その地点を画面中心に移動するためのズレ(muniPanX/Y)を反映する
+        muniMapBox = { ...muniMapBox, x: muniMapBox.x + muniPanX, y: muniMapBox.y + muniPanY };
+        // 地図をドラッグ(指/マウス)で動かせるようにする。ただし、動かせる範囲は
+        // 「その市町村自体の範囲内で、輪郭線のどの部分でも中心に持ってこられる」程度に制限する
+        // (隣の市町村など、関係ない場所まで際限なく動かせないようにするため)。
+        const muniPanLimitX = activeCityConfig.viewW / 2;
+        const muniPanLimitY = activeCityConfig.viewH / 2;
+        function handleMuniMapPanStart(e) {
+          const isTouch = e.touches && e.touches.length === 1;
+          if (e.touches && e.touches.length > 1) return; // 2本指はピンチ操作に譲る(パンは1本指のみ)
+          const startClientX = isTouch ? e.touches[0].clientX : e.clientX;
+          const startClientY = isTouch ? e.touches[0].clientY : e.clientY;
+          const el = muniMapFrameRef.current;
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return;
+          const scaleX = muniMapBox.w / rect.width;
+          const scaleY = muniMapBox.h / rect.height;
+          const startPanX = muniPanX;
+          const startPanY = muniPanY;
+          let moved = false;
+          const onMove = (moveEvent) => {
+            const mIsTouch = moveEvent.touches && moveEvent.touches.length === 1;
+            if (moveEvent.touches && moveEvent.touches.length > 1) return;
+            const mx = mIsTouch ? moveEvent.touches[0].clientX : moveEvent.clientX;
+            const my = mIsTouch ? moveEvent.touches[0].clientY : moveEvent.clientY;
+            const dx = mx - startClientX;
+            const dy = my - startClientY;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+            if (moved) {
+              if (moveEvent.cancelable) moveEvent.preventDefault();
+              const nextX = Math.min(muniPanLimitX, Math.max(-muniPanLimitX, startPanX - dx * scaleX));
+              const nextY = Math.min(muniPanLimitY, Math.max(-muniPanLimitY, startPanY - dy * scaleY));
+              setMuniPanX(nextX);
+              setMuniPanY(nextY);
+            }
+          };
+          const onEnd = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+          };
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onEnd);
+          window.addEventListener('touchmove', onMove, { passive: false });
+          window.addEventListener('touchend', onEnd);
         }
         return (
           <div className={`entry-view region-scroll ${isIsahaya ? activeCityConfig.seaBgClass : ''} ${isIsahaya && view === 'select' ? 'has-bottom-toolbar' : ''} ${isMapFull ? 'muni-map-fullscreen kyushu-topbar-view kyushu-icons-consolidated' : ''}`}>
@@ -9284,6 +9367,8 @@ function MairuDemoInner() {
                   className="map-frame muni-fullmap-frame"
                   ref={muniMapFrameRef}
                   onClick={() => { setPeekAirportId(null); setPeekFerryId(null); setExpandedIconGroup(null); }}
+                  onMouseDown={handleMuniMapPanStart}
+                  onTouchStart={handleMuniMapPanStart}
                 >
                   <div className="map-toggle-group">
                     <LangToggleIcon inColumn />
