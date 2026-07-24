@@ -2435,7 +2435,7 @@ const ICON_CATEGORY_GROUPS = {
     label: '探し方', labelEn: 'Search by', icon: Search,
     items: [
       { key: 'area', label: '地域で探す', labelEn: 'By Area', icon: MapIcon, ready: true },
-      { key: 'purpose', label: '目的で探す', labelEn: 'By Purpose', icon: Compass, ready: true },
+      { key: 'purpose', label: '目的で探す', labelEn: 'By Purpose', icon: Compass, ready: false },
       { key: 'noplan', label: 'NO PLAN', labelEn: 'NO PLAN', icon: X, ready: false },
     ],
   },
@@ -5623,6 +5623,51 @@ function MairuDemoInner() {
   const [reserved, setReserved] = useState([]); // 予約済みとしてマークしたスポットID(候補・決定とは独立した補助フラグ)
   const [customDuration, setCustomDuration] = useState({});
   const [view, setView] = useState('select');
+  // フルスクリーン地図画面(入口・九州・県・市町村)を表示中かどうか。
+  // これらの画面は独自にoverflow:hidden・height:100dvhで固定表示しているが、
+  // html/body自体がスクロール可能なままだと、モバイルでのラバーバンド(バウンス)スクロールにより
+  // ・県ページ: 離島インセットが浮き上がって見えたあと画面ごと持ち上がり、下に白い背景が見える
+  // ・市町村ページ: 地図(position:fixedでビューポートに固定)は動かないが、
+  //   position:absoluteで地図と同じコンテナを基準にしている見出し・利用規約リンクだけが
+  //   コンテナごとズレて動いて見える
+  // という不具合が発生していた。表示中はhtml/bodyのスクロール自体を止めて防止する。
+  const isFullscreenMapStage =
+    appStage === 'entry' ||
+    (appStage === 'kyushu' && kyushuMode === 'map') ||
+    (appStage === 'region' && regionMode === 'map') ||
+    (appStage === 'muni' && ACTIVE_CITY_IDS.includes(selectedCity) && view === 'select' && selectMode === 'map');
+  useEffect(() => {
+    if (!isFullscreenMapStage) return undefined;
+    const { body, documentElement: html } = document;
+    const prev = {
+      bodyOverflow: body.style.overflow,
+      htmlOverflow: html.style.overflow,
+      bodyOverscroll: body.style.overscrollBehavior,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyHeight: body.style.height,
+      htmlHeight: html.style.height,
+      bodyPosition: body.style.position,
+      bodyWidth: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    html.style.overscrollBehavior = 'none';
+    body.style.height = '100%';
+    html.style.height = '100%';
+    body.style.position = 'fixed';
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = prev.bodyOverflow;
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
+      html.style.overscrollBehavior = prev.htmlOverscroll;
+      body.style.height = prev.bodyHeight;
+      html.style.height = prev.htmlHeight;
+      body.style.position = prev.bodyPosition;
+      body.style.width = prev.bodyWidth;
+    };
+  }, [isFullscreenMapStage]);
   useEffect(() => {
     const el = muniMapFrameRef.current;
     if (!el) return undefined;
@@ -5684,6 +5729,37 @@ function MairuDemoInner() {
   const [savedPlans, setSavedPlans] = useState([]); // ブラウザに保存済みのプラン一覧
   const [showSaveDialog, setShowSaveDialog] = useState(false); // 保存・保存したプラン確認ダイアログの表示(1つに統合)
   const [showShareDialog, setShowShareDialog] = useState(false); // 共有ダイアログの表示
+  const [legalOverlay, setLegalOverlay] = useState(null); // null | 'terms' | 'privacy' | 'contact' : フッターの利用規約/プライバシーポリシー/お問い合わせを開くと表示
+  const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [contactStatus, setContactStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
+  // お問い合わせフォームの送信先(Formspree)。
+  // https://formspree.io で無料アカウントを作成し、フォームを1つ作成すると発行される
+  // "https://formspree.io/f/xxxxxxxx" のようなURLをここに置き換えてください。
+  const CONTACT_FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.message.trim()) return;
+    if (!contactForm.email.trim() && !contactForm.phone.trim()) {
+      setContactStatus('missing_contact');
+      return;
+    }
+    setContactStatus('sending');
+    try {
+      const res = await fetch(CONTACT_FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+      if (res.ok) {
+        setContactStatus('sent');
+        setContactForm({ name: '', email: '', phone: '', message: '' });
+      } else {
+        setContactStatus('error');
+      }
+    } catch {
+      setContactStatus('error');
+    }
+  };
   const [saveNameInput, setSaveNameInput] = useState(''); // 保存名の入力中の値
   const [planToast, setPlanToast] = useState(''); // 保存/読込/共有の簡易通知メッセージ
   const [sharedPlanBanner, setSharedPlanBanner] = useState(false); // 共有リンクから開いた際の案内バナー
@@ -6956,7 +7032,11 @@ function MairuDemoInner() {
         .entry-wave { display:block; width:100%; height:24px; flex-shrink:0; }
         .entry-wave-bottom { transform:rotate(180deg); }
         .entry-footer-links { background:#fff; padding:28px 20px; display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; flex-wrap:nowrap; white-space:nowrap; }
-        .entry-footer-link { font-size:11.5px; color:#7A9BAD; text-decoration:none; }
+        @media (max-width:360px) {
+          .entry-footer-links { gap:6px; }
+          .entry-footer-link { font-size:10.5px; }
+        }
+        .entry-footer-link { font-size:11.5px; color:#7A9BAD; text-decoration:none; background:none; border:none; padding:0; margin:0; font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .entry-footer-dot-sep { font-size:11.5px; color:#C7D6DC; }
         .entry-prompt { padding:36px 28px 36px; flex-shrink:0; }
         .entry-prompt-spacer { height:20px; flex-shrink:0; }
@@ -7210,7 +7290,7 @@ function MairuDemoInner() {
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
         .kyushu-float-header { position:absolute; top:14px; left:14px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
-        .kyushu-float-title-btn { background:none; border:none; padding:0; cursor:pointer; }
+        .kyushu-float-title-btn { background:none; border:none; padding:0; margin:0; cursor:pointer; display:flex; align-items:center; }
         .kyushu-float-title { font-size:16px; font-weight:800; color:#1A2E3B; margin:0; letter-spacing:0.03em; }
         .kyushu-float-lang { display:flex; align-items:center; gap:4px; }
         .kyushu-float-tabs { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; margin:0; }
@@ -7497,6 +7577,66 @@ function MairuDemoInner() {
         .plan-dialog-x { position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.05); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); }
         .plan-dialog-title { font-family:'Zen Kaku Gothic New', sans-serif; font-size:17px; margin:0 0 8px; padding-right:20px; }
         .plan-dialog-desc { font-size:12.5px; color:#5B616A; line-height:1.6; margin:0 0 14px; }
+        .legal-dialog-card {
+          position:relative;
+          background:#fff;
+          border-radius:16px;
+          max-width:560px;
+          width:100%;
+          max-height:86vh;
+          max-height:86dvh;
+          box-shadow:0 14px 34px rgba(0,0,0,0.18);
+          display:flex;
+          flex-direction:column;
+          overflow:hidden;
+        }
+        .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid var(--line); }
+        .legal-dialog-header .plan-dialog-title { margin:0; }
+        .legal-dialog-body {
+          padding:18px 22px 24px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .legal-dialog-body::-webkit-scrollbar { display:none; }
+        .legal-dialog-card.legal-dialog-card-dark { background:transparent; box-shadow:none; }
+        .legal-dialog-card-dark .legal-dialog-header { border-bottom:none; padding:22px 22px 14px; }
+        .legal-dialog-card-dark .plan-dialog-title { color:#fff; text-align:center; padding-right:0; }
+        .legal-dialog-card-dark .plan-dialog-x { display:none; }
+        .legal-dialog-card-dark .legal-section h4 { color:#fff; }
+        .legal-dialog-card-dark .legal-section p,
+        .legal-dialog-card-dark .legal-section li { color:rgba(255,255,255,0.92); }
+        .legal-dialog-card-dark .legal-updated { color:rgba(255,255,255,0.75); }
+        .legal-dialog-card-dark .contact-form-label { color:#fff; }
+        .legal-dialog-card-dark .contact-form-hint { color:rgba(255,255,255,0.7); }
+        .legal-dialog-card-dark .contact-form-input,
+        .legal-dialog-card-dark .contact-form-textarea {
+          background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff !important;
+        }
+        .legal-dialog-card-dark .contact-form-submit {
+          background:transparent; border:1px solid rgba(255,255,255,0.6); color:#fff;
+        }
+        .legal-section { margin-bottom:18px; }
+        .legal-section:last-child { margin-bottom:0; }
+        .legal-section h4 { font-size:13.5px; margin:0 0 6px; color:#1A2E3B; }
+        .legal-section p { font-size:12.5px; color:#5B616A; line-height:1.7; margin:0 0 8px; }
+        .legal-section ul { margin:0 0 8px; padding-left:18px; }
+        .legal-section li { font-size:12.5px; color:#5B616A; line-height:1.7; margin-bottom:4px; }
+        .legal-updated { font-size:11px; color:#9AA6AC; margin-top:20px; }
+        .contact-form-field { margin-bottom:14px; }
+        .contact-form-hint { font-size:11.5px; color:#8A8F98; margin:-6px 0 14px; line-height:1.5; }
+        .contact-form-label { display:block; font-size:12px; font-weight:600; color:#1A2E3B; margin-bottom:5px; }
+        .contact-form-input, .contact-form-textarea {
+          width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line);
+          font-size:13.5px; font-family:inherit; color:var(--ink) !important; background:#fff;
+        }
+        .contact-form-textarea { resize:vertical; min-height:110px; }
+        .contact-form-submit {
+          width:100%; padding:12px; border-radius:999px; border:none;
+          background:var(--ink); color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;
+        }
+        .contact-form-submit:disabled { opacity:0.5; cursor:default; }
+        .contact-form-status { font-size:12px; margin-top:10px; text-align:center; }
+        .contact-form-status.is-error { color:#C0392B; }
+        .contact-form-status.is-sent { color:#1F6E45; }
         .plan-name-input { width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-size:13.5px; margin-bottom:14px; font-family:inherit; color:var(--ink) !important; }
         .plan-dialog-actions { display:flex; gap:8px; }
         .plan-dialog-btn { flex:1; padding:10px; border-radius:9px; border:1.5px solid var(--line); background:#fff; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
@@ -7695,6 +7835,8 @@ function MairuDemoInner() {
           .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
+          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap:5px; }
+          .muni-name-grid-item { font-size:9.5px; padding:5px 2px; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
           .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
@@ -7723,17 +7865,15 @@ function MairuDemoInner() {
           .pref-floating-label-text { font-size:8px; padding:3px 5px; border-radius:5px; }
           .muni-peek-name { font-size:11px; }
 
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap:5px; }
-          .muni-name-grid-item { font-size:9.5px; padding:5px 2px; border-radius:8px; }
         }
         @media (max-width:380px) {
           .budget-input-row { font-size:9.5px; padding:0 4px; }
           .budget-input { width:44px; font-size:10px; }
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
-
           .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap:4px; }
           .muni-name-grid-item { font-size:9px; padding:4px 2px; }
+
         }
         @media (prefers-reduced-motion: reduce) {
           .mairu-app * { animation-duration:0.001ms !important; transition:none !important; }
@@ -7788,18 +7928,15 @@ function MairuDemoInner() {
               <ChevronRight size={20} color="#B8C4C9" />
             </button>
 
-            <button
-              className="entry-card"
-              onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-            >
-              <div className="entry-card-icon" style={{ background: '#1B6CA8' }}>
+            <button className="entry-card" disabled>
+              <div className="entry-card-icon" style={{ background: '#4A5A63' }}>
                 <Compass size={22} color="#fff" />
               </div>
               <div className="entry-card-body">
                 <p className="entry-card-ja">{lang === 'en' ? 'By Purpose' : '目的で探す'}</p>
                 <p className="entry-card-desc">{lang === 'en' ? 'Sights, food, hot springs…' : '観る・食べる・温泉など'}</p>
               </div>
-              <ChevronRight size={20} color="#B8C4C9" />
+              <span className="entry-card-badge">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
             </button>
 
             <button className="entry-card" disabled>
@@ -7816,9 +7953,11 @@ function MairuDemoInner() {
 
           <div className="entry-footer-wrap entry-footer-float">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -7876,10 +8015,10 @@ function MairuDemoInner() {
                           <MapIcon size={14} />
                         </button>
                         <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                          title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                          aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
                         >
                           <Compass size={14} />
                         </button>
@@ -8227,9 +8366,11 @@ function MairuDemoInner() {
 
           <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -8263,7 +8404,7 @@ function MairuDemoInner() {
             <button className={kyushuMode === 'map' ? 'active' : ''} onClick={() => { setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -8292,9 +8433,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -8385,10 +8528,10 @@ function MairuDemoInner() {
                           <MapIcon size={14} />
                         </button>
                         <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                          title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                          aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
                         >
                           <Compass size={14} />
                         </button>
@@ -8765,9 +8908,11 @@ function MairuDemoInner() {
 
           <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -8800,7 +8945,7 @@ function MairuDemoInner() {
             <button className={regionMode === 'map' ? 'active' : ''} onClick={() => { setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -8832,9 +8977,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -8981,7 +9128,7 @@ function MairuDemoInner() {
             <button className={selectMode === 'map' ? 'active' : ''} onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -9044,10 +9191,10 @@ function MairuDemoInner() {
                             <MapIcon size={14} />
                           </button>
                           <button
-                            className="locate-me-btn icon-only submenu-item"
-                            onClick={(e) => { e.stopPropagation(); setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                            title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                            aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
+                            className="locate-me-btn icon-only submenu-item coming-soon"
+                            onClick={(e) => e.stopPropagation()}
+                            title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                            aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
                           >
                             <Compass size={14} />
                           </button>
@@ -9993,9 +10140,11 @@ function MairuDemoInner() {
             {isMapFull && (
               <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
                 <div className="entry-footer-links">
-                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
                   <span className="entry-footer-dot-sep">・</span>
-                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+                  <span className="entry-footer-dot-sep">・</span>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
                 </div>
               </div>
             )}
@@ -10115,9 +10264,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -10211,6 +10362,300 @@ function MairuDemoInner() {
           </div>
         );
       })()}
+
+      {legalOverlay && (
+        <div className="overlay-backdrop" onClick={() => setLegalOverlay(null)}>
+          <div className={`legal-dialog-card ${legalOverlay ? 'legal-dialog-card-dark' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="legal-dialog-header">
+              <button className="plan-dialog-x" onClick={() => setLegalOverlay(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+              <h3 className="plan-dialog-title">
+                {legalOverlay === 'terms' && (lang === 'en' ? 'Terms of Service' : '利用規約')}
+                {legalOverlay === 'privacy' && (lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー')}
+                {legalOverlay === 'contact' && (lang === 'en' ? 'Contact' : 'お問い合わせ')}
+              </h3>
+            </div>
+            <div className="legal-dialog-body">
+
+              {legalOverlay === 'terms' && (
+              lang === 'en' ? (
+                  <>
+                    <div className="legal-section">
+                      <p>These Terms of Service ("Terms") govern the use of CONOTAVI (the "Service"), a Kyushu travel-planning web app. By using the Service, you agree to these Terms.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. Service Description</h4>
+                      <p>The Service provides maps, sightseeing/dining/lodging information, and trip-planning tools for the Kyushu region. Some categories are still under preparation and may not be available yet.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. Accuracy of Information</h4>
+                      <p>We make reasonable efforts to keep information accurate, but business hours, prices, availability, and other details may change without notice. Please verify important details directly with each facility before your visit.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. Prohibited Actions</h4>
+                      <ul>
+                        <li>Unauthorized access, scraping, or bulk automated retrieval of the Service</li>
+                        <li>Actions that interfere with the operation of the Service</li>
+                        <li>Infringing the intellectual property or other rights of the operator or third parties</li>
+                        <li>Any other action the operator deems inappropriate</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. Saved Plans</h4>
+                      <p>Trip plans you save are stored only in your device's browser storage. They are not sent to or stored on our servers, and are not synced across devices. Clearing your browser data will delete them.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. Disclaimer</h4>
+                      <p>The operator is not liable for any damage arising from the use of the Service, including but not limited to trip delays, changes in facility information, or issues with external websites linked from the Service, except where caused by the operator's willful misconduct or gross negligence.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. Suspension &amp; Changes</h4>
+                      <p>The operator may suspend, change, or discontinue all or part of the Service without prior notice.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. Copyright</h4>
+                      <p>Text, images, maps, and other content on the Service are protected by copyright and may not be reproduced or redistributed without permission, except as permitted by law.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. Governing Law &amp; Jurisdiction</h4>
+                      <p>These Terms are governed by the laws of Japan. Any disputes shall be subject to the exclusive jurisdiction of the court having jurisdiction over the operator's location.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>9. Changes to These Terms</h4>
+                      <p>These Terms may be revised as needed. The latest version in the app always applies.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>10. Contact</h4>
+                      <p>For questions about these Terms, please use the Contact form in the app.</p>
+                    </div>
+                    <p className="legal-updated">Established: July 2026</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="legal-section">
+                      <p>この利用規約(以下「本規約」)は、CONOTAVI(九州旅行プランニングアプリ、以下「本サービス」)の利用条件を定めるものです。本サービスをご利用いただいた場合、本規約に同意したものとみなします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第1条(サービス内容)</h4>
+                      <p>本サービスは、九州地域の地図表示、観光・飲食・宿泊等のスポット情報の提供、旅行プランの作成支援を行うものです。一部の機能・カテゴリは準備中であり、ご利用いただけない場合があります。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第2条(情報の正確性)</h4>
+                      <p>掲載する情報は可能な限り正確な内容となるよう努めておりますが、営業時間・料金・営業状況等は変更される場合があります。ご来訪の際は、各施設に直接ご確認ください。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第3条(禁止事項)</h4>
+                      <ul>
+                        <li>本サービスへの不正アクセス、スクレイピング等による大量・自動的な情報取得</li>
+                        <li>本サービスの運営を妨害する行為</li>
+                        <li>運営者または第三者の知的財産権その他の権利を侵害する行為</li>
+                        <li>その他、運営者が不適切と判断する行為</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第4条(保存したプランについて)</h4>
+                      <p>保存したプランのデータは、ご利用の端末のブラウザ内にのみ保存され、運営者のサーバーには送信・保存されません。また、他の端末とは同期されません。ブラウザのデータを削除すると、保存内容も削除されます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第5条(免責事項)</h4>
+                      <p>運営者は、本サービスの利用により生じた旅行日程の遅延、施設情報の変更、本サービスからリンクする外部サイトに関する損害等について、運営者の故意または重大な過失による場合を除き、一切の責任を負いません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第6条(サービスの停止・変更)</h4>
+                      <p>運営者は、事前の予告なく本サービスの全部または一部の提供を停止・変更することができるものとします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第7条(著作権)</h4>
+                      <p>本サービスに掲載する文章・画像・地図等のコンテンツの著作権は、運営者または正当な権利を有する第三者に帰属します。法令で認められる場合を除き、無断で複製・転載することを禁じます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第8条(準拠法・管轄裁判所)</h4>
+                      <p>本規約の解釈にあたっては、日本法を準拠法とします。本サービスに関して紛争が生じた場合には、運営者の所在地を管轄する裁判所を専属的合意管轄とします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第9条(規約の変更)</h4>
+                      <p>運営者は、必要と判断した場合、本規約を変更することができるものとします。変更後の規約は、本アプリ上に表示した時点から効力を生じるものとします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第10条(お問い合わせ)</h4>
+                      <p>本規約に関するお問い合わせは、アプリ内のお問い合わせフォームよりご連絡ください。</p>
+                    </div>
+                    <p className="legal-updated">制定日:2026年7月</p>
+                  </>
+                )
+              )}
+
+              {legalOverlay === 'privacy' && (
+                lang === 'en' ? (
+                  <>
+                    <div className="legal-section">
+                      <p>This Privacy Policy explains how CONOTAVI (the "Service") handles information when you use it.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. Information We Handle</h4>
+                      <ul>
+                        <li>Location information — only when you use the "Show current location" feature, obtained via your browser's Geolocation API with your permission</li>
+                        <li>Saved trip plans — stored only in your device's browser (localStorage); never sent to or stored on our servers</li>
+                        <li>Contact form submissions — the name, email address, and message you choose to enter</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. Purpose of Use</h4>
+                      <ul>
+                        <li>To show your current location on the map</li>
+                        <li>To save and restore your trip plan on your own device</li>
+                        <li>To respond to inquiries submitted via the Contact form</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. About Location Information</h4>
+                      <p>Location data is only obtained when you tap "Show current location" and grant permission in your browser. It is used solely to display your position on the map and is not transmitted to or stored on our servers.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. About Saved Plans</h4>
+                      <p>Saved plans are stored only in your browser's local storage on your device. They are not synced across devices and are not accessible to the operator. Clearing your browser data will delete them.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. Third-Party Services</h4>
+                      <p>The Service loads webfonts from Google Fonts, which may send your access information (such as IP address) to Google. The Contact form is processed using a third-party form service (Formspree); the information you submit is sent to the operator through that service. We do not currently use any analytics services.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. Disclosure to Third Parties</h4>
+                      <p>We do not provide personal information to third parties, except as described above, as required by law, or with your consent.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. Contact</h4>
+                      <p>For questions about this Privacy Policy, please use the Contact form in the app.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. Changes to This Policy</h4>
+                      <p>This Policy may be revised as needed. The latest version in the app always applies.</p>
+                    </div>
+                    <p className="legal-updated">Established: July 2026</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="legal-section">
+                      <p>本プライバシーポリシーは、CONOTAVI(以下「本サービス」)における情報の取り扱いについて定めるものです。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. 取得する情報</h4>
+                      <ul>
+                        <li>位置情報:「現在地を表示」機能をご利用いただいた場合のみ、ブラウザの位置情報機能(Geolocation API)を通じて、ご本人の許可のもと取得します</li>
+                        <li>保存プラン:ご利用の端末のブラウザ内(localStorage)にのみ保存され、運営者のサーバーには送信・保存されません</li>
+                        <li>お問い合わせフォームの送信内容:お客様が任意でご入力いただいたお名前・メールアドレス・お問い合わせ内容</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. 利用目的</h4>
+                      <ul>
+                        <li>地図上に現在地を表示するため</li>
+                        <li>作成した旅行プランを、ご利用の端末内で保存・復元するため</li>
+                        <li>お問い合わせフォームからいただいたご連絡に対応するため</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. 位置情報について</h4>
+                      <p>「現在地を表示」ボタンをタップし、ブラウザの位置情報取得の許可をいただいた場合にのみ取得します。取得した位置情報は地図上への表示にのみ使用し、運営者のサーバーへ送信・保存することはありません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. 保存プランについて</h4>
+                      <p>保存されたプランのデータは、ご利用の端末のブラウザ内にのみ保存されます。他の端末とは同期されず、運営者が内容を閲覧することもできません。ブラウザのデータを削除すると、保存内容も削除されます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. 外部サービスの利用</h4>
+                      <p>本サービスは、フォント表示のためGoogle Fontsを利用しており、その際にIPアドレス等のアクセス情報がGoogleに送信される場合があります。また、お問い合わせフォームの送信処理には外部のフォーム送信サービス(Formspree)を利用しており、ご入力いただいた内容は同サービスを通じて運営者に送付されます。なお、現時点でアクセス解析サービス(Google Analytics等)は導入しておりません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. 第三者への提供</h4>
+                      <p>上記に記載した場合を除き、法令に基づく場合やご本人の同意がある場合を除いて、取得した情報を第三者に提供することはありません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. お問い合わせ窓口</h4>
+                      <p>本ポリシーに関するお問い合わせは、アプリ内のお問い合わせフォームよりご連絡ください。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. 本ポリシーの変更</h4>
+                      <p>本ポリシーは、必要に応じて内容を変更する場合があります。変更後の内容は、本アプリ上に表示した時点から適用されるものとします。</p>
+                    </div>
+                    <p className="legal-updated">制定日:2026年7月</p>
+                  </>
+                )
+              )}
+
+              {legalOverlay === 'contact' && (
+                <>
+                  <div className="legal-section">
+                    <p>
+                      {lang === 'en'
+                        ? "Questions, feedback, or issue reports about CONOTAVI are welcome below. We'll get back to you at the email address you provide."
+                        : 'CONOTAVIに関するご質問・ご意見・不具合のご報告などは、下記フォームよりお送りください。ご入力いただいたメールアドレス宛にご返信いたします。'}
+                    </p>
+                  </div>
+                  <form onSubmit={handleContactSubmit}>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-name">{lang === 'en' ? 'Name' : 'お名前'}</label>
+                      <input
+                        id="contact-name"
+                        type="text"
+                        required
+                        className="contact-form-input"
+                        value={contactForm.name}
+                        onChange={(e) => setContactForm((f) => ({ ...f, name: e.target.value }))}
+                      />
+                    </div>
+                    <p className="contact-form-hint">
+                      {lang === 'en' ? 'Please provide at least one way to reach you: email or phone number.' : 'メールアドレス・電話番号のいずれか一方は必ずご入力ください。'}
+                    </p>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-email">{lang === 'en' ? 'Email' : 'メールアドレス'}</label>
+                      <input
+                        id="contact-email"
+                        type="email"
+                        className="contact-form-input"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm((f) => ({ ...f, email: e.target.value }))}
+                      />
+                    </div>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-phone">{lang === 'en' ? 'Phone number' : '電話番号'}</label>
+                      <input
+                        id="contact-phone"
+                        type="tel"
+                        className="contact-form-input"
+                        value={contactForm.phone}
+                        onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
+                      />
+                    </div>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-message">{lang === 'en' ? 'Message' : 'お問い合わせ内容'}</label>
+                      <textarea
+                        id="contact-message"
+                        required
+                        className="contact-form-textarea"
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm((f) => ({ ...f, message: e.target.value }))}
+                      />
+                    </div>
+                    <button type="submit" className="contact-form-submit" disabled={contactStatus === 'sending'}>
+                      {contactStatus === 'sending' ? (lang === 'en' ? 'Sending…' : '送信中…') : (lang === 'en' ? 'Send' : '送信する')}
+                    </button>
+                    {contactStatus === 'missing_contact' && (
+                      <p className="contact-form-status is-error">{lang === 'en' ? 'Please enter an email address or phone number.' : 'メールアドレスまたは電話番号をご入力ください。'}</p>
+                    )}
+                    {contactStatus === 'sent' && (
+                      <p className="contact-form-status is-sent">{lang === 'en' ? 'Thank you! Your message has been sent.' : 'お問い合わせを送信しました。ありがとうございます。'}</p>
+                    )}
+                    {contactStatus === 'error' && (
+                      <p className="contact-form-status is-error">{lang === 'en' ? 'Sending failed. Please try again later.' : '送信に失敗しました。時間をおいて再度お試しください。'}</p>
+                    )}
+                  </form>
+                </>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
