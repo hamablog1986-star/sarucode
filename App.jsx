@@ -3,7 +3,8 @@ import {
   Landmark, UtensilsCrossed, BedDouble, Store, Check, Star,
   Footprints, Bus, Car, Clock, RotateCcw, Map as MapIcon, LayoutGrid, Flag, Compass, Navigation, Route,
   Save, Share2, Download, Upload, X, Trash2, ExternalLink,
-  Calendar,
+  Calendar, TrainFront, Trees, Sparkles, ShoppingBag, Stethoscope, Droplet, PartyPopper, Coffee, ZoomIn, Mountain,
+  MapPin, BookOpen, Building2, Fuel, Wallet, Soup, Search, Languages,
   ChevronRight, ChevronLeft, Plane, Ship,
 } from 'lucide-react';
 
@@ -44,14 +45,14 @@ function formatPriceRangeText(rangeText) {
 const MINAMISHIMABARA_CROP = { x: 373.9, y: 484.5 };
 const MINAMISHIMABARA_VIEW_W = 67.8;
 const MINAMISHIMABARA_VIEW_H = 55.4;
-const MINAMISHIMABARA_SPOTS_DATA_URL = 'https://conotavi.com/data/南島原市.json';
+const MINAMISHIMABARA_SPOTS_DATA_URL = '/data/南島原市.json';
 
 
 // 島原市:諫早市・南島原市と同じ「九州全体マップと同じ正確な図法」を使い、専用の切り出し範囲を用意。
 const SHIMABARA_CROP = { x: 407.7, y: 458.2 };
 const SHIMABARA_VIEW_W = 32.1;
 const SHIMABARA_VIEW_H = 42.3;
-const SHIMABARA_SPOTS_DATA_URL = 'https://conotavi.com/data/島原市.json';
+const SHIMABARA_SPOTS_DATA_URL = '/data/島原市.json';
 
 
 // 長崎県の残り18市町村:諫早市と同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
@@ -59,907 +60,907 @@ const SHIMABARA_SPOTS_DATA_URL = 'https://conotavi.com/data/島原市.json';
 const NAGASAKI_CITY_CROP = { x: 243.4, y: 421.6 };
 const NAGASAKI_CITY_VIEW_W = 125.1;
 const NAGASAKI_CITY_VIEW_H = 137.1;
-const NAGASAKI_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/長崎市.json';
+const NAGASAKI_CITY_SPOTS_DATA_URL = '/data/長崎市.json';
 const SASEBO_CROP = { x: 126.7, y: 317.3 };
 const SASEBO_VIEW_W = 226.4;
 const SASEBO_VIEW_H = 125.8;
-const SASEBO_SPOTS_DATA_URL = 'https://conotavi.com/data/佐世保市.json';
+const SASEBO_SPOTS_DATA_URL = '/data/佐世保市.json';
 const OMURA_CROP = { x: 327.2, y: 422.5 };
 const OMURA_VIEW_W = 51.6;
 const OMURA_VIEW_H = 52.3;
-const OMURA_SPOTS_DATA_URL = 'https://conotavi.com/data/大村市.json';
+const OMURA_SPOTS_DATA_URL = '/data/大村市.json';
 const HIRADO_CROP = { x: 195.3, y: 259.3 };
 const HIRADO_VIEW_W = 97.1;
 const HIRADO_VIEW_H = 144.3;
-const HIRADO_SPOTS_DATA_URL = 'https://conotavi.com/data/平戸市.json';
+const HIRADO_SPOTS_DATA_URL = '/data/平戸市.json';
 const MATSUURA_CROP = { x: 267.8, y: 303.6 };
 const MATSUURA_VIEW_W = 64.1;
 const MATSUURA_VIEW_H = 65.8;
-const MATSUURA_SPOTS_DATA_URL = 'https://conotavi.com/data/松浦市.json';
+const MATSUURA_SPOTS_DATA_URL = '/data/松浦市.json';
 const TSUSHIMA_CROP = { x: 152.4, y: -23.5 };
 const TSUSHIMA_VIEW_W = 117.8;
 const TSUSHIMA_VIEW_H = 204.0;
-const TSUSHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/対馬市.json';
+const TSUSHIMA_SPOTS_DATA_URL = '/data/対馬市.json';
 const IKI_CROP = { x: 267.8, y: 204.2 };
 const IKI_VIEW_W = 49.8;
 const IKI_VIEW_H = 54.5;
-const IKI_SPOTS_DATA_URL = 'https://conotavi.com/data/壱岐市.json';
+const IKI_SPOTS_DATA_URL = '/data/壱岐市.json';
 const GOTO_CROP = { x: -34.2, y: 421.2 };
 const GOTO_VIEW_W = 210.4;
 const GOTO_VIEW_H = 296.9;
-const GOTO_SPOTS_DATA_URL = 'https://conotavi.com/data/五島市.json';
+const GOTO_SPOTS_DATA_URL = '/data/五島市.json';
 const SAIKAI_CROP = { x: 168.7, y: 385.3 };
 const SAIKAI_VIEW_W = 167.2;
 const SAIKAI_VIEW_H = 89.8;
-const SAIKAI_SPOTS_DATA_URL = 'https://conotavi.com/data/西海市.json';
+const SAIKAI_SPOTS_DATA_URL = '/data/西海市.json';
 const UNZEN_CROP = { x: 372.9, y: 450.9 };
 const UNZEN_VIEW_W = 58.2;
 const UNZEN_VIEW_H = 73.8;
-const UNZEN_SPOTS_DATA_URL = 'https://conotavi.com/data/雲仙市.json';
+const UNZEN_SPOTS_DATA_URL = '/data/雲仙市.json';
 const NAGAYO_CROP = { x: 318.1, y: 456.0 };
 const NAGAYO_VIEW_W = 23.0;
 const NAGAYO_VIEW_H = 27.8;
-const NAGAYO_SPOTS_DATA_URL = 'https://conotavi.com/data/長与町.json';
+const NAGAYO_SPOTS_DATA_URL = '/data/長与町.json';
 const TOGITSU_CROP = { x: 307.1, y: 458.9 };
 const TOGITSU_VIEW_W = 21.3;
 const TOGITSU_VIEW_H = 20.3;
-const TOGITSU_SPOTS_DATA_URL = 'https://conotavi.com/data/時津町.json';
+const TOGITSU_SPOTS_DATA_URL = '/data/時津町.json';
 const HIGASHISONOGI_CROP = { x: 322.5, y: 401.5 };
 const HIGASHISONOGI_VIEW_W = 46.1;
 const HIGASHISONOGI_VIEW_H = 37.7;
-const HIGASHISONOGI_SPOTS_DATA_URL = 'https://conotavi.com/data/東彼杵町.json';
+const HIGASHISONOGI_SPOTS_DATA_URL = '/data/東彼杵町.json';
 const KAWATANA_CROP = { x: 308.2, y: 398.1 };
 const KAWATANA_VIEW_W = 33.9;
 const KAWATANA_VIEW_H = 26.2;
-const KAWATANA_SPOTS_DATA_URL = 'https://conotavi.com/data/川棚町.json';
+const KAWATANA_SPOTS_DATA_URL = '/data/川棚町.json';
 const HASAMI_CROP = { x: 317.7, y: 384.4 };
 const HASAMI_VIEW_W = 30.7;
 const HASAMI_VIEW_H = 23.4;
-const HASAMI_SPOTS_DATA_URL = 'https://conotavi.com/data/波佐見町.json';
+const HASAMI_SPOTS_DATA_URL = '/data/波佐見町.json';
 const OJIKA_CROP = { x: 110.1, y: 364.2 };
 const OJIKA_VIEW_W = 68.9;
 const OJIKA_VIEW_H = 34.8;
-const OJIKA_SPOTS_DATA_URL = 'https://conotavi.com/data/小値賀町.json';
+const OJIKA_SPOTS_DATA_URL = '/data/小値賀町.json';
 const SASA_CROP = { x: 270.8, y: 356.7 };
 const SASA_VIEW_W = 19.9;
 const SASA_VIEW_H = 23.3;
-const SASA_SPOTS_DATA_URL = 'https://conotavi.com/data/佐々町.json';
+const SASA_SPOTS_DATA_URL = '/data/佐々町.json';
 const SHINKAMIGOTO_CROP = { x: 112.3, y: 375.1 };
 const SHINKAMIGOTO_VIEW_W = 83.2;
 const SHINKAMIGOTO_VIEW_H = 113.8;
-const SHINKAMIGOTO_SPOTS_DATA_URL = 'https://conotavi.com/data/新上五島町.json';
+const SHINKAMIGOTO_SPOTS_DATA_URL = '/data/新上五島町.json';
 
 // 佐賀県20市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const SAGA_CITY_CROP = { x: 371.6, y: 295.6 };
 const SAGA_CITY_VIEW_W = 76.6;
 const SAGA_CITY_VIEW_H = 111.5;
-const SAGA_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/佐賀市.json';
+const SAGA_CITY_SPOTS_DATA_URL = '/data/佐賀市.json';
 const KARATSU_CROP = { x: 284.8, y: 260.4 };
 const KARATSU_VIEW_W = 119.5;
 const KARATSU_VIEW_H = 113.1;
-const KARATSU_SPOTS_DATA_URL = 'https://conotavi.com/data/唐津市.json';
+const KARATSU_SPOTS_DATA_URL = '/data/唐津市.json';
 const TOSU_CROP = { x: 444.1, y: 318.1 };
 const TOSU_VIEW_W = 29.9;
 const TOSU_VIEW_H = 33.5;
-const TOSU_SPOTS_DATA_URL = 'https://conotavi.com/data/鳥栖市.json';
+const TOSU_SPOTS_DATA_URL = '/data/鳥栖市.json';
 const TAKU_CROP = { x: 355.1, y: 339.1 };
 const TAKU_VIEW_W = 43.2;
 const TAKU_VIEW_H = 36.5;
-const TAKU_SPOTS_DATA_URL = 'https://conotavi.com/data/多久市.json';
+const TAKU_SPOTS_DATA_URL = '/data/多久市.json';
 const IMARI_CROP = { x: 294.1, y: 317.4 };
 const IMARI_VIEW_W = 74.1;
 const IMARI_VIEW_H = 64.4;
-const IMARI_SPOTS_DATA_URL = 'https://conotavi.com/data/伊万里市.json';
+const IMARI_SPOTS_DATA_URL = '/data/伊万里市.json';
 const TAKEO_CROP = { x: 325.6, y: 351.8 };
 const TAKEO_VIEW_W = 57.3;
 const TAKEO_VIEW_H = 56.7;
-const TAKEO_SPOTS_DATA_URL = 'https://conotavi.com/data/武雄市.json';
+const TAKEO_SPOTS_DATA_URL = '/data/武雄市.json';
 const KASHIMA_CROP = { x: 356.8, y: 391.1 };
 const KASHIMA_VIEW_W = 39.2;
 const KASHIMA_VIEW_H = 47.5;
-const KASHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/鹿島市.json';
+const KASHIMA_SPOTS_DATA_URL = '/data/鹿島市.json';
 const OGI_CROP = { x: 378.1, y: 338.3 };
 const OGI_VIEW_W = 34.0;
 const OGI_VIEW_H = 48.3;
-const OGI_SPOTS_DATA_URL = 'https://conotavi.com/data/小城市.json';
+const OGI_SPOTS_DATA_URL = '/data/小城市.json';
 const URESHINO_CROP = { x: 331.3, y: 380.0 };
 const URESHINO_VIEW_W = 48.1;
 const URESHINO_VIEW_H = 54.9;
-const URESHINO_SPOTS_DATA_URL = 'https://conotavi.com/data/嬉野市.json';
+const URESHINO_SPOTS_DATA_URL = '/data/嬉野市.json';
 const KANZAKI_CROP = { x: 405.0, y: 309.9 };
 const KANZAKI_VIEW_W = 46.6;
 const KANZAKI_VIEW_H = 66.8;
-const KANZAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/神埼市.json';
+const KANZAKI_SPOTS_DATA_URL = '/data/神埼市.json';
 const YOSHINOGARI_CROP = { x: 426.9, y: 316.8 };
 const YOSHINOGARI_VIEW_W = 22.5;
 const YOSHINOGARI_VIEW_H = 47.0;
-const YOSHINOGARI_SPOTS_DATA_URL = 'https://conotavi.com/data/吉野ヶ里町.json';
+const YOSHINOGARI_SPOTS_DATA_URL = '/data/吉野ヶ里町.json';
 const KIYAMA_CROP = { x: 450.5, y: 314.1 };
 const KIYAMA_VIEW_W = 22.1;
 const KIYAMA_VIEW_H = 18.9;
-const KIYAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/基山町.json';
+const KIYAMA_SPOTS_DATA_URL = '/data/基山町.json';
 const KAMIMINE_CROP = { x: 437.2, y: 325.5 };
 const KAMIMINE_VIEW_W = 14.7;
 const KAMIMINE_VIEW_H = 33.3;
-const KAMIMINE_SPOTS_DATA_URL = 'https://conotavi.com/data/上峰町.json';
+const KAMIMINE_SPOTS_DATA_URL = '/data/上峰町.json';
 const MIYAKI_CROP = { x: 434.9, y: 323.6 };
 const MIYAKI_VIEW_W = 29.1;
 const MIYAKI_VIEW_H = 44.7;
-const MIYAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/みやき町.json';
+const MIYAKI_SPOTS_DATA_URL = '/data/みやき町.json';
 const GENKAI_CROP = { x: 314.5, y: 295.5 };
 const GENKAI_VIEW_W = 22.6;
 const GENKAI_VIEW_H = 28.5;
-const GENKAI_SPOTS_DATA_URL = 'https://conotavi.com/data/玄海町.json';
+const GENKAI_SPOTS_DATA_URL = '/data/玄海町.json';
 const ARITA_CROP = { x: 308.7, y: 364.6 };
 const ARITA_VIEW_W = 36.6;
 const ARITA_VIEW_H = 29.9;
-const ARITA_SPOTS_DATA_URL = 'https://conotavi.com/data/有田町.json';
+const ARITA_SPOTS_DATA_URL = '/data/有田町.json';
 const OMACHI_CROP = { x: 372.5, y: 367.8 };
 const OMACHI_VIEW_W = 12.7;
 const OMACHI_VIEW_H = 14.1;
-const OMACHI_SPOTS_DATA_URL = 'https://conotavi.com/data/大町町.json';
+const OMACHI_SPOTS_DATA_URL = '/data/大町町.json';
 const KOHOKU_CROP = { x: 378.6, y: 363.7 };
 const KOHOKU_VIEW_W = 20.7;
 const KOHOKU_VIEW_H = 20.8;
-const KOHOKU_SPOTS_DATA_URL = 'https://conotavi.com/data/江北町.json';
+const KOHOKU_SPOTS_DATA_URL = '/data/江北町.json';
 const SHIROISHI_CROP = { x: 364.1, y: 371.9 };
 const SHIROISHI_VIEW_W = 44.7;
 const SHIROISHI_VIEW_H = 34.5;
-const SHIROISHI_SPOTS_DATA_URL = 'https://conotavi.com/data/白石町.json';
+const SHIROISHI_SPOTS_DATA_URL = '/data/白石町.json';
 const TARA_CROP = { x: 365.7, y: 412.0 };
 const TARA_VIEW_W = 41.2;
 const TARA_VIEW_H = 34.3;
-const TARA_SPOTS_DATA_URL = 'https://conotavi.com/data/太良町.json';
+const TARA_SPOTS_DATA_URL = '/data/太良町.json';
 
 // 福岡県60市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const KITAKYUSHU_CROP = { x: 486.4, y: 161.5 };
 const KITAKYUSHU_VIEW_W = 101.7;
 const KITAKYUSHU_VIEW_H = 98.4;
-const KITAKYUSHU_SPOTS_DATA_URL = 'https://conotavi.com/data/北九州市.json';
+const KITAKYUSHU_SPOTS_DATA_URL = '/data/北九州市.json';
 const FUKUOKA_CITY_CROP = { x: 344.3, y: 192.8 };
 const FUKUOKA_CITY_VIEW_W = 132.6;
 const FUKUOKA_CITY_VIEW_H = 146.8;
-const FUKUOKA_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/福岡市.json';
+const FUKUOKA_CITY_SPOTS_DATA_URL = '/data/福岡市.json';
 const OMUTA_CROP = { x: 434.4, y: 400.2 };
 const OMUTA_VIEW_W = 40.5;
 const OMUTA_VIEW_H = 34.0;
-const OMUTA_SPOTS_DATA_URL = 'https://conotavi.com/data/大牟田市.json';
+const OMUTA_SPOTS_DATA_URL = '/data/大牟田市.json';
 const KURUME_CROP = { x: 425.5, y: 326.1 };
 const KURUME_VIEW_W = 96.4;
 const KURUME_VIEW_H = 58.2;
-const KURUME_SPOTS_DATA_URL = 'https://conotavi.com/data/久留米市.json';
+const KURUME_SPOTS_DATA_URL = '/data/久留米市.json';
 const NOGATA_CROP = { x: 495.7, y: 225.4 };
 const NOGATA_VIEW_W = 34.5;
 const NOGATA_VIEW_H = 31.7;
-const NOGATA_SPOTS_DATA_URL = 'https://conotavi.com/data/直方市.json';
+const NOGATA_SPOTS_DATA_URL = '/data/直方市.json';
 const IIZUKA_CROP = { x: 465.9, y: 244.2 };
 const IIZUKA_VIEW_W = 61.8;
 const IIZUKA_VIEW_H = 66.3;
-const IIZUKA_SPOTS_DATA_URL = 'https://conotavi.com/data/飯塚市.json';
+const IIZUKA_SPOTS_DATA_URL = '/data/飯塚市.json';
 const TAGAWA_CROP = { x: 509.9, y: 249.5 };
 const TAGAWA_VIEW_W = 30.1;
 const TAGAWA_VIEW_H = 42.0;
-const TAGAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/田川市.json';
+const TAGAWA_SPOTS_DATA_URL = '/data/田川市.json';
 const YANAGAWA_CROP = { x: 425.4, y: 376.6 };
 const YANAGAWA_VIEW_W = 34.6;
 const YANAGAWA_VIEW_H = 35.3;
-const YANAGAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/柳川市.json';
+const YANAGAWA_SPOTS_DATA_URL = '/data/柳川市.json';
 const YAME_CROP = { x: 453.0, y: 340.7 };
 const YAME_VIEW_W = 102.9;
 const YAME_VIEW_H = 74.5;
-const YAME_SPOTS_DATA_URL = 'https://conotavi.com/data/八女市.json';
+const YAME_SPOTS_DATA_URL = '/data/八女市.json';
 const CHIKUGO_CROP = { x: 447.7, y: 362.7 };
 const CHIKUGO_VIEW_W = 24.3;
 const CHIKUGO_VIEW_H = 27.0;
-const CHIKUGO_SPOTS_DATA_URL = 'https://conotavi.com/data/筑後市.json';
+const CHIKUGO_SPOTS_DATA_URL = '/data/筑後市.json';
 const OKAWA_CROP = { x: 424.3, y: 365.4 };
 const OKAWA_VIEW_W = 23.3;
 const OKAWA_VIEW_H = 24.0;
-const OKAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/大川市.json';
+const OKAWA_SPOTS_DATA_URL = '/data/大川市.json';
 const YUKUHASHI_CROP = { x: 540.6, y: 235.3 };
 const YUKUHASHI_VIEW_W = 42.1;
 const YUKUHASHI_VIEW_H = 30.1;
-const YUKUHASHI_SPOTS_DATA_URL = 'https://conotavi.com/data/行橋市.json';
+const YUKUHASHI_SPOTS_DATA_URL = '/data/行橋市.json';
 const BUZEN_CROP = { x: 560.3, y: 264.3 };
 const BUZEN_VIEW_W = 49.0;
 const BUZEN_VIEW_H = 43.1;
-const BUZEN_SPOTS_DATA_URL = 'https://conotavi.com/data/豊前市.json';
+const BUZEN_SPOTS_DATA_URL = '/data/豊前市.json';
 const NAKAMA_CROP = { x: 495.1, y: 215.5 };
 const NAKAMA_VIEW_W = 20.4;
 const NAKAMA_VIEW_H = 14.9;
-const NAKAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/中間市.json';
+const NAKAMA_SPOTS_DATA_URL = '/data/中間市.json';
 const OGORI_CROP = { x: 464.8, y: 312.4 };
 const OGORI_VIEW_W = 23.8;
 const OGORI_VIEW_H = 35.0;
-const OGORI_SPOTS_DATA_URL = 'https://conotavi.com/data/小郡市.json';
+const OGORI_SPOTS_DATA_URL = '/data/小郡市.json';
 const CHIKUSHINO_CROP = { x: 446.8, y: 284.8 };
 const CHIKUSHINO_VIEW_W = 45.6;
 const CHIKUSHINO_VIEW_H = 42.3;
-const CHIKUSHINO_SPOTS_DATA_URL = 'https://conotavi.com/data/筑紫野市.json';
+const CHIKUSHINO_SPOTS_DATA_URL = '/data/筑紫野市.json';
 const KASUGA_CROP = { x: 445.1, y: 289.6 };
 const KASUGA_VIEW_W = 13.0;
 const KASUGA_VIEW_H = 16.4;
-const KASUGA_SPOTS_DATA_URL = 'https://conotavi.com/data/春日市.json';
+const KASUGA_SPOTS_DATA_URL = '/data/春日市.json';
 const ONOJO_CROP = { x: 446.9, y: 284.9 };
 const ONOJO_VIEW_W = 20.9;
 const ONOJO_VIEW_H = 31.4;
-const ONOJO_SPOTS_DATA_URL = 'https://conotavi.com/data/大野城市.json';
+const ONOJO_SPOTS_DATA_URL = '/data/大野城市.json';
 const MUNAKATA_CROP = { x: 356.4, y: 96.4 };
 const MUNAKATA_VIEW_W = 153.5;
 const MUNAKATA_VIEW_H = 163.3;
-const MUNAKATA_SPOTS_DATA_URL = 'https://conotavi.com/data/宗像市.json';
+const MUNAKATA_SPOTS_DATA_URL = '/data/宗像市.json';
 const DAZAIFU_CROP = { x: 454.3, y: 286.4 };
 const DAZAIFU_VIEW_W = 25.5;
 const DAZAIFU_VIEW_H = 28.1;
-const DAZAIFU_SPOTS_DATA_URL = 'https://conotavi.com/data/太宰府市.json';
+const DAZAIFU_SPOTS_DATA_URL = '/data/太宰府市.json';
 const KOGA_CROP = { x: 446.2, y: 236.4 };
 const KOGA_VIEW_W = 31.0;
 const KOGA_VIEW_H = 23.9;
-const KOGA_SPOTS_DATA_URL = 'https://conotavi.com/data/古賀市.json';
+const KOGA_SPOTS_DATA_URL = '/data/古賀市.json';
 const FUKUTSU_CROP = { x: 444.6, y: 211.1 };
 const FUKUTSU_VIEW_W = 32.8;
 const FUKUTSU_VIEW_H = 39.3;
-const FUKUTSU_SPOTS_DATA_URL = 'https://conotavi.com/data/福津市.json';
+const FUKUTSU_SPOTS_DATA_URL = '/data/福津市.json';
 const UKIHA_CROP = { x: 503.0, y: 330.9 };
 const UKIHA_VIEW_W = 41.6;
 const UKIHA_VIEW_H = 39.7;
-const UKIHA_SPOTS_DATA_URL = 'https://conotavi.com/data/うきは市.json';
+const UKIHA_SPOTS_DATA_URL = '/data/うきは市.json';
 const MIYAWAKA_CROP = { x: 464.2, y: 225.0 };
 const MIYAWAKA_VIEW_W = 48.5;
 const MIYAWAKA_VIEW_H = 49.9;
-const MIYAWAKA_SPOTS_DATA_URL = 'https://conotavi.com/data/宮若市.json';
+const MIYAWAKA_SPOTS_DATA_URL = '/data/宮若市.json';
 const KAMA_CROP = { x: 490.1, y: 267.0 };
 const KAMA_VIEW_W = 44.7;
 const KAMA_VIEW_H = 49.9;
-const KAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/嘉麻市.json';
+const KAMA_SPOTS_DATA_URL = '/data/嘉麻市.json';
 const ASAKURA_CROP = { x: 478.1, y: 296.4 };
 const ASAKURA_VIEW_W = 68.2;
 const ASAKURA_VIEW_H = 54.6;
-const ASAKURA_SPOTS_DATA_URL = 'https://conotavi.com/data/朝倉市.json';
+const ASAKURA_SPOTS_DATA_URL = '/data/朝倉市.json';
 const MIYAMA_CROP = { x: 437.3, y: 378.2 };
 const MIYAMA_VIEW_W = 42.8;
 const MIYAMA_VIEW_H = 38.2;
-const MIYAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/みやま市.json';
+const MIYAMA_SPOTS_DATA_URL = '/data/みやま市.json';
 const ITOSHIMA_CROP = { x: 354.9, y: 260.6 };
 const ITOSHIMA_VIEW_W = 69.8;
 const ITOSHIMA_VIEW_H = 59.6;
-const ITOSHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/糸島市.json';
+const ITOSHIMA_SPOTS_DATA_URL = '/data/糸島市.json';
 const NAKAGAWA_CROP = { x: 428.6, y: 291.2 };
 const NAKAGAWA_VIEW_W = 30.3;
 const NAKAGAWA_VIEW_H = 43.1;
-const NAKAGAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/那珂川市.json';
+const NAKAGAWA_SPOTS_DATA_URL = '/data/那珂川市.json';
 const UMI_CROP = { x: 454.9, y: 277.2 };
 const UMI_VIEW_W = 27.4;
 const UMI_VIEW_H = 22.3;
-const UMI_SPOTS_DATA_URL = 'https://conotavi.com/data/宇美町.json';
+const UMI_SPOTS_DATA_URL = '/data/宇美町.json';
 const SASAGURI_CROP = { x: 457.5, y: 258.9 };
 const SASAGURI_VIEW_W = 27.6;
 const SASAGURI_VIEW_H = 24.1;
-const SASAGURI_SPOTS_DATA_URL = 'https://conotavi.com/data/篠栗町.json';
+const SASAGURI_SPOTS_DATA_URL = '/data/篠栗町.json';
 const SHIME_CROP = { x: 446.9, y: 274.4 };
 const SHIME_VIEW_W = 15.9;
 const SHIME_VIEW_H = 16.1;
-const SHIME_SPOTS_DATA_URL = 'https://conotavi.com/data/志免町.json';
+const SHIME_SPOTS_DATA_URL = '/data/志免町.json';
 const SUE_CROP = { x: 456.3, y: 272.5 };
 const SUE_VIEW_W = 20.6;
 const SUE_VIEW_H = 14.5;
-const SUE_SPOTS_DATA_URL = 'https://conotavi.com/data/須恵町.json';
+const SUE_SPOTS_DATA_URL = '/data/須恵町.json';
 const SHINGU_CROP = { x: 427.1, y: 232.0 };
 const SHINGU_VIEW_W = 40.5;
 const SHINGU_VIEW_H = 32.7;
-const SHINGU_SPOTS_DATA_URL = 'https://conotavi.com/data/新宮町.json';
+const SHINGU_SPOTS_DATA_URL = '/data/新宮町.json';
 const HISAYAMA_CROP = { x: 451.5, y: 248.0 };
 const HISAYAMA_VIEW_W = 25.9;
 const HISAYAMA_VIEW_H = 25.0;
-const HISAYAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/久山町.json';
+const HISAYAMA_SPOTS_DATA_URL = '/data/久山町.json';
 const KASUYA_CROP = { x: 446.7, y: 267.4 };
 const KASUYA_VIEW_W = 16.2;
 const KASUYA_VIEW_H = 14.9;
-const KASUYA_SPOTS_DATA_URL = 'https://conotavi.com/data/粕屋町.json';
+const KASUYA_SPOTS_DATA_URL = '/data/粕屋町.json';
 const ASHIYA_CROP = { x: 488.2, y: 196.6 };
 const ASHIYA_VIEW_W = 14.5;
 const ASHIYA_VIEW_H = 16.6;
-const ASHIYA_SPOTS_DATA_URL = 'https://conotavi.com/data/芦屋町.json';
+const ASHIYA_SPOTS_DATA_URL = '/data/芦屋町.json';
 const MIZUMAKI_CROP = { x: 496.6, y: 203.3 };
 const MIZUMAKI_VIEW_W = 13.5;
 const MIZUMAKI_VIEW_H = 19.7;
-const MIZUMAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/水巻町.json';
+const MIZUMAKI_SPOTS_DATA_URL = '/data/水巻町.json';
 const OKAGAKI_CROP = { x: 466.8, y: 202.2 };
 const OKAGAKI_VIEW_W = 30.6;
 const OKAGAKI_VIEW_H = 26.5;
-const OKAGAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/岡垣町.json';
+const OKAGAKI_SPOTS_DATA_URL = '/data/岡垣町.json';
 const ONGA_CROP = { x: 487.2, y: 202.5 };
 const ONGA_VIEW_W = 17.9;
 const ONGA_VIEW_H = 26.4;
-const ONGA_SPOTS_DATA_URL = 'https://conotavi.com/data/遠賀町.json';
+const ONGA_SPOTS_DATA_URL = '/data/遠賀町.json';
 const KOTAKE_CROP = { x: 495.9, y: 243.5 };
 const KOTAKE_VIEW_W = 15.7;
 const KOTAKE_VIEW_H = 16.1;
-const KOTAKE_SPOTS_DATA_URL = 'https://conotavi.com/data/小竹町.json';
+const KOTAKE_SPOTS_DATA_URL = '/data/小竹町.json';
 const KURATE_CROP = { x: 487.2, y: 220.4 };
 const KURATE_VIEW_W = 21.2;
 const KURATE_VIEW_H = 25.9;
-const KURATE_SPOTS_DATA_URL = 'https://conotavi.com/data/鞍手町.json';
+const KURATE_SPOTS_DATA_URL = '/data/鞍手町.json';
 const KEISEN_CROP = { x: 490.3, y: 275.9 };
 const KEISEN_VIEW_W = 17.1;
 const KEISEN_VIEW_H = 23.3;
-const KEISEN_SPOTS_DATA_URL = 'https://conotavi.com/data/桂川町.json';
+const KEISEN_SPOTS_DATA_URL = '/data/桂川町.json';
 const CHIKUZEN_CROP = { x: 470.4, y: 297.1 };
 const CHIKUZEN_VIEW_W = 30.8;
 const CHIKUZEN_VIEW_H = 34.7;
-const CHIKUZEN_SPOTS_DATA_URL = 'https://conotavi.com/data/筑前町.json';
+const CHIKUZEN_SPOTS_DATA_URL = '/data/筑前町.json';
 const TOHO_CROP = { x: 514.4, y: 302.2 };
 const TOHO_VIEW_W = 36.7;
 const TOHO_VIEW_H = 37.9;
-const TOHO_SPOTS_DATA_URL = 'https://conotavi.com/data/東峰村.json';
+const TOHO_SPOTS_DATA_URL = '/data/東峰村.json';
 const TACHIARAI_CROP = { x: 475.1, y: 323.0 };
 const TACHIARAI_VIEW_W = 24.6;
 const TACHIARAI_VIEW_H = 20.6;
-const TACHIARAI_SPOTS_DATA_URL = 'https://conotavi.com/data/大刀洗町.json';
+const TACHIARAI_SPOTS_DATA_URL = '/data/大刀洗町.json';
 const OKI_CROP = { x: 440.0, y: 365.5 };
 const OKI_VIEW_W = 15.8;
 const OKI_VIEW_H = 20.9;
-const OKI_SPOTS_DATA_URL = 'https://conotavi.com/data/大木町.json';
+const OKI_SPOTS_DATA_URL = '/data/大木町.json';
 const HIROKAWA_CROP = { x: 459.1, y: 353.7 };
 const HIROKAWA_VIEW_W = 33.8;
 const HIROKAWA_VIEW_H = 21.6;
-const HIROKAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/広川町.json';
+const HIROKAWA_SPOTS_DATA_URL = '/data/広川町.json';
 const KAWARA_CROP = { x: 526.4, y: 240.9 };
 const KAWARA_VIEW_W = 21.9;
 const KAWARA_VIEW_H = 31.3;
-const KAWARA_SPOTS_DATA_URL = 'https://conotavi.com/data/香春町.json';
+const KAWARA_SPOTS_DATA_URL = '/data/香春町.json';
 const SOEDA_CROP = { x: 522.1, y: 275.6 };
 const SOEDA_VIEW_W = 40.6;
 const SOEDA_VIEW_H = 46.8;
-const SOEDA_SPOTS_DATA_URL = 'https://conotavi.com/data/添田町.json';
+const SOEDA_SPOTS_DATA_URL = '/data/添田町.json';
 const ITODA_CROP = { x: 513.6, y: 259.4 };
 const ITODA_VIEW_W = 11.4;
 const ITODA_VIEW_H = 10.7;
-const ITODA_SPOTS_DATA_URL = 'https://conotavi.com/data/糸田町.json';
+const ITODA_SPOTS_DATA_URL = '/data/糸田町.json';
 const KAWASAKI_TOWN_CROP = { x: 517.8, y: 268.6 };
 const KAWASAKI_TOWN_VIEW_W = 20.6;
 const KAWASAKI_TOWN_VIEW_H = 37.1;
-const KAWASAKI_TOWN_SPOTS_DATA_URL = 'https://conotavi.com/data/川崎町.json';
+const KAWASAKI_TOWN_SPOTS_DATA_URL = '/data/川崎町.json';
 const OTO_CROP = { x: 529.8, y: 264.7 };
 const OTO_VIEW_W = 12.5;
 const OTO_VIEW_H = 21.1;
-const OTO_SPOTS_DATA_URL = 'https://conotavi.com/data/大任町.json';
+const OTO_SPOTS_DATA_URL = '/data/大任町.json';
 const AKA_CROP = { x: 533.7, y: 262.6 };
 const AKA_VIEW_W = 21.1;
 const AKA_VIEW_H = 30.2;
-const AKA_SPOTS_DATA_URL = 'https://conotavi.com/data/赤村.json';
+const AKA_SPOTS_DATA_URL = '/data/赤村.json';
 const FUKUCHI_CROP = { x: 510.3, y: 240.0 };
 const FUKUCHI_VIEW_W = 24.3;
 const FUKUCHI_VIEW_H = 25.5;
-const FUKUCHI_SPOTS_DATA_URL = 'https://conotavi.com/data/福智町.json';
+const FUKUCHI_SPOTS_DATA_URL = '/data/福智町.json';
 const KANDA_CROP = { x: 544.6, y: 215.2 };
 const KANDA_VIEW_W = 36.6;
 const KANDA_VIEW_H = 33.6;
-const KANDA_SPOTS_DATA_URL = 'https://conotavi.com/data/苅田町.json';
+const KANDA_SPOTS_DATA_URL = '/data/苅田町.json';
 const MIYAKO_CROP = { x: 530.2, y: 233.2 };
 const MIYAKO_VIEW_W = 49.8;
 const MIYAKO_VIEW_H = 83.3;
-const MIYAKO_SPOTS_DATA_URL = 'https://conotavi.com/data/みやこ町.json';
+const MIYAKO_SPOTS_DATA_URL = '/data/みやこ町.json';
 const YOSHITOMI_CROP = { x: 599.5, y: 272.1 };
 const YOSHITOMI_VIEW_W = 9.4;
 const YOSHITOMI_VIEW_H = 10.7;
-const YOSHITOMI_SPOTS_DATA_URL = 'https://conotavi.com/data/吉富町.json';
+const YOSHITOMI_SPOTS_DATA_URL = '/data/吉富町.json';
 const KOGE_CROP = { x: 578.6, y: 275.2 };
 const KOGE_VIEW_W = 34.2;
 const KOGE_VIEW_H = 32.1;
-const KOGE_SPOTS_DATA_URL = 'https://conotavi.com/data/上毛町.json';
+const KOGE_SPOTS_DATA_URL = '/data/上毛町.json';
 const CHIKUJO_CROP = { x: 553.0, y: 249.4 };
 const CHIKUJO_VIEW_W = 40.5;
 const CHIKUJO_VIEW_H = 59.3;
-const CHIKUJO_SPOTS_DATA_URL = 'https://conotavi.com/data/築上町.json';
+const CHIKUJO_SPOTS_DATA_URL = '/data/築上町.json';
 
 // 大分県18市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const OITA_CITY_CROP = { x: 640.4, y: 342.0 };
 const OITA_CITY_VIEW_W = 149.5;
 const OITA_CITY_VIEW_H = 87.1;
-const OITA_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/大分市.json';
+const OITA_CITY_SPOTS_DATA_URL = '/data/大分市.json';
 const BEPPU_CROP = { x: 644.1, y: 335.5 };
 const BEPPU_VIEW_W = 40.3;
 const BEPPU_VIEW_H = 42.7;
-const BEPPU_SPOTS_DATA_URL = 'https://conotavi.com/data/別府市.json';
+const BEPPU_SPOTS_DATA_URL = '/data/別府市.json';
 const NAKATSU_CROP = { x: 541.0, y: 263.1 };
 const NAKATSU_VIEW_W = 98.0;
 const NAKATSU_VIEW_H = 90.2;
-const NAKATSU_SPOTS_DATA_URL = 'https://conotavi.com/data/中津市.json';
+const NAKATSU_SPOTS_DATA_URL = '/data/中津市.json';
 const HITA_CROP = { x: 514.5, y: 298.1 };
 const HITA_VIEW_W = 89.3;
 const HITA_VIEW_H = 141.8;
-const HITA_SPOTS_DATA_URL = 'https://conotavi.com/data/日田市.json';
+const HITA_SPOTS_DATA_URL = '/data/日田市.json';
 const SAIKI_CROP = { x: 650.1, y: 392.4 };
 const SAIKI_VIEW_W = 169.4;
 const SAIKI_VIEW_H = 128.5;
-const SAIKI_SPOTS_DATA_URL = 'https://conotavi.com/data/佐伯市.json';
+const SAIKI_SPOTS_DATA_URL = '/data/佐伯市.json';
 const USUKI_CROP = { x: 693.7, y: 368.0 };
 const USUKI_VIEW_W = 78.8;
 const USUKI_VIEW_H = 83.4;
-const USUKI_SPOTS_DATA_URL = 'https://conotavi.com/data/臼杵市.json';
+const USUKI_SPOTS_DATA_URL = '/data/臼杵市.json';
 const TSUKUMI_CROP = { x: 727.9, y: 379.0 };
 const TSUKUMI_VIEW_W = 65.1;
 const TSUKUMI_VIEW_H = 50.8;
-const TSUKUMI_SPOTS_DATA_URL = 'https://conotavi.com/data/津久見市.json';
+const TSUKUMI_SPOTS_DATA_URL = '/data/津久見市.json';
 const TAKETA_CROP = { x: 597.1, y: 379.1 };
 const TAKETA_VIEW_W = 81.1;
 const TAKETA_VIEW_H = 105.9;
-const TAKETA_SPOTS_DATA_URL = 'https://conotavi.com/data/竹田市.json';
+const TAKETA_SPOTS_DATA_URL = '/data/竹田市.json';
 const BUNGOTAKADA_CROP = { x: 648.5, y: 250.4 };
 const BUNGOTAKADA_VIEW_W = 54.9;
 const BUNGOTAKADA_VIEW_H = 67.4;
-const BUNGOTAKADA_SPOTS_DATA_URL = 'https://conotavi.com/data/豊後高田市.json';
+const BUNGOTAKADA_SPOTS_DATA_URL = '/data/豊後高田市.json';
 const KITSUKI_CROP = { x: 644.9, y: 279.0 };
 const KITSUKI_VIEW_W = 86.9;
 const KITSUKI_VIEW_H = 70.7;
-const KITSUKI_SPOTS_DATA_URL = 'https://conotavi.com/data/杵築市.json';
+const KITSUKI_SPOTS_DATA_URL = '/data/杵築市.json';
 const USA_CROP = { x: 603.9, y: 272.6 };
 const USA_VIEW_W = 70.3;
 const USA_VIEW_H = 89.2;
-const USA_SPOTS_DATA_URL = 'https://conotavi.com/data/宇佐市.json';
+const USA_SPOTS_DATA_URL = '/data/宇佐市.json';
 const BUNGOONO_CROP = { x: 630.4, y: 388.1 };
 const BUNGOONO_VIEW_W = 94.6;
 const BUNGOONO_VIEW_H = 102.7;
-const BUNGOONO_SPOTS_DATA_URL = 'https://conotavi.com/data/豊後大野市.json';
+const BUNGOONO_SPOTS_DATA_URL = '/data/豊後大野市.json';
 const YUFU_CROP = { x: 613.9, y: 338.4 };
 const YUFU_VIEW_W = 79.5;
 const YUFU_VIEW_H = 73.9;
-const YUFU_SPOTS_DATA_URL = 'https://conotavi.com/data/由布市.json';
+const YUFU_SPOTS_DATA_URL = '/data/由布市.json';
 const KUNISAKI_CROP = { x: 674.8, y: 245.8 };
 const KUNISAKI_VIEW_W = 62.2;
 const KUNISAKI_VIEW_H = 84.3;
-const KUNISAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/国東市.json';
+const KUNISAKI_SPOTS_DATA_URL = '/data/国東市.json';
 const HIMESHIMA_CROP = { x: 701.6, y: 241.9 };
 const HIMESHIMA_VIEW_W = 15.9;
 const HIMESHIMA_VIEW_H = 9.2;
-const HIMESHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/姫島村.json';
+const HIMESHIMA_SPOTS_DATA_URL = '/data/姫島村.json';
 const HIJI_CROP = { x: 650.7, y: 315.6 };
 const HIJI_VIEW_W = 55.8;
 const HIJI_VIEW_H = 34.1;
-const HIJI_SPOTS_DATA_URL = 'https://conotavi.com/data/日出町.json';
+const HIJI_SPOTS_DATA_URL = '/data/日出町.json';
 const KOKONOE_CROP = { x: 583.2, y: 344.4 };
 const KOKONOE_VIEW_W = 62.8;
 const KOKONOE_VIEW_H = 75.3;
-const KOKONOE_SPOTS_DATA_URL = 'https://conotavi.com/data/九重町.json';
+const KOKONOE_SPOTS_DATA_URL = '/data/九重町.json';
 const KUSU_CROP = { x: 566.7, y: 322.4 };
 const KUSU_VIEW_W = 81.9;
 const KUSU_VIEW_H = 70.5;
-const KUSU_SPOTS_DATA_URL = 'https://conotavi.com/data/玖珠町.json';
+const KUSU_SPOTS_DATA_URL = '/data/玖珠町.json';
 
 // 熊本県45市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const KUMAMOTO_CITY_CROP = { x: 464.5, y: 423.4 };
 const KUMAMOTO_CITY_VIEW_W = 78.9;
 const KUMAMOTO_CITY_VIEW_H = 103.3;
-const KUMAMOTO_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/熊本市.json';
+const KUMAMOTO_CITY_SPOTS_DATA_URL = '/data/熊本市.json';
 const YATSUSHIRO_CROP = { x: 451.8, y: 513.8 };
 const YATSUSHIRO_VIEW_W = 137.4;
 const YATSUSHIRO_VIEW_H = 97.6;
-const YATSUSHIRO_SPOTS_DATA_URL = 'https://conotavi.com/data/八代市.json';
+const YATSUSHIRO_SPOTS_DATA_URL = '/data/八代市.json';
 const HITOYOSHI_CROP = { x: 486.0, y: 599.2 };
 const HITOYOSHI_VIEW_W = 63.6;
 const HITOYOSHI_VIEW_H = 65.6;
-const HITOYOSHI_SPOTS_DATA_URL = 'https://conotavi.com/data/人吉市.json';
+const HITOYOSHI_SPOTS_DATA_URL = '/data/人吉市.json';
 const ARAO_CROP = { x: 439.0, y: 422.8 };
 const ARAO_VIEW_W = 32.3;
 const ARAO_VIEW_H = 26.4;
-const ARAO_SPOTS_DATA_URL = 'https://conotavi.com/data/荒尾市.json';
+const ARAO_SPOTS_DATA_URL = '/data/荒尾市.json';
 const MINAMATA_CROP = { x: 423.7, y: 613.6 };
 const MINAMATA_VIEW_W = 65.7;
 const MINAMATA_VIEW_H = 46.4;
-const MINAMATA_SPOTS_DATA_URL = 'https://conotavi.com/data/水俣市.json';
+const MINAMATA_SPOTS_DATA_URL = '/data/水俣市.json';
 const TAMANA_CROP = { x: 450.3, y: 425.0 };
 const TAMANA_VIEW_W = 44.6;
 const TAMANA_VIEW_H = 50.1;
-const TAMANA_SPOTS_DATA_URL = 'https://conotavi.com/data/玉名市.json';
+const TAMANA_SPOTS_DATA_URL = '/data/玉名市.json';
 const YAMAGA_CROP = { x: 479.8, y: 377.4 };
 const YAMAGA_VIEW_W = 64.3;
 const YAMAGA_VIEW_H = 78.2;
-const YAMAGA_SPOTS_DATA_URL = 'https://conotavi.com/data/山鹿市.json';
+const YAMAGA_SPOTS_DATA_URL = '/data/山鹿市.json';
 const KIKUCHI_CROP = { x: 502.2, y: 397.9 };
 const KIKUCHI_VIEW_W = 67.3;
 const KIKUCHI_VIEW_H = 64.2;
-const KIKUCHI_SPOTS_DATA_URL = 'https://conotavi.com/data/菊池市.json';
+const KIKUCHI_SPOTS_DATA_URL = '/data/菊池市.json';
 const UTO_CROP = { x: 454.0, y: 493.7 };
 const UTO_VIEW_W = 60.4;
 const UTO_VIEW_H = 31.8;
-const UTO_SPOTS_DATA_URL = 'https://conotavi.com/data/宇土市.json';
+const UTO_SPOTS_DATA_URL = '/data/宇土市.json';
 const KAMIAMAKUSA_CROP = { x: 412.8, y: 514.0 };
 const KAMIAMAKUSA_VIEW_W = 55.3;
 const KAMIAMAKUSA_VIEW_H = 83.6;
-const KAMIAMAKUSA_SPOTS_DATA_URL = 'https://conotavi.com/data/上天草市.json';
+const KAMIAMAKUSA_SPOTS_DATA_URL = '/data/上天草市.json';
 const UKI_CROP = { x: 440.4, y: 499.2 };
 const UKI_VIEW_W = 91.7;
 const UKI_VIEW_H = 52.0;
-const UKI_SPOTS_DATA_URL = 'https://conotavi.com/data/宇城市.json';
+const UKI_SPOTS_DATA_URL = '/data/宇城市.json';
 const ASO_CROP = { x: 545.8, y: 408.1 };
 const ASO_VIEW_W = 86.5;
 const ASO_VIEW_H = 63.0;
-const ASO_SPOTS_DATA_URL = 'https://conotavi.com/data/阿蘇市.json';
+const ASO_SPOTS_DATA_URL = '/data/阿蘇市.json';
 const AMAKUSA_CROP = { x: 333.0, y: 528.4 };
 const AMAKUSA_VIEW_W = 119.5;
 const AMAKUSA_VIEW_H = 127.4;
-const AMAKUSA_SPOTS_DATA_URL = 'https://conotavi.com/data/天草市.json';
+const AMAKUSA_SPOTS_DATA_URL = '/data/天草市.json';
 const KOSHI_CROP = { x: 504.1, y: 443.7 };
 const KOSHI_VIEW_W = 35.3;
 const KOSHI_VIEW_H = 26.7;
-const KOSHI_SPOTS_DATA_URL = 'https://conotavi.com/data/合志市.json';
+const KOSHI_SPOTS_DATA_URL = '/data/合志市.json';
 const MISATO_CROP = { x: 513.8, y: 507.4 };
 const MISATO_VIEW_W = 55.8;
 const MISATO_VIEW_H = 39.1;
-const MISATO_SPOTS_DATA_URL = 'https://conotavi.com/data/美里町.json';
+const MISATO_SPOTS_DATA_URL = '/data/美里町.json';
 const GYOKUTO_CROP = { x: 480.7, y: 440.3 };
 const GYOKUTO_VIEW_W = 16.1;
 const GYOKUTO_VIEW_H = 27.4;
-const GYOKUTO_SPOTS_DATA_URL = 'https://conotavi.com/data/玉東町.json';
+const GYOKUTO_SPOTS_DATA_URL = '/data/玉東町.json';
 const NANKAN_CROP = { x: 456.3, y: 403.9 };
 const NANKAN_VIEW_W = 29.7;
 const NANKAN_VIEW_H = 32.3;
-const NANKAN_SPOTS_DATA_URL = 'https://conotavi.com/data/南関町.json';
+const NANKAN_SPOTS_DATA_URL = '/data/南関町.json';
 const NAGASU_CROP = { x: 445.9, y: 439.9 };
 const NAGASU_VIEW_W = 16.5;
 const NAGASU_VIEW_H = 16.3;
-const NAGASU_SPOTS_DATA_URL = 'https://conotavi.com/data/長洲町.json';
+const NAGASU_SPOTS_DATA_URL = '/data/長洲町.json';
 const NAGOMI_CROP = { x: 467.8, y: 393.8 };
 const NAGOMI_VIEW_W = 33.3;
 const NAGOMI_VIEW_H = 57.1;
-const NAGOMI_SPOTS_DATA_URL = 'https://conotavi.com/data/和水町.json';
+const NAGOMI_SPOTS_DATA_URL = '/data/和水町.json';
 const OZU_CROP = { x: 527.0, y: 436.2 };
 const OZU_VIEW_W = 43.6;
 const OZU_VIEW_H = 39.4;
-const OZU_SPOTS_DATA_URL = 'https://conotavi.com/data/大津町.json';
+const OZU_SPOTS_DATA_URL = '/data/大津町.json';
 const KIKUYO_CROP = { x: 510.3, y: 452.4 };
 const KIKUYO_VIEW_W = 35.0;
 const KIKUYO_VIEW_H = 26.0;
-const KIKUYO_SPOTS_DATA_URL = 'https://conotavi.com/data/菊陽町.json';
+const KIKUYO_SPOTS_DATA_URL = '/data/菊陽町.json';
 const MINAMIOGUNI_CROP = { x: 561.3, y: 394.0 };
 const MINAMIOGUNI_VIEW_W = 55.2;
 const MINAMIOGUNI_VIEW_H = 37.1;
-const MINAMIOGUNI_SPOTS_DATA_URL = 'https://conotavi.com/data/南小国町.json';
+const MINAMIOGUNI_SPOTS_DATA_URL = '/data/南小国町.json';
 const OGUNI_CROP = { x: 557.2, y: 374.2 };
 const OGUNI_VIEW_W = 54.1;
 const OGUNI_VIEW_H = 37.9;
-const OGUNI_SPOTS_DATA_URL = 'https://conotavi.com/data/小国町.json';
+const OGUNI_SPOTS_DATA_URL = '/data/小国町.json';
 const UBUYAMA_CROP = { x: 596.2, y: 407.5 };
 const UBUYAMA_VIEW_W = 32.3;
 const UBUYAMA_VIEW_H = 36.1;
-const UBUYAMA_SPOTS_DATA_URL = 'https://conotavi.com/data/産山村.json';
+const UBUYAMA_SPOTS_DATA_URL = '/data/産山村.json';
 const TAKAMORI_CROP = { x: 580.8, y: 445.1 };
 const TAKAMORI_VIEW_W = 64.8;
 const TAKAMORI_VIEW_H = 54.0;
-const TAKAMORI_SPOTS_DATA_URL = 'https://conotavi.com/data/高森町.json';
+const TAKAMORI_SPOTS_DATA_URL = '/data/高森町.json';
 const NISHIHARA_CROP = { x: 536.7, y: 459.1 };
 const NISHIHARA_VIEW_W = 34.5;
 const NISHIHARA_VIEW_H = 29.9;
-const NISHIHARA_SPOTS_DATA_URL = 'https://conotavi.com/data/西原村.json';
+const NISHIHARA_SPOTS_DATA_URL = '/data/西原村.json';
 const MINAMIASO_CROP = { x: 551.8, y: 446.9 };
 const MINAMIASO_VIEW_W = 46.3;
 const MINAMIASO_VIEW_H = 42.4;
-const MINAMIASO_SPOTS_DATA_URL = 'https://conotavi.com/data/南阿蘇村.json';
+const MINAMIASO_SPOTS_DATA_URL = '/data/南阿蘇村.json';
 const MIFUNE_CROP = { x: 509.6, y: 475.6 };
 const MIFUNE_VIEW_W = 56.5;
 const MIFUNE_VIEW_H = 44.9;
-const MIFUNE_SPOTS_DATA_URL = 'https://conotavi.com/data/御船町.json';
+const MIFUNE_SPOTS_DATA_URL = '/data/御船町.json';
 const KASHIMA_TOWN_CROP = { x: 500.7, y: 485.9 };
 const KASHIMA_TOWN_VIEW_W = 27.2;
 const KASHIMA_TOWN_VIEW_H = 15.1;
-const KASHIMA_TOWN_SPOTS_DATA_URL = 'https://conotavi.com/data/嘉島町.json';
+const KASHIMA_TOWN_SPOTS_DATA_URL = '/data/嘉島町.json';
 const MASHIKI_CROP = { x: 516.5, y: 465.7 };
 const MASHIKI_VIEW_W = 32.1;
 const MASHIKI_VIEW_H = 35.5;
-const MASHIKI_SPOTS_DATA_URL = 'https://conotavi.com/data/益城町.json';
+const MASHIKI_SPOTS_DATA_URL = '/data/益城町.json';
 const KOSA_CROP = { x: 511.5, y: 496.0 };
 const KOSA_VIEW_W = 34.0;
 const KOSA_VIEW_H = 31.5;
-const KOSA_SPOTS_DATA_URL = 'https://conotavi.com/data/甲佐町.json';
+const KOSA_SPOTS_DATA_URL = '/data/甲佐町.json';
 const YAMATO_CROP = { x: 533.0, y: 463.9 };
 const YAMATO_VIEW_W = 96.5;
 const YAMATO_VIEW_H = 90.1;
-const YAMATO_SPOTS_DATA_URL = 'https://conotavi.com/data/山都町.json';
+const YAMATO_SPOTS_DATA_URL = '/data/山都町.json';
 const HIKAWA_CROP = { x: 482.8, y: 520.9 };
 const HIKAWA_VIEW_W = 29.8;
 const HIKAWA_VIEW_H = 31.1;
-const HIKAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/氷川町.json';
+const HIKAWA_SPOTS_DATA_URL = '/data/氷川町.json';
 const ASHIKITA_CROP = { x: 444.8, y: 569.3 };
 const ASHIKITA_VIEW_W = 55.4;
 const ASHIKITA_VIEW_H = 74.5;
-const ASHIKITA_SPOTS_DATA_URL = 'https://conotavi.com/data/芦北町.json';
+const ASHIKITA_SPOTS_DATA_URL = '/data/芦北町.json';
 const TSUNAGI_CROP = { x: 441.9, y: 605.1 };
 const TSUNAGI_VIEW_W = 21.2;
 const TSUNAGI_VIEW_H = 26.2;
-const TSUNAGI_SPOTS_DATA_URL = 'https://conotavi.com/data/津奈木町.json';
+const TSUNAGI_SPOTS_DATA_URL = '/data/津奈木町.json';
 const NISHIKI_CROP = { x: 516.4, y: 612.9 };
 const NISHIKI_VIEW_W = 38.0;
 const NISHIKI_VIEW_H = 42.6;
-const NISHIKI_SPOTS_DATA_URL = 'https://conotavi.com/data/錦町.json';
+const NISHIKI_SPOTS_DATA_URL = '/data/錦町.json';
 const TARAGI_CROP = { x: 535.8, y: 583.1 };
 const TARAGI_VIEW_W = 63.4;
 const TARAGI_VIEW_H = 67.4;
-const TARAGI_SPOTS_DATA_URL = 'https://conotavi.com/data/多良木町.json';
+const TARAGI_SPOTS_DATA_URL = '/data/多良木町.json';
 const YUNOMAE_CROP = { x: 557.1, y: 598.8 };
 const YUNOMAE_VIEW_W = 25.8;
 const YUNOMAE_VIEW_H = 27.7;
-const YUNOMAE_SPOTS_DATA_URL = 'https://conotavi.com/data/湯前町.json';
+const YUNOMAE_SPOTS_DATA_URL = '/data/湯前町.json';
 const MIZUKAMI_CROP = { x: 548.1, y: 557.8 };
 const MIZUKAMI_VIEW_W = 50.8;
 const MIZUKAMI_VIEW_H = 59.6;
-const MIZUKAMI_SPOTS_DATA_URL = 'https://conotavi.com/data/水上村.json';
+const MIZUKAMI_SPOTS_DATA_URL = '/data/水上村.json';
 const SAGARA_CROP = { x: 514.4, y: 579.1 };
 const SAGARA_VIEW_W = 38.7;
 const SAGARA_VIEW_H = 56.9;
-const SAGARA_SPOTS_DATA_URL = 'https://conotavi.com/data/相良村.json';
+const SAGARA_SPOTS_DATA_URL = '/data/相良村.json';
 const ITSUKI_CROP = { x: 500.6, y: 547.8 };
 const ITSUKI_VIEW_W = 66.9;
 const ITSUKI_VIEW_H = 54.7;
-const ITSUKI_SPOTS_DATA_URL = 'https://conotavi.com/data/五木村.json';
+const ITSUKI_SPOTS_DATA_URL = '/data/五木村.json';
 const YAMAE_CROP = { x: 496.4, y: 576.1 };
 const YAMAE_VIEW_W = 38.3;
 const YAMAE_VIEW_H = 53.5;
-const YAMAE_SPOTS_DATA_URL = 'https://conotavi.com/data/山江村.json';
+const YAMAE_SPOTS_DATA_URL = '/data/山江村.json';
 const KUMA_VILLAGE_CROP = { x: 469.7, y: 578.8 };
 const KUMA_VILLAGE_VIEW_W = 49.9;
 const KUMA_VILLAGE_VIEW_H = 72.6;
-const KUMA_VILLAGE_SPOTS_DATA_URL = 'https://conotavi.com/data/球磨村.json';
+const KUMA_VILLAGE_SPOTS_DATA_URL = '/data/球磨村.json';
 const ASAGIRI_CROP = { x: 527.6, y: 591.1 };
 const ASAGIRI_VIEW_W = 46.8;
 const ASAGIRI_VIEW_H = 68.7;
-const ASAGIRI_SPOTS_DATA_URL = 'https://conotavi.com/data/あさぎり町.json';
+const ASAGIRI_SPOTS_DATA_URL = '/data/あさぎり町.json';
 const REIHOKU_CROP = { x: 352.6, y: 540.0 };
 const REIHOKU_VIEW_W = 33.0;
 const REIHOKU_VIEW_H = 37.3;
-const REIHOKU_SPOTS_DATA_URL = 'https://conotavi.com/data/苓北町.json';
+const REIHOKU_SPOTS_DATA_URL = '/data/苓北町.json';
 
 // 宮崎県26市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const MIYAZAKI_CITY_CROP = { x: 595.9, y: 651.5 };
 const MIYAZAKI_CITY_VIEW_W = 93.7;
 const MIYAZAKI_CITY_VIEW_H = 112.7;
-const MIYAZAKI_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/宮崎市.json';
+const MIYAZAKI_CITY_SPOTS_DATA_URL = '/data/宮崎市.json';
 const MIYAKONOJO_CROP = { x: 529.1, y: 682.7 };
 const MIYAKONOJO_VIEW_W = 105.6;
 const MIYAKONOJO_VIEW_H = 106.2;
-const MIYAKONOJO_SPOTS_DATA_URL = 'https://conotavi.com/data/都城市.json';
+const MIYAKONOJO_SPOTS_DATA_URL = '/data/都城市.json';
 const NOBEOKA_CROP = { x: 645.4, y: 456.2 };
 const NOBEOKA_VIEW_W = 124.3;
 const NOBEOKA_VIEW_H = 116.0;
-const NOBEOKA_SPOTS_DATA_URL = 'https://conotavi.com/data/延岡市.json';
+const NOBEOKA_SPOTS_DATA_URL = '/data/延岡市.json';
 const NICHINAN_CROP = { x: 591.3, y: 724.9 };
 const NICHINAN_VIEW_W = 88.1;
 const NICHINAN_VIEW_H = 95.5;
-const NICHINAN_SPOTS_DATA_URL = 'https://conotavi.com/data/日南市.json';
+const NICHINAN_SPOTS_DATA_URL = '/data/日南市.json';
 const KOBAYASHI_CROP = { x: 527.3, y: 626.1 };
 const KOBAYASHI_VIEW_W = 96.6;
 const KOBAYASHI_VIEW_H = 94.8;
-const KOBAYASHI_SPOTS_DATA_URL = 'https://conotavi.com/data/小林市.json';
+const KOBAYASHI_SPOTS_DATA_URL = '/data/小林市.json';
 const HYUGA_CROP = { x: 629.9, y: 550.2 };
 const HYUGA_VIEW_W = 96.9;
 const HYUGA_VIEW_H = 67.7;
-const HYUGA_SPOTS_DATA_URL = 'https://conotavi.com/data/日向市.json';
+const HYUGA_SPOTS_DATA_URL = '/data/日向市.json';
 const KUSHIMA_CROP = { x: 591.9, y: 761.9 };
 const KUSHIMA_VIEW_W = 70.5;
 const KUSHIMA_VIEW_H = 90.3;
-const KUSHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/串間市.json';
+const KUSHIMA_SPOTS_DATA_URL = '/data/串間市.json';
 const SAITO_CROP = { x: 593.3, y: 583.2 };
 const SAITO_VIEW_W = 83.1;
 const SAITO_VIEW_H = 105.4;
-const SAITO_SPOTS_DATA_URL = 'https://conotavi.com/data/西都市.json';
+const SAITO_SPOTS_DATA_URL = '/data/西都市.json';
 const EBINO_CROP = { x: 496.0, y: 638.8 };
 const EBINO_VIEW_W = 75.0;
 const EBINO_VIEW_H = 67.5;
-const EBINO_SPOTS_DATA_URL = 'https://conotavi.com/data/えびの市.json';
+const EBINO_SPOTS_DATA_URL = '/data/えびの市.json';
 const MIMATA_CROP = { x: 582.9, y: 726.3 };
 const MIMATA_VIEW_W = 48.4;
 const MIMATA_VIEW_H = 43.8;
-const MIMATA_SPOTS_DATA_URL = 'https://conotavi.com/data/三股町.json';
+const MIMATA_SPOTS_DATA_URL = '/data/三股町.json';
 const TAKAHARU_CROP = { x: 543.3, y: 681.1 };
 const TAKAHARU_VIEW_W = 53.1;
 const TAKAHARU_VIEW_H = 36.0;
-const TAKAHARU_SPOTS_DATA_URL = 'https://conotavi.com/data/高原町.json';
+const TAKAHARU_SPOTS_DATA_URL = '/data/高原町.json';
 const KUNITOMI_CROP = { x: 602.1, y: 641.5 };
 const KUNITOMI_VIEW_W = 55.0;
 const KUNITOMI_VIEW_H = 54.6;
-const KUNITOMI_SPOTS_DATA_URL = 'https://conotavi.com/data/国富町.json';
+const KUNITOMI_SPOTS_DATA_URL = '/data/国富町.json';
 const AYA_CROP = { x: 594.4, y: 642.0 };
 const AYA_VIEW_W = 39.0;
 const AYA_VIEW_H = 52.0;
-const AYA_SPOTS_DATA_URL = 'https://conotavi.com/data/綾町.json';
+const AYA_SPOTS_DATA_URL = '/data/綾町.json';
 const TAKANABE_CROP = { x: 659.6, y: 634.7 };
 const TAKANABE_VIEW_W = 27.9;
 const TAKANABE_VIEW_H = 27.6;
-const TAKANABE_SPOTS_DATA_URL = 'https://conotavi.com/data/高鍋町.json';
+const TAKANABE_SPOTS_DATA_URL = '/data/高鍋町.json';
 const SHINTOMI_CROP = { x: 651.4, y: 645.2 };
 const SHINTOMI_VIEW_W = 31.5;
 const SHINTOMI_VIEW_H = 29.0;
-const SHINTOMI_SPOTS_DATA_URL = 'https://conotavi.com/data/新富町.json';
+const SHINTOMI_SPOTS_DATA_URL = '/data/新富町.json';
 const NISHIMERA_CROP = { x: 569.5, y: 593.6 };
 const NISHIMERA_VIEW_W = 66.5;
 const NISHIMERA_VIEW_H = 62.5;
-const NISHIMERA_SPOTS_DATA_URL = 'https://conotavi.com/data/西米良村.json';
+const NISHIMERA_SPOTS_DATA_URL = '/data/西米良村.json';
 const KIJO_CROP = { x: 622.0, y: 590.0 };
 const KIJO_VIEW_W = 59.0;
 const KIJO_VIEW_H = 65.4;
-const KIJO_SPOTS_DATA_URL = 'https://conotavi.com/data/木城町.json';
+const KIJO_SPOTS_DATA_URL = '/data/木城町.json';
 const KAWAMINAMI_CROP = { x: 657.5, y: 610.4 };
 const KAWAMINAMI_VIEW_W = 37.5;
 const KAWAMINAMI_VIEW_H = 35.9;
-const KAWAMINAMI_SPOTS_DATA_URL = 'https://conotavi.com/data/川南町.json';
+const KAWAMINAMI_SPOTS_DATA_URL = '/data/川南町.json';
 const TSUNO_CROP = { x: 653.7, y: 594.4 };
 const TSUNO_VIEW_W = 46.3;
 const TSUNO_VIEW_H = 34.5;
-const TSUNO_SPOTS_DATA_URL = 'https://conotavi.com/data/都農町.json';
+const TSUNO_SPOTS_DATA_URL = '/data/都農町.json';
 const KADOGAWA_CROP = { x: 669.2, y: 536.5 };
 const KADOGAWA_VIEW_W = 61.7;
 const KADOGAWA_VIEW_H = 41.7;
-const KADOGAWA_SPOTS_DATA_URL = 'https://conotavi.com/data/門川町.json';
+const KADOGAWA_SPOTS_DATA_URL = '/data/門川町.json';
 const MOROTSUKA_CROP = { x: 605.7, y: 512.8 };
 const MOROTSUKA_VIEW_W = 57.4;
 const MOROTSUKA_VIEW_H = 58.5;
-const MOROTSUKA_SPOTS_DATA_URL = 'https://conotavi.com/data/諸塚村.json';
+const MOROTSUKA_SPOTS_DATA_URL = '/data/諸塚村.json';
 const SHIIBA_CROP = { x: 558.3, y: 518.7 };
 const SHIIBA_VIEW_W = 84.9;
 const SHIIBA_VIEW_H = 97.8;
-const SHIIBA_SPOTS_DATA_URL = 'https://conotavi.com/data/椎葉村.json';
+const SHIIBA_SPOTS_DATA_URL = '/data/椎葉村.json';
 const MISATO_TOWN_CROP = { x: 598.7, y: 527.1 };
 const MISATO_TOWN_VIEW_W = 94.1;
 const MISATO_TOWN_VIEW_H = 87.1;
-const MISATO_TOWN_SPOTS_DATA_URL = 'https://conotavi.com/data/美郷町.json';
+const MISATO_TOWN_SPOTS_DATA_URL = '/data/美郷町.json';
 const TAKACHIHO_CROP = { x: 609.3, y: 463.8 };
 const TAKACHIHO_VIEW_W = 56.5;
 const TAKACHIHO_VIEW_H = 66.7;
-const TAKACHIHO_SPOTS_DATA_URL = 'https://conotavi.com/data/高千穂町.json';
+const TAKACHIHO_SPOTS_DATA_URL = '/data/高千穂町.json';
 const HINOKAGE_CROP = { x: 623.9, y: 460.3 };
 const HINOKAGE_VIEW_W = 65.2;
 const HINOKAGE_VIEW_H = 90.3;
-const HINOKAGE_SPOTS_DATA_URL = 'https://conotavi.com/data/日之影町.json';
+const HINOKAGE_SPOTS_DATA_URL = '/data/日之影町.json';
 const GOKASE_CROP = { x: 583.5, y: 486.8 };
 const GOKASE_VIEW_W = 48.9;
 const GOKASE_VIEW_H = 60.9;
-const GOKASE_SPOTS_DATA_URL = 'https://conotavi.com/data/五ヶ瀬町.json';
+const GOKASE_SPOTS_DATA_URL = '/data/五ヶ瀬町.json';
 
 // 鹿児島県31市町村:諫早市などと同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 const KAGOSHIMA_CITY_CROP = { x: 419.9, y: 726.1 };
 const KAGOSHIMA_CITY_VIEW_W = 106.6;
 const KAGOSHIMA_CITY_VIEW_H = 149.5;
-const KAGOSHIMA_CITY_SPOTS_DATA_URL = 'https://conotavi.com/data/鹿児島市.json';
+const KAGOSHIMA_CITY_SPOTS_DATA_URL = '/data/鹿児島市.json';
 const KANOYA_CROP = { x: 502.1, y: 762.9 };
 const KANOYA_VIEW_W = 74.5;
 const KANOYA_VIEW_H = 127.1;
-const KANOYA_SPOTS_DATA_URL = 'https://conotavi.com/data/鹿屋市.json';
+const KANOYA_SPOTS_DATA_URL = '/data/鹿屋市.json';
 const MAKURAZAKI_CROP = { x: 402.2, y: 842.9 };
 const MAKURAZAKI_VIEW_W = 36.7;
 const MAKURAZAKI_VIEW_H = 31.1;
-const MAKURAZAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/枕崎市.json';
+const MAKURAZAKI_SPOTS_DATA_URL = '/data/枕崎市.json';
 const AKUNE_CROP = { x: 381.9, y: 641.3 };
 const AKUNE_VIEW_W = 46.7;
 const AKUNE_VIEW_H = 65.4;
-const AKUNE_SPOTS_DATA_URL = 'https://conotavi.com/data/阿久根市.json';
+const AKUNE_SPOTS_DATA_URL = '/data/阿久根市.json';
 const IZUMI_CROP = { x: 393.2, y: 629.6 };
 const IZUMI_VIEW_W = 80.1;
 const IZUMI_VIEW_H = 68.1;
-const IZUMI_SPOTS_DATA_URL = 'https://conotavi.com/data/出水市.json';
+const IZUMI_SPOTS_DATA_URL = '/data/出水市.json';
 const IBUSUKI_CROP = { x: 457.3, y: 850.4 };
 const IBUSUKI_VIEW_W = 48.2;
 const IBUSUKI_VIEW_H = 48.0;
-const IBUSUKI_SPOTS_DATA_URL = 'https://conotavi.com/data/指宿市.json';
+const IBUSUKI_SPOTS_DATA_URL = '/data/指宿市.json';
 const NISHINOOMOTE_CROP = { x: 524.0, y: 963.6 };
 const NISHINOOMOTE_VIEW_W = 71.2;
 const NISHINOOMOTE_VIEW_H = 82.2;
-const NISHINOOMOTE_SPOTS_DATA_URL = 'https://conotavi.com/data/西之表市.json';
+const NISHINOOMOTE_SPOTS_DATA_URL = '/data/西之表市.json';
 const TARUMIZU_CROP = { x: 493.9, y: 765.4 };
 const TARUMIZU_VIEW_W = 45.6;
 const TARUMIZU_VIEW_H = 71.2;
-const TARUMIZU_SPOTS_DATA_URL = 'https://conotavi.com/data/垂水市.json';
+const TARUMIZU_SPOTS_DATA_URL = '/data/垂水市.json';
 const SATSUMASENDAI_CROP = { x: 251.4, y: 656.9 };
 const SATSUMASENDAI_VIEW_W = 258.7;
 const SATSUMASENDAI_VIEW_H = 148.9;
-const SATSUMASENDAI_SPOTS_DATA_URL = 'https://conotavi.com/data/薩摩川内市.json';
+const SATSUMASENDAI_SPOTS_DATA_URL = '/data/薩摩川内市.json';
 const HIOKI_CROP = { x: 411.4, y: 738.8 };
 const HIOKI_VIEW_W = 53.2;
 const HIOKI_VIEW_H = 84.0;
-const HIOKI_SPOTS_DATA_URL = 'https://conotavi.com/data/日置市.json';
+const HIOKI_SPOTS_DATA_URL = '/data/日置市.json';
 const SOO_CROP = { x: 526.6, y: 719.3 };
 const SOO_VIEW_W = 88.3;
 const SOO_VIEW_H = 90.6;
-const SOO_SPOTS_DATA_URL = 'https://conotavi.com/data/曽於市.json';
+const SOO_SPOTS_DATA_URL = '/data/曽於市.json';
 const KIRISHIMA_CROP = { x: 467.5, y: 683.0 };
 const KIRISHIMA_VIEW_W = 94.3;
 const KIRISHIMA_VIEW_H = 110.2;
-const KIRISHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/霧島市.json';
+const KIRISHIMA_SPOTS_DATA_URL = '/data/霧島市.json';
 const ICHIKIKUSHIKINO_CROP = { x: 386.4, y: 727.3 };
 const ICHIKIKUSHIKINO_VIEW_W = 55.0;
 const ICHIKIKUSHIKINO_VIEW_H = 45.9;
-const ICHIKIKUSHIKINO_SPOTS_DATA_URL = 'https://conotavi.com/data/いちき串木野市.json';
+const ICHIKIKUSHIKINO_SPOTS_DATA_URL = '/data/いちき串木野市.json';
 const MINAMISATSUMA_CROP = { x: 199.5, y: 776.0 };
 const MINAMISATSUMA_VIEW_W = 282.7;
 const MINAMISATSUMA_VIEW_H = 228.8;
-const MINAMISATSUMA_SPOTS_DATA_URL = 'https://conotavi.com/data/南さつま市.json';
+const MINAMISATSUMA_SPOTS_DATA_URL = '/data/南さつま市.json';
 const SHIBUSHI_CROP = { x: 544.3, y: 764.4 };
 const SHIBUSHI_VIEW_W = 76.6;
 const SHIBUSHI_VIEW_H = 69.8;
-const SHIBUSHI_SPOTS_DATA_URL = 'https://conotavi.com/data/志布志市.json';
+const SHIBUSHI_SPOTS_DATA_URL = '/data/志布志市.json';
 const MINAMIKYUSHU_CROP = { x: 410.9, y: 803.0 };
 const MINAMIKYUSHU_VIEW_W = 69.5;
 const MINAMIKYUSHU_VIEW_H = 85.8;
-const MINAMIKYUSHU_SPOTS_DATA_URL = 'https://conotavi.com/data/南九州市.json';
+const MINAMIKYUSHU_SPOTS_DATA_URL = '/data/南九州市.json';
 const ISA_CROP = { x: 446.4, y: 624.4 };
 const ISA_VIEW_W = 71.4;
 const ISA_VIEW_H = 82.6;
-const ISA_SPOTS_DATA_URL = 'https://conotavi.com/data/伊佐市.json';
+const ISA_SPOTS_DATA_URL = '/data/伊佐市.json';
 const AIRA_CROP = { x: 447.6, y: 703.3 };
 const AIRA_VIEW_W = 68.7;
 const AIRA_VIEW_H = 67.9;
-const AIRA_SPOTS_DATA_URL = 'https://conotavi.com/data/姶良市.json';
+const AIRA_SPOTS_DATA_URL = '/data/姶良市.json';
 const MISHIMA_CROP = { x: 316.6, y: 952.6 };
 const MISHIMA_VIEW_W = 150.3;
 const MISHIMA_VIEW_H = 54.4;
-const MISHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/三島村.json';
+const MISHIMA_SPOTS_DATA_URL = '/data/三島村.json';
 const SATSUMA_TOWN_CROP = { x: 417.2, y: 663.9 };
 const SATSUMA_TOWN_VIEW_W = 80.2;
 const SATSUMA_TOWN_VIEW_H = 72.0;
-const SATSUMA_TOWN_SPOTS_DATA_URL = 'https://conotavi.com/data/さつま町.json';
+const SATSUMA_TOWN_SPOTS_DATA_URL = '/data/さつま町.json';
 const NAGASHIMA_CROP = { x: 365.5, y: 595.8 };
 const NAGASHIMA_VIEW_W = 54.1;
 const NAGASHIMA_VIEW_H = 70.9;
-const NAGASHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/長島町.json';
+const NAGASHIMA_SPOTS_DATA_URL = '/data/長島町.json';
 const YUSUI_CROP = { x: 481.0, y: 660.1 };
 const YUSUI_VIEW_W = 54.0;
 const YUSUI_VIEW_H = 51.4;
-const YUSUI_SPOTS_DATA_URL = 'https://conotavi.com/data/湧水町.json';
+const YUSUI_SPOTS_DATA_URL = '/data/湧水町.json';
 const OSAKI_CROP = { x: 541.0, y: 787.4 };
 const OSAKI_VIEW_W = 46.0;
 const OSAKI_VIEW_H = 51.9;
-const OSAKI_SPOTS_DATA_URL = 'https://conotavi.com/data/大崎町.json';
+const OSAKI_SPOTS_DATA_URL = '/data/大崎町.json';
 const HIGASHIKUSHIRA_CROP = { x: 554.6, y: 819.1 };
 const HIGASHIKUSHIRA_VIEW_W = 24.3;
 const HIGASHIKUSHIRA_VIEW_H = 28.6;
-const HIGASHIKUSHIRA_SPOTS_DATA_URL = 'https://conotavi.com/data/東串良町.json';
+const HIGASHIKUSHIRA_SPOTS_DATA_URL = '/data/東串良町.json';
 const KINKO_CROP = { x: 511.3, y: 847.4 };
 const KINKO_VIEW_W = 52.1;
 const KINKO_VIEW_H = 61.6;
-const KINKO_SPOTS_DATA_URL = 'https://conotavi.com/data/錦江町.json';
+const KINKO_SPOTS_DATA_URL = '/data/錦江町.json';
 const MINAMIOSUMI_CROP = { x: 484.5, y: 861.8 };
 const MINAMIOSUMI_VIEW_W = 71.8;
 const MINAMIOSUMI_VIEW_H = 81.3;
-const MINAMIOSUMI_SPOTS_DATA_URL = 'https://conotavi.com/data/南大隅町.json';
+const MINAMIOSUMI_SPOTS_DATA_URL = '/data/南大隅町.json';
 const KIMOTSUKI_CROP = { x: 532.2, y: 822.2 };
 const KIMOTSUKI_VIEW_W = 74.7;
 const KIMOTSUKI_VIEW_H = 92.5;
-const KIMOTSUKI_SPOTS_DATA_URL = 'https://conotavi.com/data/肝付町.json';
+const KIMOTSUKI_SPOTS_DATA_URL = '/data/肝付町.json';
 const NAKATANE_CROP = { x: 535.3, y: 1015.1 };
 const NAKATANE_VIEW_W = 47.3;
 const NAKATANE_VIEW_H = 64.4;
-const NAKATANE_SPOTS_DATA_URL = 'https://conotavi.com/data/中種子町.json';
+const NAKATANE_SPOTS_DATA_URL = '/data/中種子町.json';
 const MINAMITANE_CROP = { x: 530.5, y: 1057.7 };
 const MINAMITANE_VIEW_W = 38.8;
 const MINAMITANE_VIEW_H = 45.1;
-const MINAMITANE_SPOTS_DATA_URL = 'https://conotavi.com/data/南種子町.json';
+const MINAMITANE_SPOTS_DATA_URL = '/data/南種子町.json';
 const YAKUSHIMA_CROP = { x: 368.8, y: 1043.9 };
 const YAKUSHIMA_VIEW_W = 145.9;
 const YAKUSHIMA_VIEW_H = 100.0;
-const YAKUSHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/屋久島町.json';
+const YAKUSHIMA_SPOTS_DATA_URL = '/data/屋久島町.json';
 const TOSHIMA_VILLAGE_CROP = { x: 89.0, y: 1136.4 };
 const TOSHIMA_VILLAGE_VIEW_W = 299.7;
 const TOSHIMA_VILLAGE_VIEW_H = 396.9;
-const TOSHIMA_VILLAGE_SPOTS_DATA_URL = 'https://conotavi.com/data/十島村.json';
+const TOSHIMA_VILLAGE_SPOTS_DATA_URL = '/data/十島村.json';
 
 // 九州全体マップと同じ正確な図法(経度×cos(緯度)の正距円筒図法)。市ごとの切り出しに共通で使う。
 const GEO_PROJ = { lonMin: 128.3437633597913, latMax: 34.70802082939781, coslat: 0.8503512172946261, scale: 251.49473321270509 };
 const ISAHAYA_CROP = { x: 321.5, y: 427.7 }; // 九州全体座標系における諫早市エリアの切り出し原点
 // データの配信元(GitHub→ConoHa WINGで毎晩自動更新される、諫早市のスポット一覧)
-const SPOTS_DATA_URL = 'https://conotavi.com/data/諫早市.json';
+const SPOTS_DATA_URL = '/data/諫早市.json';
 
 // 奄美群島12市町村のスポットデータURL(まだ実データが無い場合は空の一覧として表示される)
-const AMAMI_SPOTS_DATA_URL = 'https://conotavi.com/data/奄美市.json';
-const YAMATO_VILLAGE_SPOTS_DATA_URL = 'https://conotavi.com/data/大和村.json';
-const UKEN_SPOTS_DATA_URL = 'https://conotavi.com/data/宇検村.json';
-const SETOUCHI_SPOTS_DATA_URL = 'https://conotavi.com/data/瀬戸内町.json';
-const TATSUGO_SPOTS_DATA_URL = 'https://conotavi.com/data/龍郷町.json';
-const KIKAI_SPOTS_DATA_URL = 'https://conotavi.com/data/喜界町.json';
-const TOKUNOSHIMA_SPOTS_DATA_URL = 'https://conotavi.com/data/徳之島町.json';
-const AMAGI_SPOTS_DATA_URL = 'https://conotavi.com/data/天城町.json';
-const ISEN_SPOTS_DATA_URL = 'https://conotavi.com/data/伊仙町.json';
-const WADOMARI_SPOTS_DATA_URL = 'https://conotavi.com/data/和泊町.json';
-const CHINAN_SPOTS_DATA_URL = 'https://conotavi.com/data/知名町.json';
-const YORON_SPOTS_DATA_URL = 'https://conotavi.com/data/与論町.json';
+const AMAMI_SPOTS_DATA_URL = '/data/奄美市.json';
+const YAMATO_VILLAGE_SPOTS_DATA_URL = '/data/大和村.json';
+const UKEN_SPOTS_DATA_URL = '/data/宇検村.json';
+const SETOUCHI_SPOTS_DATA_URL = '/data/瀬戸内町.json';
+const TATSUGO_SPOTS_DATA_URL = '/data/龍郷町.json';
+const KIKAI_SPOTS_DATA_URL = '/data/喜界町.json';
+const TOKUNOSHIMA_SPOTS_DATA_URL = '/data/徳之島町.json';
+const AMAGI_SPOTS_DATA_URL = '/data/天城町.json';
+const ISEN_SPOTS_DATA_URL = '/data/伊仙町.json';
+const WADOMARI_SPOTS_DATA_URL = '/data/和泊町.json';
+const CHINAN_SPOTS_DATA_URL = '/data/知名町.json';
+const YORON_SPOTS_DATA_URL = '/data/与論町.json';
 
 // 市町村ページ(スポット地図・ルート機能など)が使えるようになっている市町村の設定一覧。
 // ここに追加した市町村は、諫早市と同じ仕組み(専用の切り出し座標・実データURL)で動くようになる。
@@ -2384,11 +2385,71 @@ function getCrowdLevel(dateStr) {
 }
 
 
+// 市町村ページの絞り込みタブで使うカテゴリ。色分けは未定のため、ひとまず全カテゴリ同じ色にしてある
+// (実データが揃い次第、カテゴリごとに色分けする想定)。
 const CATEGORY_META = {
-  sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#E2613D', tint: '#FBEAE4', icon: Landmark },
-  food: { label: { ja: '食事', en: 'Food' }, color: '#3F8753', tint: '#E9F3EC', icon: UtensilsCrossed },
-  lodging: { label: { ja: '宿泊', en: 'Lodging' }, color: '#3B5E91', tint: '#E9EDF6', icon: BedDouble },
-  roadside: { label: { ja: '道の駅', en: 'Rest stop' }, color: '#C9821A', tint: '#FBF1E2', icon: Store },
+  history: { label: { ja: '歴史', en: 'History' }, color: '#3B5E91', tint: '#E9EDF6', icon: BookOpen },
+  nature: { label: { ja: '自然', en: 'Nature' }, color: '#3B5E91', tint: '#E9EDF6', icon: Trees },
+  experience: { label: { ja: '体験', en: 'Experience' }, color: '#3B5E91', tint: '#E9EDF6', icon: Sparkles },
+  food: { label: { ja: '飲食', en: 'Dining' }, color: '#3B5E91', tint: '#E9EDF6', icon: Soup },
+  shopping: { label: { ja: '買物', en: 'Shopping' }, color: '#3B5E91', tint: '#E9EDF6', icon: ShoppingBag },
+  lodging: { label: { ja: '宿泊', en: 'Lodging' }, color: '#3B5E91', tint: '#E9EDF6', icon: Building2 },
+  roadside: { label: { ja: '道の駅', en: 'Roadside Station' }, color: '#3B5E91', tint: '#E9EDF6', icon: Store },
+  onsen: { label: { ja: '温泉', en: 'Hot Spring' }, color: '#3B5E91', tint: '#E9EDF6', icon: Droplet },
+  medical: { label: { ja: '医療', en: 'Medical' }, color: '#3B5E91', tint: '#E9EDF6', icon: Stethoscope },
+  event: { label: { ja: '催事', en: 'Events' }, color: '#3B5E91', tint: '#E9EDF6', icon: PartyPopper },
+  // 過去のデータ・画面(目的で探すページ等)との互換性のために残してある旧カテゴリ。
+  // 新規のスポット絞り込みタブでは使わず、上の history/nature/experience に分割済み。
+  sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#3B5E91', tint: '#E9EDF6', icon: Landmark },
+};
+
+// 地図右側のアイコン列に並べる、5つの大分類(移動・休憩宿泊・観る体験・食べる買う・医療)。
+// 医療だけは単独(展開なし)。それ以外は親アイコンをタップすると、中の項目が横に展開される。
+// 「空港・フェリー・道の駅」以外はまだ実際のデータ・機能が無いため、準備中として表示する。
+// (アイコンは、市町村ページのスポット選びタブ(観光・グルメ・宿泊・道の駅)とも重複しないよう、
+// それぞれ別の絵柄を選んでいる)
+const ICON_CATEGORY_GROUPS = {
+  transport: {
+    label: '移動', labelEn: 'Transport', icon: Car,
+    items: [
+      { key: 'airport', label: '空港', labelEn: 'Airport', icon: Plane, ready: true },
+      { key: 'ferry', label: '航路', labelEn: 'Ferry', icon: Ship, ready: true },
+      { key: 'train', label: '鉄道', labelEn: 'Train', icon: TrainFront, ready: false },
+      { key: 'bus', label: '交通', labelEn: 'Bus/Transit', icon: Bus, ready: false },
+    ],
+  },
+  rest: {
+    label: '休憩・宿泊', labelEn: 'Rest & Stay', icon: Coffee,
+    items: [
+      { key: 'roadside', label: '道の駅', labelEn: 'Roadside Station', icon: Store, ready: true, spotCategory: 'roadside' },
+      { key: 'onsen', label: '温泉', labelEn: 'Hot Spring', icon: Droplet, ready: false, spotCategory: 'onsen' },
+      { key: 'lodging', label: '宿泊', labelEn: 'Lodging', icon: Building2, ready: true, spotCategory: 'lodging' },
+    ],
+  },
+  see: {
+    label: '観る・体験', labelEn: 'See & Experience', icon: Mountain,
+    items: [
+      { key: 'history', label: '歴史', labelEn: 'History', icon: BookOpen, ready: true, spotCategory: 'history' },
+      { key: 'nature', label: '自然', labelEn: 'Nature', icon: Trees, ready: true, spotCategory: 'nature' },
+      { key: 'experience', label: '体験', labelEn: 'Experience', icon: Sparkles, ready: true, spotCategory: 'experience' },
+      { key: 'event', label: '催事', labelEn: 'Events', icon: PartyPopper, ready: false, spotCategory: 'event' },
+    ],
+  },
+  eat: {
+    label: '食べる・買う', labelEn: 'Eat & Shop', icon: Wallet,
+    items: [
+      { key: 'food', label: '飲食', labelEn: 'Dining', icon: Soup, ready: true, spotCategory: 'food' },
+      { key: 'shopping', label: '買物', labelEn: 'Shopping', icon: ShoppingBag, ready: false, spotCategory: 'shopping' },
+    ],
+  },
+  findBy: {
+    label: '探し方', labelEn: 'Search by', icon: Search,
+    items: [
+      { key: 'area', label: '地域で探す', labelEn: 'By Area', icon: MapIcon, ready: true },
+      { key: 'purpose', label: '目的で探す', labelEn: 'By Purpose', icon: Compass, ready: false },
+      { key: 'noplan', label: 'NO PLAN', labelEn: 'NO PLAN', icon: X, ready: false },
+    ],
+  },
 };
 
 // 九州に実在する空港一覧(緯度経度は各空港の実測値)。ルート機能で「現在地を使わない場合」の
@@ -2477,6 +2538,18 @@ const DEFAULT_FERRIES = {
   shibushi: { name: '志布志港', nameEn: 'Shibushi Port', lat: 31.4783, lon: 131.1136 },
 };
 FERRIES = DEFAULT_FERRIES;
+// 道の駅も、フェリーと同じ理由(データ取得に失敗した時に何も表示されない問題)で、
+// 代表的な道の駅を県ごとに1つずつ既定値として用意しておく。実際のデータ取得に
+// 成功すればこちらに追加され、失敗・空だった場合でもこの既定値が表示される。
+const DEFAULT_ROADSIDE = [
+  { id: 'rs-fukuoka-ukiha', name: '道の駅うきは', nameEn: 'Michi-no-Eki Ukiha', prefId: '40', category: '道の駅', x: 520.37, y: 350.09 },
+  { id: 'rs-saga-yoshinogari', name: '道の駅吉野ヶ里', nameEn: 'Michi-no-Eki Yoshinogari', prefId: '41', category: '道の駅', x: 441.88, y: 358.39 },
+  { id: 'rs-nagasaki-mikawa', name: '道の駅みかわ', nameEn: 'Michi-no-Eki Mikawa', prefId: '42', category: '道の駅', x: 309.93, y: 472.06 },
+  { id: 'rs-kumamoto-aso', name: '道の駅阿蘇', nameEn: 'Michi-no-Eki Aso', prefId: '43', category: '道の駅', x: 590.94, y: 448.17 },
+  { id: 'rs-oita-yufuin', name: '道の駅ゆふいん', nameEn: 'Michi-no-Eki Yufuin', prefId: '44', category: '道の駅', x: 645.26, y: 363.16 },
+  { id: 'rs-miyazaki-takachiho', name: '道の駅高千穂', nameEn: 'Michi-no-Eki Takachiho', prefId: '45', category: '道の駅', x: 632.43, y: 503.50 },
+  { id: 'rs-kagoshima-kiire', name: '道の駅喜入', nameEn: 'Michi-no-Eki Kiire', prefId: '46', category: '道の駅', x: 472.25, y: 826.67 },
+];
 let MUNI_FERRY_OVERRIDE = {};
 function getFerryInfo(cityCode) {
   const key = MUNI_FERRY_OVERRIDE[cityCode];
@@ -2489,18 +2562,39 @@ function getFerryInfo(cityCode) {
 // 毎晩自動更新される本物のスプレッドシートデータを取得して入れる(下のuseEffectを参照)。
 let SPOTS = [];
 
-// 仮のプレビュー用スポット(A/B/C/D)。本物のデータ取得(SPOTS_DATA_URL)に失敗した場合、
-// または0件だった場合のみ表示され、ルート検索の動作確認ができるようにするための一時的なもの。
-// 本物のデータが取得できるようになったら不要(このまま置いておいて問題ない)。
+// プレビュー確認用スポット。本物のデータ取得(SPOTS_DATA_URL)に失敗した場合、
+// または0件だった場合に代わりに表示される。Claudeのプレビュー画面は外部ドメインへの
+// fetchができないため、通常はこちらが表示される。
+// 実際にスプレッドシートに入っている諫早市のデータ(2026年7月時点)をそのまま反映してあるので、
+// カードのデザイン確認にそのまま使える。
 const DEMO_SPOTS = [
-  { id: 'demo-a', category: 'sightseeing', name: 'A', nameEn: 'A', x: 363.6, y: 454.3, duration: 30, price: 0, desc: '仮の観光スポットです。', descEn: 'A placeholder sightseeing spot.', hours: null },
-  { id: 'demo-b', category: 'food', name: 'B', nameEn: 'B', x: 372.0, y: 463.6, duration: 45, price: 1200, desc: '仮の食事スポットです。', descEn: 'A placeholder dining spot.', hours: null },
-  { id: 'demo-c', category: 'lodging', name: 'C', nameEn: 'C', x: 352.7, y: 470.8, duration: 0, price: 8000, desc: '仮の宿泊施設です。', descEn: 'A placeholder lodging spot.', hours: null },
-  { id: 'demo-d', category: 'roadside', name: 'D', nameEn: 'D', x: 345.1, y: 455.7, duration: 20, price: 0, desc: '仮の道の駅です。', descEn: 'A placeholder roadside station.', hours: null },
+  {
+    id: 'S1782783588975', category: 'food', name: '山しげ', nameEn: 'Yamashige',
+    x: 365.8846180844917, y: 469.13772943996065, duration: 50, price: 2000, priceRangeText: '1000〜2000',
+    accessible: 'なし', parking: 'なし', affiliateUrl: '',
+    image: 'https://conotavi.com/images/1782783587203-9ew4mi.webp',
+    desc: '「山しげ」は、本諫早駅からほど近い場所に位置し、長年地元の方々に愛され続けている昔ながらの大衆食堂です。うどんやそば、丼物といった定番メニューが揃っていますが、特にそのボリュームと丁寧な味付けで知られる「カツ丼」は名物として多くのファンを惹きつけています。手打ちのうどんは喉越しが良く、どの料理も奇をてらわない素朴で優しい味わいが特徴です。',
+    descEn: 'Yamashige is a traditional, local diner located near Hon-Isahaya Station, cherished by the community for many years. While it serves classic dishes such as udon, soba, and rice bowls, it is especially famous for its hearty and expertly prepared "katsudon" (pork cutlet rice bowl), which has garnered a loyal following.',
+    hours: { week: [[[690, 1140]], [[690, 1140]], [[690, 1140]], [[690, 1140]], [[690, 1140]], [[690, 1140]], []] },
+  },
+  {
+    id: 'S1783800000040', category: 'roadside', name: '道の駅 251いいもりじゃがーロード', nameEn: 'Michi-no-Eki 251 Iimori Jaga Road',
+    x: 362.7276337034369, y: 483.8685304484291, duration: 25, price: 0, priceRangeText: '0〜',
+    accessible: 'あり', parking: 'あり', affiliateUrl: '',
+    image: 'data:image/webp;base64,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', // イラスト(参考画像・デモ用に埋め込み。本番では実際にホスティングしたURLに差し替える)
+    desc: '国道251号沿い、諫早市飯盛町にある道の駅。24時間利用可能な情報コーナーとEV充電器、無料Wi-Fiを備える。',
+    descEn: "Located along Route 251 in Isahaya City's Iimori area. Equipped with a 24-hour information corner, EV chargers, and free Wi-Fi.",
+    hours: { week: [[], [], [], [], [], [], []] },
+  },
 ];
 
 // スプレッドシートの「カテゴリ」列(日本語)を、このアプリが使う内部キーに変換する
-const CATEGORY_JA_TO_EN = { '観光': 'sightseeing', '食事': 'food', '宿泊': 'lodging', '道の駅': 'roadside' };
+const CATEGORY_JA_TO_EN = {
+  '観光': 'sightseeing', // 旧カテゴリ(互換性のため残す)
+  '歴史': 'history', '自然': 'nature', '体験': 'experience',
+  '食事': 'food', '飲食': 'food', // '食事'は旧ラベル、'飲食'が現行ラベル
+  '宿泊': 'lodging', '道の駅': 'roadside', '温泉': 'onsen', '医療': 'medical', '買物': 'shopping', '催事': 'event',
+};
 
 const KYUSHU_VIEW_W = 800;
 const KYUSHU_VIEW_H = 1502.5;
@@ -5034,6 +5128,33 @@ function diffMinutes(t1, t2) {
   const [h2, m2] = t2.split(':').map(Number);
   return (h2 * 60 + m2) - (h1 * 60 + m1);
 }
+// 市町村ページの地図の表示範囲(SVGのviewBoxに相当)を計算する。
+// レンダー内の表示と、Ctrl+ホイールズームの両方から同じ計算結果を使うための共通関数。
+function computeMuniMapBox(cityConfig, mapSize, zoom, panX, panY) {
+  const crop = cityConfig.crop;
+  let box = { x: crop.x, y: crop.y, w: cityConfig.viewW, h: cityConfig.viewH };
+  if (mapSize && mapSize.w > 0 && mapSize.h > 0) {
+    const containerAspect = mapSize.w / mapSize.h;
+    const viewAspect = cityConfig.viewW / cityConfig.viewH;
+    const ccx = crop.x + cityConfig.viewW / 2;
+    const ccy = crop.y + cityConfig.viewH / 2;
+    if (containerAspect > viewAspect) {
+      const w2 = containerAspect * cityConfig.viewH;
+      box = { x: ccx - w2 / 2, y: ccy - cityConfig.viewH / 2, w: w2, h: cityConfig.viewH };
+    } else {
+      const h2 = cityConfig.viewW / containerAspect;
+      box = { x: ccx - cityConfig.viewW / 2, y: ccy - h2 / 2, w: cityConfig.viewW, h: h2 };
+    }
+  }
+  if (zoom !== 1) {
+    const zcx = box.x + box.w / 2;
+    const zcy = box.y + box.h / 2;
+    const zw = box.w / zoom;
+    const zh = box.h / zoom;
+    box = { x: zcx - zw / 2, y: zcy - zh / 2, w: zw, h: zh };
+  }
+  return { ...box, x: box.x + panX, y: box.y + panY };
+}
 function formatDuration(mins, lang) {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -5118,6 +5239,34 @@ function MairuDemoInner() {
   const [myLocationXY, setMyLocationXY] = useState(null); // 九州ページ:現在地(ワンショット取得)のx,y座標
   const [myLocationStatus, setMyLocationStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
   const [showAirportPins, setShowAirportPins] = useState(false); // 空港のピン表示トグル(九州・県ページ共通)
+  const [expandedIconGroup, setExpandedIconGroup] = useState(null); // 右側アイコン列で今展開中の大分類('transport'|'rest'|'see'|'eat'|null)
+  const [langMenuOpen, setLangMenuOpen] = useState(false); // JP/EN切り替えを1つのアイコンにまとめた時の展開状態
+  function LangToggleIcon({ className, inColumn }) {
+    return (
+      <div className={`${className || ''} ${inColumn ? 'icon-group-wrap' : 'lang-icon-wrap'}`}>
+        <button
+          className="locate-me-btn icon-only lang-icon-btn"
+          onClick={(e) => { e.stopPropagation(); setLangMenuOpen((v) => !v); }}
+          title={lang === 'en' ? 'Language' : '言語'}
+          aria-label={lang === 'en' ? 'Language' : '言語'}
+        >
+          <Languages size={16} />
+        </button>
+        {langMenuOpen && (
+          <div className={inColumn ? 'icon-group-submenu' : 'icon-group-submenu lang-submenu'}>
+            <button
+              className={`locate-me-btn icon-only submenu-item lang-text-btn ${lang === 'ja' ? 'active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setLang('ja'); setLangMenuOpen(false); }}
+            >JP</button>
+            <button
+              className={`locate-me-btn icon-only submenu-item lang-text-btn ${lang === 'en' ? 'active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setLang('en'); setLangMenuOpen(false); }}
+            >EN</button>
+          </div>
+        )}
+      </div>
+    );
+  }
   const [showFerryPins, setShowFerryPins] = useState(false); // フェリーのピン表示トグル(九州・県ページ共通)
   const [peekAirportId, setPeekAirportId] = useState(null); // タップ中の空港ピン
   const [peekFerryId, setPeekFerryId] = useState(null); // タップ中のフェリーピン
@@ -5137,8 +5286,14 @@ function MairuDemoInner() {
     setPeekCityId(null);
   }
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
+  const [muniZoom, setMuniZoom] = useState(1); // 市町村ページの地図拡大率
+  const [muniPanX, setMuniPanX] = useState(0); // 市町村ページの地図の中心位置ズレ(SVG座標単位、目的地選択で変化)
+  const [muniPanY, setMuniPanY] = useState(0);
   useEffect(() => {
     if (appStage !== 'kyushu') setKyushuZoom(1); // 九州ページ以外に移動したら拡大率をリセットする
+  }, [appStage]);
+  useEffect(() => {
+    if (appStage !== 'muni') setMuniZoom(1); // 市町村ページ以外に移動したら拡大率をリセットする
   }, [appStage]);
   const [iconLabelPeek, setIconLabelPeek] = useState(null); // 右側アイコンをタップした時に、アイコンの左に一時的に出すラベル文字
   useEffect(() => {
@@ -5156,6 +5311,7 @@ function MairuDemoInner() {
 
   const [showAllCityNames, setShowAllCityNames] = useState(false); // 県ページの「地名を表示」ボタン:長崎県のみ試験導入
   const regionMapScrollRef = useRef(null); // 県ページの地図(本島+離島)のスクロール領域
+  const regionMapContentRef = useRef(null); // 県ページの地図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
@@ -5185,22 +5341,26 @@ function MairuDemoInner() {
     const rvb = currentPref.regionViewBox;
     const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
     if (!munis.length) return;
-    const fvbBase = computePannableViewBox(rvb, munis);
     // 実際に描画される地図の座標範囲(prefFullViewBox)は、県ページの表示コードと全く同じ
-    // 計算(本島サイズを2倍に広げた範囲との合成)を使う必要がある。ここだけ別の(狭い)範囲を
-    // 基準にスクロール量を計算していたため、県によって中心がズレる原因になっていた。
-    const sizingPadded = { x: rvb.x - rvb.w / 2, y: rvb.y - rvb.h / 2, w: rvb.w * 2, h: rvb.h * 2 };
-    const boxMinX = Math.min(fvbBase.x, sizingPadded.x);
-    const boxMinY = Math.min(fvbBase.y, sizingPadded.y);
-    const boxMaxX = Math.max(fvbBase.x + fvbBase.w, sizingPadded.x + sizingPadded.w);
-    const boxMaxY = Math.max(fvbBase.y + fvbBase.h, sizingPadded.y + sizingPadded.h);
-    const fvb = { x: boxMinX, y: boxMinY, w: boxMaxX - boxMinX, h: boxMaxY - boxMinY };
+    // 計算を使う必要がある。本島をそのまま基準にしつつ、離島がある方向にだけ届く分の
+    // 余白を追加する(使わない方向にまで均等に広げると無駄な余白になるため)。
+    const muniXsA = munis.map((m) => m.cx);
+    const muniYsA = munis.map((m) => m.cy);
+    const bufA = Math.max(rvb.w, rvb.h) * 0.5;
+    const fvbMinX = Math.min(rvb.x, ...muniXsA) - bufA;
+    const fvbMinY = Math.min(rvb.y, ...muniYsA) - bufA;
+    const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
+    const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
+    const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
     // 県ごとに用意されている表示範囲(regionViewBox)自体が、その県の本島を
-    // 綺麗に収める形であらかじめ調整されているため、中心もそのままその範囲の中心を使う。
-    // (市町村の代表点から計算し直すと、県によって市町村の分布に偏りがあり、
-    // 長崎県・福岡県・宮崎県・鹿児島県などでズレが生じていたため)
-    const mainlandCx = rvb.x + rvb.w / 2;
-    const mainlandCy = rvb.y + rvb.h / 2;
+    // 綺麗に収める形であらかじめ調整されているため、基本的には中心もそのままその範囲の中心を使う。
+    // ただし長崎県・鹿児島県は、それでもまだズレて見えるとのフィードバックがあったため、
+    // 代わりに分かりやすい目印(大村市・鹿児島市)の位置を直接中心にする。
+    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: 0 }, '46': { name: '鹿児島市', offsetX: 25 } };
+    const override = REGION_CENTER_OVERRIDE[selectedPrefId];
+    const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
+    const mainlandCx = overrideMuni ? overrideMuni.cx + (override.offsetX || 0) : rvb.x + rvb.w / 2;
+    const mainlandCy = overrideMuni ? overrideMuni.cy : rvb.y + rvb.h / 2;
     const apply = () => {
       // ウィンドウの縦横比を固定したことで、X方向とY方向の拡大率が異なる場合があるため、別々に計算する
       const scaleX = el.scrollWidth / fvb.w;
@@ -5217,7 +5377,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 30) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5236,15 +5396,15 @@ function MairuDemoInner() {
     if (!el) return;
     const munis = KYUSHU_MUNICIPALITIES.filter((x) => x.prefId === selectedPrefId);
     const prefViewBox = currentPref.regionViewBox;
-    const fvbBase = computePannableViewBox(prefViewBox, munis);
-    // 端の市町村でも中央まで持って来られるよう、本島サイズを基準に余白を広げる(県ページの表示計算と同じロジック)
-    const sizingBox = prefViewBox;
-    const sizingPadded = { x: sizingBox.x - sizingBox.w / 2, y: sizingBox.y - sizingBox.h / 2, w: sizingBox.w * 2, h: sizingBox.h * 2 };
-    const minX = Math.min(fvbBase.x, sizingPadded.x);
-    const minY = Math.min(fvbBase.y, sizingPadded.y);
-    const maxX = Math.max(fvbBase.x + fvbBase.w, sizingPadded.x + sizingPadded.w);
-    const maxY = Math.max(fvbBase.y + fvbBase.h, sizingPadded.y + sizingPadded.h);
-    const fvb = { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    // 本島をそのまま基準にしつつ、離島がある方向にだけ届く分の余白を追加する。
+    const muniXsB = munis.map((x) => x.cx);
+    const muniYsB = munis.map((x) => x.cy);
+    const bufB = Math.max(prefViewBox.w, prefViewBox.h) * 0.7;
+    const fvbMinXB = Math.min(prefViewBox.x, ...muniXsB) - bufB;
+    const fvbMinYB = Math.min(prefViewBox.y, ...muniYsB) - bufB;
+    const fvbMaxXB = Math.max(prefViewBox.x + prefViewBox.w, ...muniXsB) + bufB;
+    const fvbMaxYB = Math.max(prefViewBox.y + prefViewBox.h, ...muniYsB) + bufB;
+    const fvb = { x: fvbMinXB, y: fvbMinYB, w: fvbMaxXB - fvbMinXB, h: fvbMaxYB - fvbMinYB };
     const apply = () => {
       const scaleX = el.scrollWidth / fvb.w;
       const scaleY = el.scrollHeight / fvb.h;
@@ -5257,7 +5417,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 30) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5292,6 +5452,24 @@ function MairuDemoInner() {
     const t = setTimeout(() => setMyLocationStatus('idle'), 3000); // エラー表示は一定時間で自動的に消す
     return () => clearTimeout(t);
   }, [myLocationStatus]);
+
+  // 「リセット」ボタン用: 九州・県ページで表示中のピン・地名表示・展開中メニューなどを全て解除する。
+  function resetMapDisplay() {
+    setShowAirportPins(false);
+    setShowFerryPins(false);
+    setShowRoadsidePins(false);
+    setExpandedIconGroup(null);
+    setPeekAirportId(null);
+    setPeekFerryId(null);
+    setPeekRoadsideId(null);
+    setShowAllPrefNames(false);
+    setShowAllCityNames(false);
+    setPeekPrefId(null);
+    setPeekCityId(null);
+    setIconLabelPeek(null);
+    setMuniPanX(0);
+    setMuniPanY(0);
+  }
 
   // 近い場所に複数のピンが重なって見づらくなるのを防ぐため、指定した距離(データ座標系の単位)以内の
   // ピンを1つのクラスターにまとめる。ピンが多い九州全体ページで使う。
@@ -5347,71 +5525,153 @@ function MairuDemoInner() {
     };
   }
   const handlePanMouseDown = makePanMouseDown(regionMapScrollRef);
-  // ピンチズーム(スマホでの2本指ズーム)用の状態。指の距離の変化に合わせてズーム値を更新する。
-  const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1 });
-  // ズーム(+/−ボタン・ピンチ操作)を「今見えている画面の中心」を基準に行うための仕組み。
-  // ズーム変更の直前に「今どのあたりを見ているか(0〜1の割合)」を記録しておき、
-  // ズーム後のコンテンツサイズに対して同じ割合の位置がまた画面中心に来るようスクロールし直す。
-  const kyushuZoomAnchorRef = useRef(null);
-  const regionZoomAnchorRef = useRef(null);
-  function captureZoomAnchor(scrollRef, anchorRef) {
-    const el = scrollRef.current;
-    if (!el || el.scrollWidth <= 0 || el.scrollHeight <= 0) return;
-    anchorRef.current = {
-      fracX: (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth,
-      fracY: (el.scrollTop + el.clientHeight / 2) / el.scrollHeight,
-      pending: true,
-    };
-  }
-  function useApplyZoomAnchor(scrollRef, anchorRef, zoomValue) {
-    useEffect(() => {
-      const anchor = anchorRef.current;
-      if (!anchor || !anchor.pending) return undefined;
-      const el = scrollRef.current;
-      if (!el) return undefined;
-      const raf = requestAnimationFrame(() => {
-        el.scrollLeft = anchor.fracX * el.scrollWidth - el.clientWidth / 2;
-        el.scrollTop = anchor.fracY * el.scrollHeight - el.clientHeight / 2;
-        anchor.pending = false;
-      });
-      return () => cancelAnimationFrame(raf);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zoomValue]);
-  }
-  function makePinchHandlers(setZoom, scrollRef, anchorRef) {
+  // ピンチズーム(スマホでの2本指ズーム)。
+  // スクロール位置を自分で計算し直す方式は何度か試したがうまくいかなかったため、
+  // CSSの transform(scale + transform-origin)に任せる、素直なやり方に変更する。
+  // transform-origin を「つまんだ位置」に設定しておけば、拡大縮小はブラウザが
+  // 自動でその位置を中心に行ってくれるため、自分でスクロール位置を計算し直す必要がない。
+  const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1, raf: null, pendingScale: null });
+  function makePinchHandlers(setZoom, contentRef, scrollRef) {
     function getDist(touches) {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
       return Math.hypot(dx, dy);
     }
+    function getMid(touches, content) {
+      const rect = content.getBoundingClientRect();
+      const midX = (touches[0].clientX + touches[1].clientX) / 2 - rect.left;
+      const midY = (touches[0].clientY + touches[1].clientY) / 2 - rect.top;
+      return { x: midX, y: midY };
+    }
     return {
       onTouchStart: (e) => {
-        if (e.touches.length === 2) {
-          captureZoomAnchor(scrollRef, anchorRef);
+        const content = contentRef.current;
+        const el = scrollRef.current;
+        if (e.touches.length === 2 && content && el) {
+          const mid = getMid(e.touches, content);
+          content.style.transformOrigin = `${mid.x}px ${mid.y}px`;
           setZoom((z) => {
-            pinchRef.current = { active: true, startDist: getDist(e.touches), startZoom: z };
+            pinchRef.current = {
+              active: true, startDist: getDist(e.touches), startZoom: z, raf: null, pendingScale: 1,
+              midX: mid.x, midY: mid.y, scrollLeftBefore: el.scrollLeft, scrollTopBefore: el.scrollTop,
+            };
             return z;
           });
         }
       },
       onTouchMove: (e) => {
-        if (e.touches.length === 2 && pinchRef.current.active) {
+        const p = pinchRef.current;
+        const content = contentRef.current;
+        if (e.touches.length === 2 && p.active && content) {
           e.preventDefault();
           const dist = getDist(e.touches);
-          const ratio = dist / pinchRef.current.startDist;
-          const next = Math.min(3, Math.max(1, +(pinchRef.current.startZoom * ratio).toFixed(2)));
-          setZoom(next);
+          const scale = Math.min(3 / p.startZoom, Math.max(1 / p.startZoom, dist / p.startDist));
+          p.pendingScale = scale;
+          if (!p.raf) {
+            p.raf = requestAnimationFrame(() => {
+              p.raf = null;
+              if (p.active && content) content.style.transform = `scale(${p.pendingScale})`;
+            });
+          }
         }
       },
       onTouchEnd: (e) => {
-        if (e.touches.length < 2) pinchRef.current.active = false;
+        if (e.touches.length < 2) {
+          const p = pinchRef.current;
+          const content = contentRef.current;
+          const el = scrollRef.current;
+          if (p.active && content && el && p.pendingScale != null) {
+            const finalZoom = Math.min(3, Math.max(1, +(p.startZoom * p.pendingScale).toFixed(2)));
+            const ratio = finalZoom / p.startZoom;
+            // つまんだ場所が画面上で同じ位置に見え続けるよう、通常表示(width/height方式)に
+            // 戻すタイミングでスクロール位置を計算し直す
+            const newScrollLeft = p.midX * (ratio - 1) + p.scrollLeftBefore;
+            const newScrollTop = p.midY * (ratio - 1) + p.scrollTopBefore;
+            content.style.transform = '';
+            content.style.transformOrigin = '';
+            setZoom(finalZoom);
+            // Reactが新しいサイズを実際に反映し終えるまで待ってからスクロール位置を設定する
+            // (すぐ後だと、まだ古いサイズのままでスクロール位置がおかしくなることがあるため)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                el.scrollLeft = newScrollLeft;
+                el.scrollTop = newScrollTop;
+              });
+            });
+          }
+          p.active = false;
+        }
       },
     };
   }
   const kyushuMapScrollRef = useRef(null); // 九州全体図のスクロール領域
+  // +/−ボタンでの拡大縮小時、画面の中心を基準に拡大縮小されるようにする。
+  // (何もしないと、スクロール位置は変わらないまま中身だけ大きく/小さくなるため、
+  // 見た目上は左上が拡大・右下が縮小されるように見えてしまう)
+  function zoomStepAroundCenter(setZoom, scrollRef, updateZoomFn) {
+    const el = scrollRef.current;
+    if (!el) { setZoom(updateZoomFn); return; }
+    const oldScrollWidth = el.scrollWidth;
+    const oldScrollHeight = el.scrollHeight;
+    const ratioX = oldScrollWidth > 0 ? (el.scrollLeft + el.clientWidth / 2) / oldScrollWidth : 0.5;
+    const ratioY = oldScrollHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / oldScrollHeight : 0.5;
+    setZoom(updateZoomFn);
+    // Reactが新しいサイズを実際に反映し終えるまで待ってからスクロール位置を設定する
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.scrollLeft = ratioX * el.scrollWidth - el.clientWidth / 2;
+        el.scrollTop = ratioY * el.scrollHeight - el.clientHeight / 2;
+      });
+    });
+  }
+  const kyushuMapContentRef = useRef(null); // 九州全体図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
+  // PC画面向け: Ctrlキーを押しながらのマウスホイール操作で、カーソルの位置を基準に地図を拡大縮小する。
+  // (トラックパッドのピンチ操作も、ブラウザ上ではctrlKey付きのwheelイベントとして送られてくるため、
+  // この仕組みだけでトラックパッドのピンチズームにも対応できる)
+  //
+  // 注意: Reactの onWheel(合成イベント)経由だと、ブラウザによっては passive:true 扱いになり
+  // e.preventDefault() が効かず、ブラウザ本来のページ拡大縮小(ヘッダー文字やアイコンまで
+  // 一緒に拡大されてしまう)がこの地図ズームと同時に発生してしまうことがある。
+  // そのため、地図のスクロール要素に直接、passive:false のネイティブイベントリスナーを
+  // 登録することで、ブラウザ本来の拡大縮小を確実に止め、地図の中身だけがズームされるようにする。
+  function useCtrlWheelZoom(scrollRef, setZoom, reattachKey) {
+    useEffect(() => {
+      const el = scrollRef.current;
+      if (!el) return undefined;
+      const onWheel = (e) => {
+        if (!e.ctrlKey) return; // Ctrlを押していない通常のスクロールは何もしない(そのままページ/一覧のスクロールとして機能させる)
+        e.preventDefault();
+        const rect = el.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const ratioX = el.scrollWidth > 0 ? (el.scrollLeft + mouseX) / el.scrollWidth : 0.5;
+        const ratioY = el.scrollHeight > 0 ? (el.scrollTop + mouseY) / el.scrollHeight : 0.5;
+        const factor = e.deltaY > 0 ? 0.92 : 1.08; // 下スクロール(deltaYが正)で縮小、上スクロールで拡大
+        setZoom((z) => {
+          const newZoom = Math.min(3, Math.max(1, +(z * factor).toFixed(2)));
+          // Reactが新しいサイズを実際に反映し終えるまで待ってから、カーソルの位置が
+          // ズーム前と同じ場所を指し続けるようスクロール位置を計算し直す
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              el.scrollLeft = ratioX * el.scrollWidth - mouseX;
+              el.scrollTop = ratioY * el.scrollHeight - mouseY;
+            });
+          });
+          return newZoom;
+        });
+      };
+      el.addEventListener('wheel', onWheel, { passive: false });
+      return () => el.removeEventListener('wheel', onWheel);
+      // scrollRef/setZoomは値が変わらないため、reattachKey(ページの表示状態)が変わるたびに
+      // 実行し直すことで、地図要素がまだ存在しないマウント時に一度失敗しても、
+      // 実際にそのページが表示されたタイミングで確実に登録し直せるようにする。
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reattachKey]);
+  }
+  useCtrlWheelZoom(kyushuMapScrollRef, setKyushuZoom, `${appStage}-${kyushuMode}`);
+  useCtrlWheelZoom(regionMapScrollRef, setRegionZoom, `${appStage}-${regionMode}-${selectedPrefId}`);
+
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
-  useApplyZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef, kyushuZoom);
-  useApplyZoomAnchor(regionMapScrollRef, regionZoomAnchorRef, regionZoom);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
   // 含む、九州本土のもともとの表示範囲)に少しだけ余白を足したものを使う。
   const KYUSHU_PAN_PADDING = 30;
@@ -5426,7 +5686,7 @@ function MairuDemoInner() {
   // (大分県のように端にある県でも中央に来せるために必要な余白)。
   // さらに奄美群島(与論島など)がぎりぎり収まる分だけ下にも延長する。
   const islandMaxY = Math.max(...Object.values(AIRPORT_SVG_OVERRIDE).map((p) => p.y));
-  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.75;
+  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.6; // 横に広い画面でも西端(長崎県など)までスクロールで中央寄せできるよう、余白を多めに確保
   const kyushuVPad = kyushuSizingBox.h * 0.4;
   const kyushuPanBoxBase = {
     x: kyushuSizingBox.x - kyushuHPad,
@@ -5459,7 +5719,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 20) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5486,7 +5746,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 20) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5495,8 +5755,7 @@ function MairuDemoInner() {
     return () => cancelAnimationFrame(raf);
   }, [peekPrefId, appStage]);
 
-  const [activeCategory, setActiveCategory] = useState('sightseeing');
-  const [showOtherMenu, setShowOtherMenu] = useState(false); // 「その他」タブを押した際に開くウインドウの開閉状態
+  const [activeCategory, setActiveCategory] = useState(null); // どのスポットカテゴリも選択されていない状態が初期状態
   const [selectMode, setSelectMode] = useState('map'); // 'map' | 'card'
   const [lastBrowseMode, setLastBrowseMode] = useState('map'); // 候補/決定から戻る際に復元する表示モード('map' | 'card')
   const [selectedId, setSelectedId] = useState(null);
@@ -5507,6 +5766,51 @@ function MairuDemoInner() {
   const [reserved, setReserved] = useState([]); // 予約済みとしてマークしたスポットID(候補・決定とは独立した補助フラグ)
   const [customDuration, setCustomDuration] = useState({});
   const [view, setView] = useState('select');
+  // フルスクリーン地図画面(入口・九州・県・市町村)を表示中かどうか。
+  // これらの画面は独自にoverflow:hidden・height:100dvhで固定表示しているが、
+  // html/body自体がスクロール可能なままだと、モバイルでのラバーバンド(バウンス)スクロールにより
+  // ・県ページ: 離島インセットが浮き上がって見えたあと画面ごと持ち上がり、下に白い背景が見える
+  // ・市町村ページ: 地図(position:fixedでビューポートに固定)は動かないが、
+  //   position:absoluteで地図と同じコンテナを基準にしている見出し・利用規約リンクだけが
+  //   コンテナごとズレて動いて見える
+  // という不具合が発生していた。表示中はhtml/bodyのスクロール自体を止めて防止する。
+  const isFullscreenMapStage =
+    appStage === 'entry' ||
+    (appStage === 'kyushu' && kyushuMode === 'map') ||
+    (appStage === 'region' && regionMode === 'map') ||
+    (appStage === 'muni' && ACTIVE_CITY_IDS.includes(selectedCity) && view === 'select' && selectMode === 'map');
+  useEffect(() => {
+    if (!isFullscreenMapStage) return undefined;
+    const { body, documentElement: html } = document;
+    const prev = {
+      bodyOverflow: body.style.overflow,
+      htmlOverflow: html.style.overflow,
+      bodyOverscroll: body.style.overscrollBehavior,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyHeight: body.style.height,
+      htmlHeight: html.style.height,
+      bodyPosition: body.style.position,
+      bodyWidth: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    html.style.overscrollBehavior = 'none';
+    body.style.height = '100%';
+    html.style.height = '100%';
+    body.style.position = 'fixed';
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = prev.bodyOverflow;
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
+      html.style.overscrollBehavior = prev.htmlOverscroll;
+      body.style.height = prev.bodyHeight;
+      html.style.height = prev.htmlHeight;
+      body.style.position = prev.bodyPosition;
+      body.style.width = prev.bodyWidth;
+    };
+  }, [isFullscreenMapStage]);
   useEffect(() => {
     const el = muniMapFrameRef.current;
     if (!el) return undefined;
@@ -5521,6 +5825,42 @@ function MairuDemoInner() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [appStage, selectedCity, view, selectMode]);
+
+  // 市町村ページ(全画面地図)向けのCtrl+ホイールズーム。
+  // 九州・県ページと違い、市町村ページはスクロール要素ではなくSVGのviewBoxを直接動かす方式のため、
+  // scrollLeft/scrollWidthではなく、共通関数(computeMuniMapBox)で表示範囲を計算し直してカーソル位置を基準にする。
+  useEffect(() => {
+    const el = muniMapFrameRef.current;
+    if (!el) return undefined;
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const factor = e.deltaY > 0 ? 0.92 : 1.08;
+      setMuniZoom((z) => {
+        const newZoom = Math.min(3, Math.max(1, +(z * factor).toFixed(2)));
+        // ズーム前の表示範囲を基準に、カーソルが指している地図上の座標を求めておく
+        const beforeBox = computeMuniMapBox(activeCityConfig, muniMapSize, z, muniPanX, muniPanY);
+        const pointX = beforeBox.x + (mouseX / rect.width) * beforeBox.w;
+        const pointY = beforeBox.y + (mouseY / rect.height) * beforeBox.h;
+        // ズーム後、その同じ地図上の座標がカーソルの位置にくるよう、パン位置を計算し直す
+        const afterBoxNoPan = computeMuniMapBox(activeCityConfig, muniMapSize, newZoom, 0, 0);
+        const limitX = activeCityConfig.viewW / 2;
+        const limitY = activeCityConfig.viewH / 2;
+        const nextPanX = Math.min(limitX, Math.max(-limitX, pointX - (mouseX / rect.width) * afterBoxNoPan.w - afterBoxNoPan.x));
+        const nextPanY = Math.min(limitY, Math.max(-limitY, pointY - (mouseY / rect.height) * afterBoxNoPan.h - afterBoxNoPan.y));
+        setMuniPanX(nextPanX);
+        setMuniPanY(nextPanY);
+        return newZoom;
+      });
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appStage, view, selectMode, selectedCity]);
   useEffect(() => {
     const el = kyushuMapFrameRef.current;
     if (!el) return undefined;
@@ -5568,6 +5908,37 @@ function MairuDemoInner() {
   const [savedPlans, setSavedPlans] = useState([]); // ブラウザに保存済みのプラン一覧
   const [showSaveDialog, setShowSaveDialog] = useState(false); // 保存・保存したプラン確認ダイアログの表示(1つに統合)
   const [showShareDialog, setShowShareDialog] = useState(false); // 共有ダイアログの表示
+  const [legalOverlay, setLegalOverlay] = useState(null); // null | 'terms' | 'privacy' | 'contact' : フッターの利用規約/プライバシーポリシー/お問い合わせを開くと表示
+  const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [contactStatus, setContactStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
+  // お問い合わせフォームの送信先(Formspree)。
+  // https://formspree.io で無料アカウントを作成し、フォームを1つ作成すると発行される
+  // "https://formspree.io/f/xxxxxxxx" のようなURLをここに置き換えてください。
+  const CONTACT_FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.message.trim()) return;
+    if (!contactForm.email.trim() && !contactForm.phone.trim()) {
+      setContactStatus('missing_contact');
+      return;
+    }
+    setContactStatus('sending');
+    try {
+      const res = await fetch(CONTACT_FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+      if (res.ok) {
+        setContactStatus('sent');
+        setContactForm({ name: '', email: '', phone: '', message: '' });
+      } else {
+        setContactStatus('error');
+      }
+    } catch {
+      setContactStatus('error');
+    }
+  };
   const [saveNameInput, setSaveNameInput] = useState(''); // 保存名の入力中の値
   const [planToast, setPlanToast] = useState(''); // 保存/読込/共有の簡易通知メッセージ
   const [sharedPlanBanner, setSharedPlanBanner] = useState(false); // 共有リンクから開いた際の案内バナー
@@ -5580,7 +5951,7 @@ function MairuDemoInner() {
   // 取得できない場合はDEFAULT_*(コードに埋め込まれた既定値)のまま動作する。
   useEffect(() => {
     let cancelled = false;
-    fetch('https://conotavi.com/data/airports.json')
+    fetch('/data/airports.json')
       .then((r) => (r.ok ? r.json() : null))
       .then((rows) => {
         if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
@@ -5617,7 +5988,7 @@ function MairuDemoInner() {
   // 空港と違い「県ごとの既定値」は無いので、対象市町村(targets)以外は何もしない。
   useEffect(() => {
     let cancelled = false;
-    fetch('https://conotavi.com/data/ferries.json')
+    fetch('/data/ferries.json')
       .then((r) => (r.ok ? r.json() : null))
       .then((rows) => {
         if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
@@ -5662,6 +6033,10 @@ function MairuDemoInner() {
             desc: s.desc,
             descEn: s.descEn,
             hours: s.hours,
+            priceRangeText: s.priceRangeText,
+            accessible: s.accessible,
+            parking: s.parking,
+            affiliateUrl: s.affiliateUrl,
           }))
           // 緯度経度が無い(ジオコーディング未完了)スポットは、地図上に置く場所が無いので除外する
           .filter((s) => typeof s.x === 'number' && typeof s.y === 'number' && !Number.isNaN(s.x) && !Number.isNaN(s.y));
@@ -5752,6 +6127,10 @@ function MairuDemoInner() {
             desc: s.desc,
             descEn: s.descEn,
             hours: s.hours,
+            priceRangeText: s.priceRangeText,
+            accessible: s.accessible,
+            parking: s.parking,
+            affiliateUrl: s.affiliateUrl,
           }))
           .filter((s) => typeof s.x === 'number' && typeof s.y === 'number' && !Number.isNaN(s.x) && !Number.isNaN(s.y));
         SPOTS.length = 0;
@@ -5768,6 +6147,27 @@ function MairuDemoInner() {
       });
     return () => { cancelled = true; };
   }, [selectedCity]);
+
+  // 別の市に切り替えたら、地図のズーム・パン位置は初期状態に戻す
+  useEffect(() => {
+    setMuniZoom(1);
+    setMuniPanX(0);
+    setMuniPanY(0);
+  }, [selectedCity]);
+
+  // 市町村ページで目的地(ピン)が選ばれたら、その地点が画面の中心にくるよう地図を動かす
+  useEffect(() => {
+    if (!linkedId) return;
+    const spot = SPOTS.find((s) => s.id === linkedId);
+    if (!spot) return;
+    const crop = activeCityConfig.crop;
+    const cx = crop.x + activeCityConfig.viewW / 2;
+    const cy = crop.y + activeCityConfig.viewH / 2;
+    const limitX = activeCityConfig.viewW / 2;
+    const limitY = activeCityConfig.viewH / 2;
+    setMuniPanX(Math.min(limitX, Math.max(-limitX, spot.x - cx)));
+    setMuniPanY(Math.min(limitY, Math.max(-limitY, spot.y - cy)));
+  }, [linkedId]);
 
   // 「目的で探す」: 県を選ぶと、その県内の全市町村のスポットデータ(CITY_CONFIGSにdataUrlがあるもの)を
   // まとめて取得し、選択中のカテゴリ(今のところ道の駅のみ)に一致するものだけ抽出する。
@@ -5798,28 +6198,52 @@ function MairuDemoInner() {
   }, [appStage, purposeCategory, purposePrefId]);
 
   // 地図の「道の駅」ピン表示用: 九州ページでONにした場合は全県分、県ページでONにした場合はその県分だけ取得する。
+  // CITY_CONFIGSにはまだ一部の市町村しか登録されていないため、道の駅は
+  // KYUSHU_MUNICIPALITIES(全市町村のリスト)を使って、conotavi.com/data/○○市.json を
+  // 市町村名で直接取得する(各市町村のデータファイルには、その市町村の道の駅も含まれている)。
+  // 一度に大量(約100件)のリクエストを同時に送るとサーバー側の同時接続数制限に
+  // 引っかかり一部が失敗することがあったため、少数ずつ順番にまとめて取得する。
   useEffect(() => {
     if (!showRoadsidePins) return;
     if (appStage !== 'kyushu' && appStage !== 'region') return;
     let cancelled = false;
     setRoadsideMapLoading(true);
 
-    const cityIds = appStage === 'region'
-      ? Object.keys(CITY_CONFIGS).filter((id) => CITY_CONFIGS[id].prefId === selectedPrefId)
-      : Object.keys(CITY_CONFIGS);
+    const targetMunis = appStage === 'region'
+      ? KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId)
+      : KYUSHU_MUNICIPALITIES;
 
-    Promise.all(
-      cityIds.map((cityId) => {
-        const cfg = CITY_CONFIGS[cityId];
-        return fetch(cfg.dataUrl)
-          .then((r) => (r.ok ? r.json() : []))
-          .then((rows) => (Array.isArray(rows) ? rows : []))
-          .catch(() => []);
-      })
-    ).then((results) => {
+    const BATCH_SIZE = 8;
+    async function fetchAllInBatches() {
+      const allRows = [];
+      for (let i = 0; i < targetMunis.length; i += BATCH_SIZE) {
+        if (cancelled) return allRows;
+        const batch = targetMunis.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map((m) => {
+            const url = `/data/${encodeURIComponent(m.name)}.json`;
+            return fetch(url)
+              .then((r) => (r.ok ? r.json() : []))
+              .then((rows) => (Array.isArray(rows) ? rows : []))
+              .then((rows) => rows.map((row) => ({ ...row, cityId: m.id ?? m.name, prefId: m.prefId })))
+              .catch(() => []);
+          })
+        );
+        allRows.push(...batchResults.flat());
+      }
+      return allRows;
+    }
+
+    fetchAllInBatches().then((allRows) => {
       if (cancelled) return;
-      const merged = results.flat().filter((s) => s.category === '道の駅' && typeof s.x === 'number' && typeof s.y === 'number');
-      setRoadsideMapSpots(merged);
+      const merged = allRows.filter((s) => s.category === '道の駅' && typeof s.x === 'number' && typeof s.y === 'number');
+      if (merged.length) {
+        setRoadsideMapSpots(merged);
+      } else {
+        // 実データが取得できなかった場合(通信環境・プレビューなど)は既定値を使う
+        const fallback = appStage === 'region' ? DEFAULT_ROADSIDE.filter((s) => s.prefId === selectedPrefId) : DEFAULT_ROADSIDE;
+        setRoadsideMapSpots(fallback);
+      }
       setRoadsideMapLoading(false);
     });
 
@@ -5901,6 +6325,7 @@ function MairuDemoInner() {
   function handleSpotTap(id) {
     if (linkedId === id) {
       setSelectedId(id);
+      setLinkedId(null); // 詳細カードが透明な背景のため、背後の吹き出しは消しておく
     } else {
       setLinkedId(id);
     }
@@ -6815,8 +7240,12 @@ function MairuDemoInner() {
         .kyushu-page-view.region-scroll { padding-bottom:0; }
         .entry-wave { display:block; width:100%; height:24px; flex-shrink:0; }
         .entry-wave-bottom { transform:rotate(180deg); }
-        .entry-footer-links { background:#fff; padding:28px 20px; display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; }
-        .entry-footer-link { font-size:11.5px; color:#7A9BAD; text-decoration:none; }
+        .entry-footer-links { background:#fff; padding:28px 20px; display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; flex-wrap:nowrap; white-space:nowrap; }
+        @media (max-width:360px) {
+          .entry-footer-links { gap:6px; }
+          .entry-footer-link { font-size:10.5px; }
+        }
+        .entry-footer-link { font-size:11.5px; color:#7A9BAD; text-decoration:none; background:none; border:none; padding:0; margin:0; font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .entry-footer-dot-sep { font-size:11.5px; color:#C7D6DC; }
         .entry-prompt { padding:36px 28px 36px; flex-shrink:0; }
         .entry-prompt-spacer { height:20px; flex-shrink:0; }
@@ -6980,6 +7409,7 @@ function MairuDemoInner() {
 
         .tabs { display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
         .tab { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink:0; white-space:nowrap; }
+        .tab.tab-icon-only { padding:8px; width:32px; height:32px; justify-content:center; border:none; }
         .tab-active { border-color: var(--ink); background: var(--ink); color:#fff; }
 
         .select-view { padding:22px 18px; }
@@ -7069,7 +7499,7 @@ function MairuDemoInner() {
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
         .kyushu-float-header { position:absolute; top:14px; left:14px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
-        .kyushu-float-title-btn { background:none; border:none; padding:0; cursor:pointer; }
+        .kyushu-float-title-btn { background:none; border:none; padding:0; margin:0; cursor:pointer; display:flex; align-items:center; }
         .kyushu-float-title { font-size:16px; font-weight:800; color:#1A2E3B; margin:0; letter-spacing:0.03em; }
         .kyushu-float-lang { display:flex; align-items:center; gap:4px; }
         .kyushu-float-tabs { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; margin:0; }
@@ -7083,7 +7513,7 @@ function MairuDemoInner() {
         .entry-view.muni-map-fullscreen { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; }
         .map-scroll.muni-fullmap-scroll { position:fixed; inset:0; width:100%; height:100vh; height:100dvh; margin-bottom:0; border-radius:0; z-index:1; background:#D9E8F0; }
         .map-frame-wrap.muni-fullmap-frame-wrap { position:relative; width:100%; height:100%; }
-        .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
+        .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; touch-action:none; }
         .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; max-width:calc(100% - 32px); }
         .tabs-on-frame.muni-float-category-tabs .tabs { margin:0; }
         .entry-fullmap-view { background:#D9E8F0; }
@@ -7109,6 +7539,10 @@ function MairuDemoInner() {
         }
         .kyushu-topbar-view .kyushu-float-title { font-size:22px; color:#1A2E3B; }
         .kyushu-topbar-view .kyushu-float-lang { background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; }
+        .kyushu-topbar-view .kyushu-float-lang.lang-icon-wrap { background:none; padding:0; }
+        .entry-header-right-group { display:flex; align-items:center; gap:8px; }
+        .entry-header-left-group { display:flex; align-items:center; gap:10px; }
+        .kyushu-float-lang.muni-location-pill { color:#7A9BAD; font-weight:500; font-size:11.5px; white-space:nowrap; background:none; padding:0; border-radius:0; border:none; }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt { color:var(--muted); }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt.active { color:var(--ink); }
         .kyushu-topbar-view .kyushu-float-tabs { top:80px; flex-wrap:nowrap; }
@@ -7122,6 +7556,7 @@ function MairuDemoInner() {
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-title,
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt { color:#fff; }
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang { background:rgba(255,255,255,0.15); }
+        .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang.muni-location-pill { background:none; color:#fff; }
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt.active { color:#fff; font-weight:800; }
         .map-toggle-divider { width:22px; height:1px; background:var(--line); margin:2px 0; }
         @media (max-width:560px) {
@@ -7137,7 +7572,7 @@ function MairuDemoInner() {
         }
         .entry-fullmap-bg { position:absolute; inset:0; z-index:0; }
         .entry-cards-float { position:absolute; left:0; right:0; top:92px; z-index:5; padding:0 18px; max-width:460px; margin:0 auto; }
-        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:rgba(255,255,255,0.92); border-radius:999px; }
+        .entry-footer-wrap.entry-footer-float { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:6; background:none; }
         .entry-footer-wrap.kyushu-footer-float {
           left:0; right:0; bottom:14px; transform:none; width:100%; height:32px;
           border-radius:0; background:transparent;
@@ -7155,7 +7590,31 @@ function MairuDemoInner() {
         .map-frame { position:relative; width:100%; aspect-ratio: ${VIEW_W} / ${VIEW_H}; background:#D9E8F0; border-radius:18px; overflow:hidden; box-shadow: 0 2px 12px rgba(26,46,59,0.08); }
         .map-location-label { position:absolute; left:10px; top:10px; z-index:2; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.85); padding:4px 10px; border-radius:999px; border:1px solid var(--line); pointer-events:none; }
         .show-names-inline-btn { font-size:11px; font-weight:700; color:var(--ink); background:none; border:none; padding:0; cursor:pointer; pointer-events:auto; }
-        .map-toggle-group { position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .map-toggle-group {
+          position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
+        }
+        @media (max-height:430px) {
+          /* 横向き画面など縦幅が狭い場合は、アイコンを少し小さくして画面内に収まるようにする */
+          .map-toggle-group { gap:3px; }
+          .locate-me-btn.icon-only { width:26px; height:26px; padding:5px; }
+          .icon-group-submenu { padding:4px 6px; gap:4px; }
+          .map-toggle-divider { margin:1px 0; }
+        }
+        .icon-group-wrap { position:relative; }
+        .icon-group-submenu {
+          position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
+          display:flex; flex-direction:row; gap:6px; background:rgba(255,255,255,0.92);
+          border-radius:999px; padding:6px 8px; box-shadow:0 1px 8px rgba(0,0,0,0.15);
+          white-space:nowrap; z-index:6;
+        }
+        .icon-group-submenu .submenu-item { width:28px; height:28px; padding:6px; }
+        .locate-me-btn.icon-only.coming-soon { opacity:0.4; cursor:not-allowed; }
+        .lang-icon-wrap { position:relative; display:inline-flex; }
+        .lang-icon-btn { font-size:11px; font-weight:800; }
+        .lang-submenu { right:auto; left:0; top:calc(100% + 8px); transform:none; flex-direction:column; }
+        .lang-text-btn { font-size:11px; font-weight:700; width:32px; height:32px; }
+        .lang-toggle-top.lang-icon-wrap { padding:0; border:none; background:none; }
+        .entry-lang-toggle.lang-icon-wrap { padding:0; border:none; background:none; }
         .map-zoom-group { position:absolute; right:10px; bottom:10px; z-index:2; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.85); border-radius:999px; padding:6px 14px; }
         .zoom-btn { width:auto; height:auto; border:none; background:none; color:var(--ink); font-size:16px; font-weight:700; line-height:1; cursor:pointer; box-shadow:none; padding:0; }
         .zoom-btn:disabled { opacity:0.4; cursor:default; }
@@ -7202,6 +7661,12 @@ function MairuDemoInner() {
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
         .poi-pin-label { position:absolute; bottom:32px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5; }
+        .spot-pin-peek-label {
+          position:absolute; transform:translate(-50%, calc(-100% - 44px));
+          white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
+          padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5;
+        }
+        .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; }
         .show-names-inline-btn.active { color:#E2613D; text-decoration:underline; }
@@ -7214,7 +7679,7 @@ function MairuDemoInner() {
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
-        .map-pan-scroll { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-x pan-y; scrollbar-width:none; -ms-overflow-style:none; cursor:grab; user-select:none; border-radius:14px; }
+        .map-pan-scroll { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:none; touch-action:pan-x pan-y; scrollbar-width:none; -ms-overflow-style:none; cursor:grab; user-select:none; border-radius:14px; }
         .map-pan-scroll::-webkit-scrollbar { display:none; }
         .map-pan-scroll.is-panning { cursor:grabbing; }
         .map-pan-content { position:relative; min-width:100%; min-height:100%; }
@@ -7268,16 +7733,9 @@ function MairuDemoInner() {
         .spinner { width:30px; height:30px; border:3px solid var(--line); border-top-color:var(--ink); border-radius:50%; animation:spin .8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .my-location-marker { position:absolute; transform:translate(-50%,-50%); width:16px; height:16px; display:flex; align-items:center; justify-content:center; z-index:3; pointer-events:none; }
         .pin-travel-bubble { position:absolute; transform:translate(-50%,-130%); display:flex; flex-direction:column; align-items:center; gap:1px; background:#21262C; color:#fff; padding:5px 9px; border-radius:8px; font-size:11px; font-weight:600; white-space:nowrap; pointer-events:none; z-index:4; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
         .pin-travel-bubble-name { font-size:10px; font-weight:700; opacity:0.85; }
         .pin-travel-bubble-time { display:flex; align-items:center; gap:4px; }
-        .my-location-dot { position:relative; width:12px; height:12px; border-radius:50%; background:#1D9E75; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.35); }
-        .my-location-pulse { position:absolute; width:12px; height:12px; border-radius:50%; background:#1D9E75; opacity:0.45; animation: my-location-pulse 2s ease-out infinite; }
-        @keyframes my-location-pulse {
-          0% { transform:scale(1); opacity:0.45; }
-          100% { transform:scale(3.2); opacity:0; }
-        }
 
         .locate-btn { display:flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; flex-shrink:0; }
         .locate-btn.is-active { background:var(--ink); border-color:var(--ink); color:#fff; }
@@ -7303,13 +7761,28 @@ function MairuDemoInner() {
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
         .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
-        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:28px 16px; }
-        .detail-card { position:relative; background:#fff; border-radius:16px; padding:0; max-width:360px; width:100%; box-shadow:0 14px 34px rgba(0,0,0,0.18); overflow:hidden; }
-        .detail-hero { height:140px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-        .detail-hero.has-image { height:200px; }
+        .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
+        .detail-card {
+          position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
+          border:1px solid rgba(255,255,255,0.5);
+          max-height:calc(100vh - 112px);
+          max-height:calc(100dvh - 112px);
+          overflow-y:auto; overflow-x:hidden;
+          overscroll-behavior:none;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .detail-card::-webkit-scrollbar { display:none; }
+        @media (min-width:900px) {
+          .detail-card { max-width:820px; }
+        }
+        @media (min-width:1200px) {
+          .detail-card { max-width:980px; }
+        }
+        .detail-hero { height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border-radius:0; }
+        .detail-hero.has-image { height:auto; aspect-ratio:900 / 381; }
         .detail-hero-icon { color:var(--cat-color); }
-        .detail-hero-img { width:100%; height:100%; object-fit:cover; display:block; }
-        .detail-textblock { background:#111111; padding:16px 20px 18px; display:flex; flex-direction:column; align-items:stretch; gap:8px; text-align:left; }
+        .detail-hero-img { width:100%; height:100%; object-fit:contain; display:block; }
+        .detail-textblock { background:none; padding:16px 22px 0; display:flex; flex-direction:column; align-items:stretch; gap:8px; text-align:left; }
         .detail-textblock-top { display:flex; align-items:center; justify-content:flex-start; gap:8px; }
         .detail-textblock-tag { display:inline-flex; align-items:center; gap:5px; background:var(--cat-color); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.02em; padding:4px 10px; border-radius:7px; }
         .detail-textblock-price { color:rgba(255,255,255,0.92); font-size:12.5px; font-weight:700; font-family:'JetBrains Mono', monospace; white-space:nowrap; }
@@ -7317,11 +7790,10 @@ function MairuDemoInner() {
         .detail-textblock-desc { color:rgba(255,255,255,0.82); font-size:13px; line-height:1.65; margin:0; text-align:left; }
         .detail-textblock-desc.is-clamped { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
         .detail-textblock-more { align-self:flex-start; background:none; border:none; padding:0; margin-top:-3px; color:rgba(255,255,255,0.62); font-size:12px; font-weight:700; text-decoration:underline; cursor:pointer; }
-        .detail-body { padding:18px 22px 22px; }
-        .detail-body-dark { background:#111111; padding-top:14px; }
-        .detail-body-dark .detail-price,
-        .detail-body-dark .duration-label,
-        .detail-body-dark .stepper-value { color:rgba(255,255,255,0.85); }
+        .detail-body { background:none; padding:18px 22px 22px; }
+        .detail-body .detail-price,
+        .detail-body .duration-label,
+        .detail-body .stepper-value { color:rgba(255,255,255,0.85); }
 
         .plan-dialog-card {
           position:relative;
@@ -7335,6 +7807,66 @@ function MairuDemoInner() {
         .plan-dialog-x { position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.05); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); }
         .plan-dialog-title { font-family:'Zen Kaku Gothic New', sans-serif; font-size:17px; margin:0 0 8px; padding-right:20px; }
         .plan-dialog-desc { font-size:12.5px; color:#5B616A; line-height:1.6; margin:0 0 14px; }
+        .legal-dialog-card {
+          position:relative;
+          background:#fff;
+          border-radius:16px;
+          max-width:560px;
+          width:100%;
+          max-height:86vh;
+          max-height:86dvh;
+          box-shadow:0 14px 34px rgba(0,0,0,0.18);
+          display:flex;
+          flex-direction:column;
+          overflow:hidden;
+        }
+        .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid var(--line); }
+        .legal-dialog-header .plan-dialog-title { margin:0; }
+        .legal-dialog-body {
+          padding:18px 22px 24px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .legal-dialog-body::-webkit-scrollbar { display:none; }
+        .legal-dialog-card.legal-dialog-card-dark { background:transparent; box-shadow:none; }
+        .legal-dialog-card-dark .legal-dialog-header { border-bottom:none; padding:22px 22px 14px; }
+        .legal-dialog-card-dark .plan-dialog-title { color:#fff; text-align:center; padding-right:0; }
+        .legal-dialog-card-dark .plan-dialog-x { display:none; }
+        .legal-dialog-card-dark .legal-section h4 { color:#fff; }
+        .legal-dialog-card-dark .legal-section p,
+        .legal-dialog-card-dark .legal-section li { color:rgba(255,255,255,0.92); }
+        .legal-dialog-card-dark .legal-updated { color:rgba(255,255,255,0.75); }
+        .legal-dialog-card-dark .contact-form-label { color:#fff; }
+        .legal-dialog-card-dark .contact-form-hint { color:rgba(255,255,255,0.7); }
+        .legal-dialog-card-dark .contact-form-input,
+        .legal-dialog-card-dark .contact-form-textarea {
+          background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff !important;
+        }
+        .legal-dialog-card-dark .contact-form-submit {
+          background:transparent; border:1px solid rgba(255,255,255,0.6); color:#fff;
+        }
+        .legal-section { margin-bottom:18px; }
+        .legal-section:last-child { margin-bottom:0; }
+        .legal-section h4 { font-size:13.5px; margin:0 0 6px; color:#1A2E3B; }
+        .legal-section p { font-size:12.5px; color:#5B616A; line-height:1.7; margin:0 0 8px; }
+        .legal-section ul { margin:0 0 8px; padding-left:18px; }
+        .legal-section li { font-size:12.5px; color:#5B616A; line-height:1.7; margin-bottom:4px; }
+        .legal-updated { font-size:11px; color:#9AA6AC; margin-top:20px; }
+        .contact-form-field { margin-bottom:14px; }
+        .contact-form-hint { font-size:11.5px; color:#8A8F98; margin:-6px 0 14px; line-height:1.5; }
+        .contact-form-label { display:block; font-size:12px; font-weight:600; color:#1A2E3B; margin-bottom:5px; }
+        .contact-form-input, .contact-form-textarea {
+          width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line);
+          font-size:13.5px; font-family:inherit; color:var(--ink) !important; background:#fff;
+        }
+        .contact-form-textarea { resize:vertical; min-height:110px; }
+        .contact-form-submit {
+          width:100%; padding:12px; border-radius:999px; border:none;
+          background:var(--ink); color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;
+        }
+        .contact-form-submit:disabled { opacity:0.5; cursor:default; }
+        .contact-form-status { font-size:12px; margin-top:10px; text-align:center; }
+        .contact-form-status.is-error { color:#C0392B; }
+        .contact-form-status.is-sent { color:#1F6E45; }
         .plan-name-input { width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-size:13.5px; margin-bottom:14px; font-family:inherit; color:var(--ink) !important; }
         .plan-dialog-actions { display:flex; gap:8px; }
         .plan-dialog-btn { flex:1; padding:10px; border-radius:9px; border:1.5px solid var(--line); background:#fff; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
@@ -7401,10 +7933,10 @@ function MairuDemoInner() {
         }
         .shared-plan-banner button { background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:22px; height:22px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; }
 
-        .detail-tag { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:var(--cat-color); border:1px solid var(--cat-color); padding:3px 9px; border-radius:999px; margin-bottom:10px; }
-        .detail-name { font-family:'Zen Kaku Gothic New', sans-serif; font-size:19px; margin:0 0 8px; }
-        .detail-desc { font-size:13px; color:#454A52; line-height:1.65; margin:0 0 10px; }
-        .detail-price { font-size:12.5px; font-weight:700; color:var(--ink); font-family:'JetBrains Mono', monospace; margin:0 0 12px; }
+        .detail-tag { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:#fff; background:var(--cat-color); border:none; padding:4px 10px; border-radius:999px; margin-bottom:10px; }
+        .detail-name { font-family:'Zen Kaku Gothic New', sans-serif; font-size:19px; margin:0 0 8px; color:#fff; }
+        .detail-desc { font-size:13px; color:rgba(255,255,255,0.82); line-height:1.65; margin:0 0 10px; }
+        .detail-price { font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.85); font-family:'JetBrains Mono', monospace; margin:0 0 12px; }
         .hours-status { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11.5px; font-weight:600; padding:7px 10px; border-radius:8px; margin:0 0 12px; }
         .travel-from-me { display:flex; flex-direction:column; gap:4px; background:#F6F6F4; border-radius:8px; padding:8px 10px; margin:0 0 12px; }
         .travel-from-me-label { font-size:11px; font-weight:700; color:var(--muted); }
@@ -7533,6 +8065,8 @@ function MairuDemoInner() {
           .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
+          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap:5px; }
+          .muni-name-grid-item { font-size:9.5px; padding:5px 2px; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
           .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
@@ -7561,17 +8095,15 @@ function MairuDemoInner() {
           .pref-floating-label-text { font-size:8px; padding:3px 5px; border-radius:5px; }
           .muni-peek-name { font-size:11px; }
 
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap:5px; }
-          .muni-name-grid-item { font-size:9.5px; padding:5px 2px; border-radius:8px; }
         }
         @media (max-width:380px) {
           .budget-input-row { font-size:9.5px; padding:0 4px; }
           .budget-input { width:44px; font-size:10px; }
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
-
           .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap:4px; }
           .muni-name-grid-item { font-size:9px; padding:4px 2px; }
+
         }
         @media (prefers-reduced-motion: reduce) {
           .mairu-app * { animation-duration:0.001ms !important; transition:none !important; }
@@ -7591,15 +8123,9 @@ function MairuDemoInner() {
             </button>
           </div>
           <div className="lang-toggle-top">
-            <button
-              className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-              onClick={() => setLang('ja')}
-            >JP</button>
+            <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
             <span className="lang-toggle-sep">/</span>
-            <button
-              className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-              onClick={() => setLang('en')}
-            >EN</button>
+            <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
           </div>
         </div>
       )}
@@ -7611,15 +8137,9 @@ function MairuDemoInner() {
               <h1 className="kyushu-float-title">CONOTAVI</h1>
             </button>
             <div className="entry-lang-toggle kyushu-float-lang">
-              <button
-                className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                onClick={() => setLang('ja')}
-              >JP</button>
+              <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
               <span className="lang-toggle-sep">/</span>
-              <button
-                className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                onClick={() => setLang('en')}
-              >EN</button>
+              <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
             </div>
           </div>
 
@@ -7638,18 +8158,15 @@ function MairuDemoInner() {
               <ChevronRight size={20} color="#B8C4C9" />
             </button>
 
-            <button
-              className="entry-card"
-              onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-            >
-              <div className="entry-card-icon" style={{ background: '#1B6CA8' }}>
+            <button className="entry-card" disabled>
+              <div className="entry-card-icon" style={{ background: '#4A5A63' }}>
                 <Compass size={22} color="#fff" />
               </div>
               <div className="entry-card-body">
                 <p className="entry-card-ja">{lang === 'en' ? 'By Purpose' : '目的で探す'}</p>
                 <p className="entry-card-desc">{lang === 'en' ? 'Sights, food, hot springs…' : '観る・食べる・温泉など'}</p>
               </div>
-              <ChevronRight size={20} color="#B8C4C9" />
+              <span className="entry-card-badge">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
             </button>
 
             <button className="entry-card" disabled>
@@ -7666,9 +8183,11 @@ function MairuDemoInner() {
 
           <div className="entry-footer-wrap entry-footer-float">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -7678,53 +8197,20 @@ function MairuDemoInner() {
         kyushuMode === 'map' ? (
         <div className="kyushu-fullmap-view kyushu-topbar-view kyushu-icons-consolidated">
           <div className={`kyushu-float-header ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
-            <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-              <h1 className="kyushu-float-title">CONOTAVI</h1>
-            </button>
-            <div className="entry-lang-toggle kyushu-float-lang">
-              <button
-                className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                onClick={() => setLang('ja')}
-              >JP</button>
-              <span className="lang-toggle-sep">/</span>
-              <button
-                className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                onClick={() => setLang('en')}
-              >EN</button>
+            <div className="entry-header-left-group">
+              <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
+                <h1 className="kyushu-float-title">CONOTAVI</h1>
+              </button>
+              <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
+                {lang === 'en' ? 'Kyushu' : '九州'}
+              </span>
             </div>
           </div>
 
             <div className="map-scroll kyushu-fullmap-scroll">
               <div className="region-map-frame kyushu-map-frame kyushu-fullmap-frame nagasaki-sea-bg" ref={kyushuMapFrameRef}>
                 <div className={`map-toggle-group ${showAllPrefNames ? 'map-toggle-group-solid' : ''}`}>
-                  <button
-                    className={kyushuMode === 'map' ? 'locate-me-btn icon-only active' : 'locate-me-btn icon-only'}
-                    onClick={() => { setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); setIconLabelPeek(lang === 'en' ? 'By Area' : '地域で探す'); }}
-                    title={lang === 'en' ? 'By Area' : '地域で探す'}
-                    aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
-                  >
-                    <MapIcon size={16} />
-                  </button>
-                  <button
-                    className="locate-me-btn icon-only"
-                    onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                    title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                    aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                  >
-                    <Compass size={16} />
-                  </button>
-                  <button className="locate-me-btn icon-only" disabled title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'} aria-label="NO PLAN">
-                    <X size={16} />
-                  </button>
-                  <div className="map-toggle-divider" />
-                  <button
-                    className={`locate-me-btn icon-only ${showAllPrefNames ? 'active' : ''}`}
-                    onClick={() => { setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); setIconLabelPeek(lang === 'en' ? 'Show place names' : '地名を表示'); }}
-                    title={lang === 'en' ? 'Show place names' : '地名を表示'}
-                    aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
-                  >
-                    <Landmark size={16} />
-                  </button>
+                  <LangToggleIcon inColumn />
                   <button
                     className="locate-me-btn icon-only"
                     onClick={() => { handleLocateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
@@ -7739,54 +8225,177 @@ function MairuDemoInner() {
                       </span>
                     )}
                   </button>
+                  <div className="icon-group-wrap">
+                    <button
+                      className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
+                      title={lang === 'en' ? 'Search by' : '探し方'}
+                      aria-label={lang === 'en' ? 'Search by' : '探し方'}
+                    >
+                      <Search size={16} />
+                    </button>
+                    {expandedIconGroup === 'findBy' && (
+                      <div className="icon-group-submenu">
+                        <button
+                          className={`locate-me-btn icon-only submenu-item ${kyushuMode === 'map' ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); setExpandedIconGroup(null); }}
+                          title={lang === 'en' ? 'By Area' : '地域で探す'}
+                          aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
+                        >
+                          <MapIcon size={14} />
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                        >
+                          <Compass size={14} />
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
+                          aria-label="NO PLAN"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="map-toggle-divider" />
                   <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showAirportPins ? 'active' : ''}`}
-                    onClick={() => { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); setShowAllPrefNames(false); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setIconLabelPeek(lang === 'en' ? 'Show airports' : '空港を表示'); }}
-                    title={lang === 'en' ? 'Show airports' : '空港を表示'}
-                    aria-label={lang === 'en' ? 'Show airports' : '空港を表示'}
+                    className={`locate-me-btn icon-only ${showAllPrefNames ? 'active' : ''}`}
+                    onClick={() => { setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); setIconLabelPeek(lang === 'en' ? 'Show place names' : '地名を表示'); }}
+                    title={lang === 'en' ? 'Show place names' : '地名を表示'}
+                    aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                   >
-                    <Plane size={16} />
+                    <MapPin size={16} />
+                  </button>
+                  {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
+                    const GroupIcon = group.icon;
+                    const isExpanded = expandedIconGroup === groupKey;
+                    const hasActiveItem =
+                      (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
+                      (groupKey === 'rest' && showRoadsidePins);
+                    return (
+                      <div key={groupKey} className="icon-group-wrap">
+                        <button
+                          className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                          title={lang === 'en' ? group.labelEn : group.label}
+                          aria-label={lang === 'en' ? group.labelEn : group.label}
+                        >
+                          <GroupIcon size={16} />
+                        </button>
+                        {isExpanded && (
+                          <div className="icon-group-submenu">
+                            {group.items.map((item) => {
+                              const ItemIcon = item.icon;
+                              const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
+                              const isOn =
+                                (item.key === 'airport' && showAirportPins) ||
+                                (item.key === 'ferry' && showFerryPins) ||
+                                (item.key === 'roadside' && showRoadsidePins);
+                              return (
+                                <button
+                                  key={item.key}
+                                  className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!effectiveReady) return;
+                                    setShowAllPrefNames(false);
+                                    setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
+                                    if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
+                                    else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
+                                    else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
+                                  }}
+                                  title={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                  aria-label={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                >
+                                  {item.key === 'roadside' && roadsideMapLoading ? <Clock size={14} /> : <ItemIcon size={14} />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <button
+                    className="locate-me-btn icon-only coming-soon"
+                    onClick={(e) => e.stopPropagation()}
+                    title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                    aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                  >
+                    <Stethoscope size={16} />
+                  </button>
+                  <div className="map-toggle-divider" />
+                  <div className="icon-group-wrap">
+                    <button
+                      className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
+                      title={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                      aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                    >
+                      <ZoomIn size={16} />
+                    </button>
+                    {expandedIconGroup === 'zoom' && (
+                      <div className="icon-group-submenu">
+                        <button
+                          className="locate-me-btn icon-only submenu-item"
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                          disabled={kyushuZoom >= 3}
+                          title={lang === 'en' ? 'Zoom in' : '拡大'}
+                          aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
+                        >
+                          +
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item"
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                          disabled={kyushuZoom <= 1}
+                          title={lang === 'en' ? 'Zoom out' : '縮小'}
+                          aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
+                        >
+                          −
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className="locate-me-btn icon-only coming-soon"
+                    onClick={(e) => e.stopPropagation()}
+                    title={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
+                    aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
+                  >
+                    <Route size={16} />
                   </button>
                   <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showFerryPins ? 'active' : ''}`}
-                    onClick={() => { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); setShowAllPrefNames(false); setPeekFerryId(null); setPeekAirportId(null); setPeekRoadsideId(null); setIconLabelPeek(lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'); }}
-                    title={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
-                    aria-label={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
                   >
-                    <Ship size={16} />
+                    <RotateCcw size={16} />
                   </button>
                   <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showRoadsidePins ? 'active' : ''}`}
-                    onClick={() => { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowAllPrefNames(false); setPeekRoadsideId(null); setPeekAirportId(null); setPeekFerryId(null); setIconLabelPeek(lang === 'en' ? 'Show roadside stations' : '道の駅を表示'); }}
-                    title={lang === 'en' ? 'Show roadside stations' : '道の駅を表示'}
-                    aria-label={lang === 'en' ? 'Show roadside stations' : '道の駅を表示'}
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); setAppStage('entry'); setPeekIslandKey(null); }}
+                    title={lang === 'en' ? 'Back' : '戻る'}
+                    aria-label={lang === 'en' ? 'Back' : '戻る'}
                   >
-                    {roadsideMapLoading ? <Clock size={16} /> : <Store size={16} />}
+                    <ChevronLeft size={16} />
                   </button>
-                </div>
-                <div className="map-zoom-group">
-                  <button
-                    className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef); setKyushuZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
-                    disabled={kyushuZoom >= 3}
-                    title={lang === 'en' ? 'Zoom in' : '拡大'}
-                  >+</button>
-                  <span className="lang-toggle-sep">/</span>
-                  <button
-                    className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(kyushuMapScrollRef, kyushuZoomAnchorRef); setKyushuZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
-                    disabled={kyushuZoom <= 1}
-                    title={lang === 'en' ? 'Zoom out' : '縮小'}
-                  >−</button>
                 </div>
                 <div
                   className="map-pan-scroll"
                   ref={kyushuMapScrollRef}
                   onMouseDown={handleKyushuPanMouseDown}
-                  onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
-                  {...makePinchHandlers(setKyushuZoom, kyushuMapScrollRef, kyushuZoomAnchorRef)}
+                  onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
+                  {...makePinchHandlers(setKyushuZoom, kyushuMapContentRef, kyushuMapScrollRef)}
                 >
-                  <div className="map-pan-content kyushu-contain-fit" style={(() => {
+                  <div ref={kyushuMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
                     let wPct = (kyushuPanBox.w / KYUSHU_MAINLAND_VIEWBOX.w) * 100;
                     let hPct = (kyushuPanBox.h / KYUSHU_MAINLAND_VIEWBOX.h) * 100;
                     if (kyushuMapSize && kyushuMapSize.w > 0 && kyushuMapSize.h > 0) {
@@ -7852,8 +8461,8 @@ function MairuDemoInner() {
                         className="my-location-marker"
                         style={{ left: pct(myLocationXY.x - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(myLocationXY.y - kyushuPanBox.y, kyushuPanBox.h) + '%' }}
                       >
-                        <span className="my-location-dot" />
                         <span className="my-location-pulse" />
+                        <span className="my-location-dot" />
                       </div>
                     )}
                     {showAirportPins && clusterPins(
@@ -7938,47 +8547,40 @@ function MairuDemoInner() {
                         </div>
                       );
                     })}
-                    {showRoadsidePins && clusterPins(
-                      roadsideMapSpots.map((s) => ({ ...s })),
-                      poiClusterCellSize
-                    ).map((cluster) => {
-                      const key = cluster.items.map((i) => i.id).join('|');
-                      const isCluster = cluster.items.length > 1;
-                      return (
-                        <div
-                          key={`roadside-c-${key}`}
-                          className="poi-pin roadside-pin"
-                          style={{ left: pct(cluster.x - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(cluster.y - kyushuPanBox.y, kyushuPanBox.h) + '%' }}
-                          onClick={(e) => { e.stopPropagation(); peekPoi('roadside', key); }}
-                        >
-                          {isCluster ? (
-                            <span className={`poi-pin-cluster poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><Store size={11} />{cluster.items.length}</span>
-                          ) : (
-                            <span className={`poi-pin-icon poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><span className="poi-pin-icon-glyph"><Store size={12} /></span></span>
-                          )}
-                          {peekRoadsideId === key && (
-                            <span className="poi-pin-label">
-                              {isCluster ? (
-                                <span className="poi-pin-label-list">
-                                  {cluster.items.map((i) => (
-                                    <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: i }); setPeekRoadsideId(null); }}>
-                                      {lang === 'en' ? (i.nameEn || i.name) : i.name}
-                                    </button>
-                                  ))}
+                    {showRoadsidePins && (() => {
+                      // 道の駅は数が多いので、九州ページでは1つ1つではなく、県ごとにまとめて
+                      // 「その県に何件あるか」を県の中心に表示する。
+                      const countByPref = {};
+                      roadsideMapSpots.forEach((s) => {
+                        if (!s.prefId) return;
+                        countByPref[s.prefId] = (countByPref[s.prefId] || 0) + 1;
+                      });
+                      return KYUSHU_PREFS.filter((p) => countByPref[p.id]).map((p) => {
+                        const key = `roadside-pref-${p.id}`;
+                        const count = countByPref[p.id];
+                        const isNearRightEdge = (p.cx - kyushuPanBox.x) / kyushuPanBox.w > 0.62; // 右のアイコン列に吹き出しが重ならないよう、右寄りの県は吹き出しを左にずらす
+                        return (
+                          <div
+                            key={key}
+                            className="poi-pin roadside-pin"
+                            style={{ left: pct(p.cx - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(p.cy - kyushuPanBox.y, kyushuPanBox.h) + '%' }}
+                            onClick={(e) => { e.stopPropagation(); peekPoi('roadside', key); }}
+                          >
+                            <span className={`poi-pin-cluster poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><Store size={11} />{count}</span>
+                            {peekRoadsideId === key && (
+                              <span className={`poi-pin-label ${isNearRightEdge ? 'poi-pin-label-left' : ''}`}>
+                                <span className="poi-pin-label-name">
+                                  {lang === 'en' ? `${mName(p)} / ${count} roadside stations` : `${mName(p)} / 道の駅 ${count}か所`}
                                 </span>
-                              ) : (
-                                <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
-                                  </button>
-                                </>
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
+                                <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); }}>
+                                  {lang === 'en' ? 'View roadside stations ›' : '道の駅を確認する ›'}
+                                </button>
+                              </span>
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 
@@ -8000,20 +8602,13 @@ function MairuDemoInner() {
               </div>
             </div>
 
-          <button
-            className="floating-back-btn floating-back-btn-icon kyushu-back-right"
-            onClick={() => { setAppStage('entry'); setPeekIslandKey(null); }}
-            title={lang === 'en' ? 'Back' : '戻る'}
-            aria-label={lang === 'en' ? 'Back' : '戻る'}
-          >
-            <ChevronLeft size={20} />
-          </button>
-
           <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -8028,15 +8623,9 @@ function MairuDemoInner() {
                 <p className="entry-catch">{lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}</p>
               </div>
               <div className="entry-lang-toggle">
-                <button
-                  className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                  onClick={() => setLang('ja')}
-                >JP</button>
+                <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
                 <span className="lang-toggle-sep">/</span>
-                <button
-                  className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                  onClick={() => setLang('en')}
-                >EN</button>
+                <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
               </div>
             </div>
           </div>
@@ -8053,7 +8642,7 @@ function MairuDemoInner() {
             <button className={kyushuMode === 'map' ? 'active' : ''} onClick={() => { setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -8082,9 +8671,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -8105,75 +8696,42 @@ function MairuDemoInner() {
         const prefMunicipalities = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
         const prefOutlinePaths = [currentPref.d];
         const prefViewBox = currentPref.regionViewBox;
-        // どの市町村を選んでも画面の真ん中まで動かせるように、パン可能領域(prefFullViewBox)を
-        // 必要最小限の範囲まで動的に広げる(詳細はcomputePannableViewBox参照)。
-        const prefFullViewBoxBase = computePannableViewBox(prefViewBox, prefMunicipalities);
+        // どの市町村を選んでも画面の真ん中まで動かせるように、パン可能領域(prefFullViewBox)を用意する。
         // 拡大率(本島がぴったり収まる基準)は、県ごとに用意されている表示範囲(regionViewBox)を
         // そのまま使う。離島を含む市町村リストから毎回計算し直すと、長崎県・鹿児島県のように
         // 離島が多い県で計算がおかしくなり、本島が小さく/一部しか見えなくなる問題があったため。
         const prefSizingViewBox = prefViewBox;
-        // 端にある市町村でも拡大なしで画面中央まで持って来られるよう、本島サイズを基準に
-        // さらに大きめの余白を確保する(computePannableViewBoxだけだと足りない場合があるため)。
-        const prefSizingPadded = {
-          x: prefSizingViewBox.x - prefSizingViewBox.w / 2,
-          y: prefSizingViewBox.y - prefSizingViewBox.h / 2,
-          w: prefSizingViewBox.w * 2,
-          h: prefSizingViewBox.h * 2,
-        };
-        const prefBoxMinX = Math.min(prefFullViewBoxBase.x, prefSizingPadded.x);
-        const prefBoxMinY = Math.min(prefFullViewBoxBase.y, prefSizingPadded.y);
-        const prefBoxMaxX = Math.max(prefFullViewBoxBase.x + prefFullViewBoxBase.w, prefSizingPadded.x + prefSizingPadded.w);
-        const prefBoxMaxY = Math.max(prefFullViewBoxBase.y + prefFullViewBoxBase.h, prefSizingPadded.y + prefSizingPadded.h);
-        const prefFullViewBox = { x: prefBoxMinX, y: prefBoxMinY, w: prefBoxMaxX - prefBoxMinX, h: prefBoxMaxY - prefBoxMinY };
+        // パン可能範囲は、本島(regionViewBox)をそのまま基準にしつつ、離島(対馬・奄美群島など)
+        // がある方向にだけ、そこまで届く分の余白を追加する(使わない方向にまで余白を
+        // 均等に広げると、その分だけ無駄な余白ができてしまうため、必要な方向だけ広げる)。
+        const prefMuniXs2 = prefMunicipalities.map((m) => m.cx);
+        const prefMuniYs2 = prefMunicipalities.map((m) => m.cy);
+        const buf = Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.7; // 端の市町村でも画面中央まで来られるようにする余裕分(横に広い画面向けに多めに確保)
+        const fullMinX = Math.min(prefViewBox.x, ...prefMuniXs2) - buf;
+        const fullMinY = Math.min(prefViewBox.y, ...prefMuniYs2) - buf;
+        const fullMaxX = Math.max(prefViewBox.x + prefViewBox.w, ...prefMuniXs2) + buf;
+        const fullMaxY = Math.max(prefViewBox.y + prefViewBox.h, ...prefMuniYs2) + buf;
+        const prefFullViewBox = { x: fullMinX, y: fullMinY, w: fullMaxX - fullMinX, h: fullMaxY - fullMinY };
         const scrollContentWPct = (prefFullViewBox.w / prefViewBox.w) * 100;
         const scrollContentHPct = (prefFullViewBox.h / prefViewBox.h) * 100;
         return (
         regionMode === 'map' ? (
         <div className="kyushu-fullmap-view kyushu-topbar-view kyushu-icons-consolidated">
           <div className={`kyushu-float-header ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
-            <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-              <h1 className="kyushu-float-title">CONOTAVI</h1>
-            </button>
-            <div className="entry-lang-toggle kyushu-float-lang">
-              <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
-              <span className="lang-toggle-sep">/</span>
-              <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
+            <div className="entry-header-left-group">
+              <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
+                <h1 className="kyushu-float-title">CONOTAVI</h1>
+              </button>
+              <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
+                {mName(currentPref)}
+              </span>
             </div>
           </div>
 
             <div className="map-scroll kyushu-fullmap-scroll">
               <div className="region-map-frame kyushu-map-frame kyushu-fullmap-frame nagasaki-sea-bg" ref={regionMapFrameRef}>
                 <div className={`map-toggle-group ${showAllCityNames ? 'map-toggle-group-solid' : ''}`}>
-                  <button
-                    className={regionMode === 'map' ? 'locate-me-btn icon-only active' : 'locate-me-btn icon-only'}
-                    onClick={() => { setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); }}
-                    title={lang === 'en' ? 'By Area' : '地域で探す'}
-                    aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
-                  >
-                    <MapIcon size={16} />
-                  </button>
-                  <button
-                    className="locate-me-btn icon-only"
-                    onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                    title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                    aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                  >
-                    <Compass size={16} />
-                  </button>
-                  <button className="locate-me-btn icon-only" disabled title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'} aria-label="NO PLAN">
-                    <X size={16} />
-                  </button>
-                  <div className="map-toggle-divider" />
-                  {['40','41','42','43','44','45','46'].includes(selectedPrefId) && (
-                    <button
-                      className={`locate-me-btn icon-only ${showAllCityNames ? 'active' : ''}`}
-                      onClick={() => setShowAllCityNames((v) => !v)}
-                      title={lang === 'en' ? 'Show place names' : '地名を表示'}
-                      aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
-                    >
-                      <Landmark size={16} />
-                    </button>
-                  )}
+                  <LangToggleIcon inColumn />
                   <button
                     className="locate-me-btn icon-only"
                     onClick={handleLocateMe}
@@ -8182,60 +8740,184 @@ function MairuDemoInner() {
                     aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                   >
                     <Navigation size={16} />
+                    {myLocationStatus === 'error' && (
+                      <span className="locate-me-error">
+                        {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
+                      </span>
+                    )}
                   </button>
-                  <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showAirportPins ? 'active' : ''}`}
-                    onClick={() => { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
-                    title={lang === 'en' ? 'Show airports' : '空港を表示'}
-                    aria-label={lang === 'en' ? 'Show airports' : '空港を表示'}
-                  >
-                    <Plane size={16} />
-                  </button>
-                  <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showFerryPins ? 'active' : ''}`}
-                    onClick={() => { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); setPeekFerryId(null); setPeekAirportId(null); setPeekRoadsideId(null); }}
-                    title={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
-                    aria-label={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
-                  >
-                    <Ship size={16} />
-                  </button>
-                  <button
-                    className={`locate-me-btn pin-toggle-btn icon-only ${showRoadsidePins ? 'active' : ''}`}
-                    onClick={() => { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setPeekRoadsideId(null); setPeekAirportId(null); setPeekFerryId(null); }}
-                    title={lang === 'en' ? 'Show roadside stations' : '道の駅を表示'}
-                    aria-label={lang === 'en' ? 'Show roadside stations' : '道の駅を表示'}
-                  >
-                    {roadsideMapLoading ? <Clock size={16} /> : <Store size={16} />}
-                  </button>
-                  {myLocationStatus === 'error' && (
-                    <span className="locate-me-error">
-                      {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
-                    </span>
+                  <div className="icon-group-wrap">
+                    <button
+                      className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
+                      title={lang === 'en' ? 'Search by' : '探し方'}
+                      aria-label={lang === 'en' ? 'Search by' : '探し方'}
+                    >
+                      <Search size={16} />
+                    </button>
+                    {expandedIconGroup === 'findBy' && (
+                      <div className="icon-group-submenu">
+                        <button
+                          className={`locate-me-btn icon-only submenu-item ${regionMode === 'map' ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); setExpandedIconGroup(null); }}
+                          title={lang === 'en' ? 'By Area' : '地域で探す'}
+                          aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
+                        >
+                          <MapIcon size={14} />
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                        >
+                          <Compass size={14} />
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item coming-soon"
+                          onClick={(e) => e.stopPropagation()}
+                          title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
+                          aria-label="NO PLAN"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="map-toggle-divider" />
+                  {['40','41','42','43','44','45','46'].includes(selectedPrefId) && (
+                    <button
+                      className={`locate-me-btn icon-only ${showAllCityNames ? 'active' : ''}`}
+                      onClick={() => setShowAllCityNames((v) => !v)}
+                      title={lang === 'en' ? 'Show place names' : '地名を表示'}
+                      aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
+                    >
+                      <MapPin size={16} />
+                    </button>
                   )}
-                </div>
-                <div className="map-zoom-group">
+                  {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
+                    const GroupIcon = group.icon;
+                    const isExpanded = expandedIconGroup === groupKey;
+                    const hasActiveItem =
+                      (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
+                      (groupKey === 'rest' && showRoadsidePins);
+                    return (
+                      <div key={groupKey} className="icon-group-wrap">
+                        <button
+                          className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                          title={lang === 'en' ? group.labelEn : group.label}
+                          aria-label={lang === 'en' ? group.labelEn : group.label}
+                        >
+                          <GroupIcon size={16} />
+                        </button>
+                        {isExpanded && (
+                          <div className="icon-group-submenu">
+                            {group.items.map((item) => {
+                              const ItemIcon = item.icon;
+                              const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
+                              const isOn =
+                                (item.key === 'airport' && showAirportPins) ||
+                                (item.key === 'ferry' && showFerryPins) ||
+                                (item.key === 'roadside' && showRoadsidePins);
+                              return (
+                                <button
+                                  key={item.key}
+                                  className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!effectiveReady) return;
+                                    setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
+                                    if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
+                                    else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
+                                    else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
+                                  }}
+                                  title={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                  aria-label={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                >
+                                  {item.key === 'roadside' && roadsideMapLoading ? <Clock size={14} /> : <ItemIcon size={14} />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                   <button
-                    className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(regionMapScrollRef, regionZoomAnchorRef); setRegionZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
-                    disabled={regionZoom >= 3}
-                    title={lang === 'en' ? 'Zoom in' : '拡大'}
-                  >+</button>
-                  <span className="lang-toggle-sep">/</span>
+                    className="locate-me-btn icon-only coming-soon"
+                    onClick={(e) => e.stopPropagation()}
+                    title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                    aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                  >
+                    <Stethoscope size={16} />
+                  </button>
+                  <div className="map-toggle-divider" />
+                  <div className="icon-group-wrap">
+                    <button
+                      className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
+                      title={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                      aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                    >
+                      <ZoomIn size={16} />
+                    </button>
+                    {expandedIconGroup === 'zoom' && (
+                      <div className="icon-group-submenu">
+                        <button
+                          className="locate-me-btn icon-only submenu-item"
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                          disabled={regionZoom >= 3}
+                          title={lang === 'en' ? 'Zoom in' : '拡大'}
+                          aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
+                        >
+                          +
+                        </button>
+                        <button
+                          className="locate-me-btn icon-only submenu-item"
+                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                          disabled={regionZoom <= 1}
+                          title={lang === 'en' ? 'Zoom out' : '縮小'}
+                          aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
+                        >
+                          −
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <button
-                    className="zoom-btn"
-                    onClick={() => { captureZoomAnchor(regionMapScrollRef, regionZoomAnchorRef); setRegionZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
-                    disabled={regionZoom <= 1}
-                    title={lang === 'en' ? 'Zoom out' : '縮小'}
-                  >−</button>
+                    className="locate-me-btn icon-only coming-soon"
+                    onClick={(e) => e.stopPropagation()}
+                    title={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
+                    aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
+                  >
+                    <Route size={16} />
+                  </button>
+                  <button
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                  <button
+                    className="locate-me-btn icon-only"
+                    onClick={(e) => { e.stopPropagation(); setAppStage('kyushu'); setPeekIslandKey(null); }}
+                    title={lang === 'en' ? 'Back' : '戻る'}
+                    aria-label={lang === 'en' ? 'Back' : '戻る'}
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
                 </div>
                 <div
                   className="map-pan-scroll"
                   ref={regionMapScrollRef}
                   onMouseDown={handlePanMouseDown}
-                  onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); }}
-                  {...makePinchHandlers(setRegionZoom, regionMapScrollRef, regionZoomAnchorRef)}
+                  onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
+                  {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef)}
                 >
-                  <div className="map-pan-content kyushu-contain-fit" style={(() => {
+                  <div ref={regionMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
                     let wPct = (prefFullViewBox.w / prefViewBox.w) * 100;
                     let hPct = (prefFullViewBox.h / prefViewBox.h) * 100;
                     if (regionMapSize && regionMapSize.w > 0 && regionMapSize.h > 0) {
@@ -8243,7 +8925,8 @@ function MairuDemoInner() {
                       const effectiveH = regionMapSize.h; // 地図はヘッダー・フッターの裏まで全面表示(余白は拡大率側で調整)
                       const scaleW = effectiveW / prefSizingViewBox.w; // 本島基準の拡大率(離島の分は含めない)
                       const scaleH = effectiveH / prefSizingViewBox.h; // 本島基準の拡大率(離島の分は含めない)
-                      const scale = Math.min(scaleW, scaleH); // 選んだ県が画面に収まるようにする(はみ出させない)
+                      const REGION_ZOOM_BOOST = { '40': 1.0, '41': 1.0, '42': 1.2, '43': 1.0, '44': 1.0, '45': 1.0, '46': 1.2 }; // 40福岡 41佐賀 42長崎 43熊本 44大分 45宮崎 46鹿児島
+                      const scale = Math.min(scaleW, scaleH) * (REGION_ZOOM_BOOST[selectedPrefId] ?? 1.2); // 少しだけ大きめに表示する(端は多少見切れる)
                       wPct = (scale * prefFullViewBox.w / effectiveW) * 100;
                       hPct = (scale * prefFullViewBox.h / effectiveH) * 100;
                     }
@@ -8311,8 +8994,8 @@ function MairuDemoInner() {
                         className="my-location-marker"
                         style={{ left: pct(myLocationXY.x - prefFullViewBox.x, prefFullViewBox.w) + '%', top: pct(myLocationXY.y - prefFullViewBox.y, prefFullViewBox.h) + '%' }}
                       >
-                        <span className="my-location-dot" />
                         <span className="my-location-pulse" />
+                        <span className="my-location-dot" />
                       </div>
                     )}
                     {showAirportPins && clusterPins(
@@ -8469,20 +9152,13 @@ function MairuDemoInner() {
 
             </div>
 
-          <button
-            className="floating-back-btn floating-back-btn-icon kyushu-back-right"
-            onClick={() => { setAppStage('kyushu'); setPeekIslandKey(null); }}
-            title={lang === 'en' ? 'Back' : '戻る'}
-            aria-label={lang === 'en' ? 'Back' : '戻る'}
-          >
-            <ChevronLeft size={20} />
-          </button>
-
           <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
         </div>
@@ -8515,7 +9191,7 @@ function MairuDemoInner() {
             <button className={regionMode === 'map' ? 'active' : ''} onClick={() => { setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -8547,9 +9223,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -8570,29 +9248,32 @@ function MairuDemoInner() {
         const isIsahaya = ACTIVE_CITY_IDS.includes(selectedCity);
         const categoryTabs = (
           <nav className="tabs" aria-label={lang === 'en' ? 'Category selection' : 'カテゴリ選択'}>
-            {Object.entries(CATEGORY_META).map(([key, meta]) => {
+            <button
+              className="tab tab-icon-only"
+              onClick={() => { setActiveCategory(null); setLinkedId(null); }}
+              title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+              aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+            >
+              <RotateCcw size={16} />
+            </button>
+            {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => {
               const Icon = meta.icon;
-              const isOther = key === 'roadside';
               return (
                 <button
                   key={key}
-                  className={`tab ${activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided' ? 'tab-active' : ''}`}
+                  className={`tab tab-icon-only ${activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided' ? 'tab-active' : ''}`}
                   onClick={() => {
-                    if (isOther) {
-                      setShowOtherMenu(true);
-                      return;
-                    }
                     setActiveCategory(key);
                     setLinkedId(null);
                     if (selectMode === 'candidates' || selectMode === 'decided') {
                       setSelectMode(lastBrowseMode);
                     }
                   }}
-                  aria-haspopup={isOther ? 'dialog' : undefined}
-                  aria-pressed={!isOther && activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
+                  title={catLabel(meta)}
+                  aria-label={catLabel(meta)}
+                  aria-pressed={activeCategory === key && selectMode !== 'candidates' && selectMode !== 'decided'}
                 >
                   <Icon size={16} />
-                  {isOther ? (lang === 'en' ? 'Other' : 'その他') : catLabel(meta)}
                 </button>
               );
             })}
@@ -8600,33 +9281,93 @@ function MairuDemoInner() {
         );
         const isMapFull = isIsahaya && view === 'select' && selectMode === 'map';
         const muniCrop = activeCityConfig.crop;
-        let muniMapBox = { x: muniCrop.x, y: muniCrop.y, w: activeCityConfig.viewW, h: activeCityConfig.viewH };
-        if (muniMapSize && muniMapSize.w > 0 && muniMapSize.h > 0) {
-          const containerAspect = muniMapSize.w / muniMapSize.h;
-          const viewAspect = activeCityConfig.viewW / activeCityConfig.viewH;
-          const ccx = muniCrop.x + activeCityConfig.viewW / 2;
-          const ccy = muniCrop.y + activeCityConfig.viewH / 2;
-          if (containerAspect > viewAspect) {
-            // 画面の方が横長 → 横方向にビューボックスを広げて画面いっぱいに(縦は変更しない)
-            const w2 = containerAspect * activeCityConfig.viewH;
-            muniMapBox = { x: ccx - w2 / 2, y: muniCrop.y, w: w2, h: activeCityConfig.viewH };
-          } else {
-            // 画面の方が縦長 → 縦方向にビューボックスを広げて画面いっぱいに(横は変更しない)
-            const h2 = activeCityConfig.viewW / containerAspect;
-            muniMapBox = { x: muniCrop.x, y: ccy - h2 / 2, w: activeCityConfig.viewW, h: h2 };
+        let muniMapBox = computeMuniMapBox(activeCityConfig, muniMapSize, muniZoom, muniPanX, muniPanY);
+        // 地図をドラッグ(指/マウス)で動かせるようにする。ただし、動かせる範囲は
+        // 「その市町村自体の範囲内で、輪郭線のどの部分でも中心に持ってこられる」程度に制限する
+        // (隣の市町村など、関係ない場所まで際限なく動かせないようにするため)。
+        const muniPanLimitX = activeCityConfig.viewW / 2;
+        const muniPanLimitY = activeCityConfig.viewH / 2;
+        function handleMuniMapPanStart(e) {
+          const el = muniMapFrameRef.current;
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return;
+
+          if (e.touches && e.touches.length === 2) {
+            // 2本指のピンチ操作: 地図のズームとして扱い、ブラウザ本来のページ拡大縮小は起こさせない
+            const t0 = e.touches[0];
+            const t1 = e.touches[1];
+            const startDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY) || 1;
+            const startZoom = muniZoom;
+            const onPinchMove = (moveEvent) => {
+              if (!moveEvent.touches || moveEvent.touches.length < 2) return;
+              if (moveEvent.cancelable) moveEvent.preventDefault();
+              const mt0 = moveEvent.touches[0];
+              const mt1 = moveEvent.touches[1];
+              const dist = Math.hypot(mt1.clientX - mt0.clientX, mt1.clientY - mt0.clientY);
+              const nextZoom = Math.min(3, Math.max(1, +(startZoom * (dist / startDist)).toFixed(2)));
+              setMuniZoom(nextZoom);
+            };
+            const onPinchEnd = () => {
+              window.removeEventListener('touchmove', onPinchMove);
+              window.removeEventListener('touchend', onPinchEnd);
+              window.removeEventListener('touchcancel', onPinchEnd);
+            };
+            window.addEventListener('touchmove', onPinchMove, { passive: false });
+            window.addEventListener('touchend', onPinchEnd);
+            window.addEventListener('touchcancel', onPinchEnd);
+            return;
           }
+          if (e.touches && e.touches.length > 1) return; // 3本指以上は何もしない
+
+          const isTouch = e.touches && e.touches.length === 1;
+          const startClientX = isTouch ? e.touches[0].clientX : e.clientX;
+          const startClientY = isTouch ? e.touches[0].clientY : e.clientY;
+          const scaleX = muniMapBox.w / rect.width;
+          const scaleY = muniMapBox.h / rect.height;
+          const startPanX = muniPanX;
+          const startPanY = muniPanY;
+          let moved = false;
+          const onMove = (moveEvent) => {
+            const mIsTouch = moveEvent.touches && moveEvent.touches.length === 1;
+            if (moveEvent.touches && moveEvent.touches.length > 1) return;
+            if (moveEvent.cancelable) moveEvent.preventDefault(); // ネイティブスクロールが割り込まないよう、動いた量に関わらず毎回止める
+            const mx = mIsTouch ? moveEvent.touches[0].clientX : moveEvent.clientX;
+            const my = mIsTouch ? moveEvent.touches[0].clientY : moveEvent.clientY;
+            const dx = mx - startClientX;
+            const dy = my - startClientY;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+            if (moved) {
+              const nextX = Math.min(muniPanLimitX, Math.max(-muniPanLimitX, startPanX - dx * scaleX));
+              const nextY = Math.min(muniPanLimitY, Math.max(-muniPanLimitY, startPanY - dy * scaleY));
+              setMuniPanX(nextX);
+              setMuniPanY(nextY);
+            }
+          };
+          const onEnd = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+          };
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onEnd);
+          window.addEventListener('touchmove', onMove, { passive: false });
+          window.addEventListener('touchend', onEnd);
         }
         return (
           <div className={`entry-view region-scroll ${isIsahaya ? activeCityConfig.seaBgClass : ''} ${isIsahaya && view === 'select' ? 'has-bottom-toolbar' : ''} ${isMapFull ? 'muni-map-fullscreen kyushu-topbar-view kyushu-icons-consolidated' : ''}`}>
             {isMapFull ? (
               <div className="kyushu-float-header">
-                <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-                  <h1 className="kyushu-float-title">CONOTAVI</h1>
-                </button>
-                <div className="entry-lang-toggle kyushu-float-lang">
-                  <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
-                  <span className="lang-toggle-sep">/</span>
-                  <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
+                <div className="entry-header-left-group">
+                  <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
+                    <h1 className="kyushu-float-title">CONOTAVI</h1>
+                  </button>
+                  <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
+                    <span>{(() => { const ap = KYUSHU_PREFS.find((x) => x.id === activeCityConfig.prefId); return ap ? mName(ap) : ''; })()}</span>
+                    <span className="lang-toggle-sep">/</span>
+                    <span>{lang === 'en' ? activeCityConfig.nameEn : activeCityConfig.name}</span>
+                  </span>
                 </div>
               </div>
             ) : (
@@ -8640,10 +9381,10 @@ function MairuDemoInner() {
                   <p className="entry-catch">{lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}</p>
                 </div>
                 <div className="entry-lang-toggle">
-                  <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
-                  <span className="lang-toggle-sep">/</span>
-                  <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
-                </div>
+                <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
+                <span className="lang-toggle-sep">/</span>
+                <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
+              </div>
               </div>
             </div>
 
@@ -8683,7 +9424,7 @@ function MairuDemoInner() {
             <button className={selectMode === 'map' ? 'active' : ''} onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}>
               <MapIcon size={14} /> {lang === 'en' ? 'By Area' : '地域で探す'}
             </button>
-            <button onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}>
+            <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
               <Compass size={14} /> {lang === 'en' ? 'By Purpose' : '目的で探す'}
             </button>
             <button disabled title={lang === 'en' ? 'Coming soon' : '準備中'}>
@@ -8705,49 +9446,197 @@ function MairuDemoInner() {
             <>
               <div className="map-scroll muni-fullmap-scroll">
                 <div className="map-frame-wrap muni-fullmap-frame-wrap">
-                  <div className="tabs-on-frame muni-float-category-tabs">{categoryTabs}</div>
-                <div className="map-frame muni-fullmap-frame" ref={muniMapFrameRef}>
-                  <span className="map-location-label">
-                    <span>{(() => { const ap = KYUSHU_PREFS.find((x) => x.id === activeCityConfig.prefId); return ap ? mName(ap) : ''; })()}</span>
-                    <span className="lang-toggle-sep">/</span>
-                    <span>{lang === 'en' ? activeCityConfig.nameEn : activeCityConfig.name}</span>
-                  </span>
+                <div
+                  className="map-frame muni-fullmap-frame"
+                  ref={muniMapFrameRef}
+                  onClick={() => { setPeekAirportId(null); setPeekFerryId(null); setExpandedIconGroup(null); }}
+                  onMouseDown={handleMuniMapPanStart}
+                  onTouchStart={handleMuniMapPanStart}
+                >
                   <div className="map-toggle-group">
+                    <LangToggleIcon inColumn />
                     <button
-                      className="locate-me-btn icon-only active"
-                      onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); }}
-                      title={lang === 'en' ? 'By Area' : '地域で探す'}
-                      aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
+                      className="locate-me-btn icon-only"
+                      onClick={() => locateMe()}
+                      disabled={myLocationStatus === 'loading' || locating}
+                      title={lang === 'en' ? 'Show my location' : '現在地を表示'}
+                      aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     >
-                      <MapIcon size={16} />
+                      <Navigation size={16} />
+                      {myLocationStatus === 'error' && (
+                        <span className="locate-me-error">
+                          {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
+                        </span>
+                      )}
+                    </button>
+                    <div className="icon-group-wrap">
+                      <button
+                        className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
+                        title={lang === 'en' ? 'Search by' : '探し方'}
+                        aria-label={lang === 'en' ? 'Search by' : '探し方'}
+                      >
+                        <Search size={16} />
+                      </button>
+                      {expandedIconGroup === 'findBy' && (
+                        <div className="icon-group-submenu">
+                          <button
+                            className="locate-me-btn icon-only submenu-item active"
+                            onClick={(e) => { e.stopPropagation(); setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); setExpandedIconGroup(null); }}
+                            title={lang === 'en' ? 'By Area' : '地域で探す'}
+                            aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
+                          >
+                            <MapIcon size={14} />
+                          </button>
+                          <button
+                            className="locate-me-btn icon-only submenu-item coming-soon"
+                            onClick={(e) => e.stopPropagation()}
+                            title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                            aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
+                          >
+                            <Compass size={14} />
+                          </button>
+                          <button
+                            className="locate-me-btn icon-only submenu-item coming-soon"
+                            onClick={(e) => e.stopPropagation()}
+                            title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
+                            aria-label="NO PLAN"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="map-toggle-divider" />
+                    <button
+                      className="locate-me-btn icon-only coming-soon"
+                      onClick={(e) => e.stopPropagation()}
+                      title={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+                      aria-label={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+                    >
+                      <MapPin size={16} />
+                    </button>
+                    {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
+                      const GroupIcon = group.icon;
+                      const isExpanded = expandedIconGroup === groupKey;
+                      const hasActiveItem =
+                        (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
+                        (groupKey === 'rest' && showRoadsidePins);
+                      return (
+                        <div key={groupKey} className="icon-group-wrap">
+                          <button
+                            className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                            title={lang === 'en' ? group.labelEn : group.label}
+                            aria-label={lang === 'en' ? group.labelEn : group.label}
+                          >
+                            <GroupIcon size={16} />
+                          </button>
+                          {isExpanded && (
+                            <div className="icon-group-submenu">
+                              {group.items.map((item) => {
+                                const ItemIcon = item.icon;
+                                const isActiveSpotCat = item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
+                                const isOn =
+                                  (item.key === 'airport' && showAirportPins) ||
+                                  (item.key === 'ferry' && showFerryPins) ||
+                                  (item.key === 'roadside' && showRoadsidePins) ||
+                                  isActiveSpotCat;
+                                return (
+                                  <button
+                                    key={item.key}
+                                    className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!item.ready ? 'coming-soon' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!item.ready) return;
+                                      setPeekAirportId(null); setPeekFerryId(null);
+                                      if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); }
+                                      else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); }
+                                      else if (item.spotCategory) {
+                                        // 市町村ページでは、この項目はスポットの絞り込み(observation/food/lodging/roadside)につながっている
+                                        setActiveCategory(item.spotCategory);
+                                        setLinkedId(null);
+                                        if (selectMode === 'candidates' || selectMode === 'decided') setSelectMode(lastBrowseMode);
+                                        setExpandedIconGroup(null);
+                                      }
+                                    }}
+                                    title={!item.ready ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                    aria-label={!item.ready ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
+                                  >
+                                    <ItemIcon size={14} />
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <button
+                      className="locate-me-btn icon-only coming-soon"
+                      onClick={(e) => e.stopPropagation()}
+                      title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                      aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                    >
+                      <Stethoscope size={16} />
+                    </button>
+                    <div className="map-toggle-divider" />
+                    <div className="icon-group-wrap">
+                      <button
+                        className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
+                        title={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                        aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
+                      >
+                        <ZoomIn size={16} />
+                      </button>
+                      {expandedIconGroup === 'zoom' && (
+                        <div className="icon-group-submenu">
+                          <button
+                            className="locate-me-btn icon-only submenu-item"
+                            onClick={(e) => { e.stopPropagation(); setMuniZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
+                            disabled={muniZoom >= 3}
+                            title={lang === 'en' ? 'Zoom in' : '拡大'}
+                            aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
+                          >
+                            +
+                          </button>
+                          <button
+                            className="locate-me-btn icon-only submenu-item"
+                            onClick={(e) => { e.stopPropagation(); setMuniZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+                            disabled={muniZoom <= 1}
+                            title={lang === 'en' ? 'Zoom out' : '縮小'}
+                            aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
+                          >
+                            −
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="locate-me-btn icon-only"
+                      disabled={!canCreateRoute || calculating}
+                      onClick={(e) => { e.stopPropagation(); buildRoute(); }}
+                      title={lang === 'en' ? 'Create route' : 'ルート検索'}
+                      aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
+                    >
+                      <Route size={16} />
                     </button>
                     <button
                       className="locate-me-btn icon-only"
-                      onClick={() => { setAppStage('purpose'); setPurposeCategory(null); setPurposePrefId(null); }}
-                      title={lang === 'en' ? 'By Purpose' : '目的で探す'}
-                      aria-label={lang === 'en' ? 'By Purpose' : '目的で探す'}
+                      onClick={(e) => { e.stopPropagation(); resetMapDisplay(); setActiveCategory(null); setLinkedId(null); }}
+                      title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                      aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
                     >
-                      <Compass size={16} />
-                    </button>
-                    <button className="locate-me-btn icon-only" disabled title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'} aria-label="NO PLAN">
-                      <X size={16} />
-                    </button>
-                    <div className="map-toggle-divider" />
-                    <button
-                      className={`locate-me-btn pin-toggle-btn icon-only ${showAirportPins ? 'active' : ''}`}
-                      onClick={() => { setShowAirportPins((v) => !v); setShowFerryPins(false); setPeekAirportId(null); setPeekFerryId(null); }}
-                      title={lang === 'en' ? 'Show airports' : '空港を表示'}
-                      aria-label={lang === 'en' ? 'Show airports' : '空港を表示'}
-                    >
-                      <Plane size={16} />
+                      <RotateCcw size={16} />
                     </button>
                     <button
-                      className={`locate-me-btn pin-toggle-btn icon-only ${showFerryPins ? 'active' : ''}`}
-                      onClick={() => { setShowFerryPins((v) => !v); setShowAirportPins(false); setPeekFerryId(null); setPeekAirportId(null); }}
-                      title={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
-                      aria-label={lang === 'en' ? 'Show ferry terminals' : 'フェリーを表示'}
+                      className="locate-me-btn icon-only"
+                      onClick={(e) => { e.stopPropagation(); if (isIsahaya && view === 'route') { setView('select'); } else { setAppStage('region'); } }}
+                      title={lang === 'en' ? 'Back' : '戻る'}
+                      aria-label={lang === 'en' ? 'Back' : '戻る'}
                     >
-                      <Ship size={16} />
+                      <ChevronLeft size={16} />
                     </button>
                   </div>
                   <svg viewBox={`${muniMapBox.x} ${muniMapBox.y} ${muniMapBox.w} ${muniMapBox.h}`} className="map-svg" aria-hidden="true">
@@ -8770,18 +9659,29 @@ function MairuDemoInner() {
                     const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
                     const overBudget = wouldExceedBudget(spot);
                     const isLinked = linkedId === spot.id;
+                    const leftPct = pct(spot.x - muniMapBox.x, muniMapBox.w);
+                    const topPct = pct(spot.y - muniMapBox.y, muniMapBox.h);
                     return (
-                      <button
-                        key={spot.id}
-                        className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${overBudget ? 'is-over-budget' : ''} ${isLinked ? 'is-linked' : ''}`}
-                        style={{ left: pct(spot.x - muniMapBox.x, muniMapBox.w) + '%', top: pct(spot.y - muniMapBox.y, muniMapBox.h) + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                        onClick={() => handleSpotTap(spot.id)}
-                        aria-label={sName(spot)}
-                      >
-                        <span className="spot-pin-icon">
-                          {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
-                        </span>
-                      </button>
+                      <Fragment key={spot.id}>
+                        <button
+                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${overBudget ? 'is-over-budget' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={() => handleSpotTap(spot.id)}
+                          aria-label={sName(spot)}
+                        >
+                          <span className="spot-pin-icon">
+                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
+                          </span>
+                        </button>
+                        {isLinked && (
+                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
+                            <span className="poi-pin-label-name">{sName(spot)}</span>
+                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
+                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            </button>
+                          </div>
+                        )}
+                      </Fragment>
                     );
                   })}
 
@@ -8894,7 +9794,7 @@ function MairuDemoInner() {
         </main>
       )}
 
-      {view === 'select' && (
+      {view === 'select' && !isMapFull && (
         <div className="bottom-toolbar">
           <button className="bottom-toolbar-btn bottom-toolbar-btn-primary" disabled={!canCreateRoute || calculating} onClick={buildRoute}>
             <Route size={16} />
@@ -8973,7 +9873,7 @@ function MairuDemoInner() {
                   <button className={detourCategory === 'all' ? 'active' : ''} onClick={() => { setDetourCategory('all'); setLinkedId(null); }}>
                     {lang === 'en' ? 'All' : 'すべて'}
                   </button>
-                  {Object.entries(CATEGORY_META).map(([key, meta]) => (
+                  {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => (
                     <button
                       key={key}
                       className={detourCategory === key ? 'active' : ''}
@@ -9011,18 +9911,29 @@ function MairuDemoInner() {
                     const Icon = meta.icon;
                     const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
                     const isLinked = linkedId === spot.id;
+                    const leftPct = pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW);
+                    const topPct = pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH);
                     return (
-                      <button
-                        key={spot.id}
-                        className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                        onClick={() => handleSpotTap(spot.id)}
-                        aria-label={sName(spot)}
-                      >
-                        <span className="spot-pin-icon">
-                          {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
-                        </span>
-                      </button>
+                      <Fragment key={spot.id}>
+                        <button
+                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={() => handleSpotTap(spot.id)}
+                          aria-label={sName(spot)}
+                        >
+                          <span className="spot-pin-icon">
+                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
+                          </span>
+                        </button>
+                        {isLinked && (
+                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
+                            <span className="poi-pin-label-name">{sName(spot)}</span>
+                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
+                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            </button>
+                          </div>
+                        )}
+                      </Fragment>
                     );
                   })}
 
@@ -9300,7 +10211,7 @@ function MairuDemoInner() {
               </div>
             )}
 
-            <div className={`detail-body ${selectedSpot.image ? 'detail-body-dark' : ''}`}>
+            <div className="detail-body">
             {!selectedSpot.image && (
               <Fragment>
                 <div className="detail-tag">
@@ -9405,35 +10316,6 @@ function MairuDemoInner() {
                 </a>
               )}
             </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showOtherMenu && (
-        <div className="overlay-backdrop" onClick={() => setShowOtherMenu(false)}>
-          <div className="plan-dialog-card" onClick={(e) => e.stopPropagation()}>
-            <button className="plan-dialog-x" onClick={() => setShowOtherMenu(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}>
-              <X size={16} />
-            </button>
-            <h3 className="plan-dialog-title">{lang === 'en' ? 'Other' : 'その他'}</h3>
-            <p className="plan-dialog-desc">
-              {lang === 'en' ? 'Choose a category to browse.' : '見たいカテゴリを選んでください。'}
-            </p>
-            <div className="other-menu-list">
-              <button
-                className="other-menu-item"
-                onClick={() => {
-                  setActiveCategory('roadside');
-                  setLinkedId(null);
-                  if (selectMode === 'candidates' || selectMode === 'decided') {
-                    setSelectMode(lastBrowseMode);
-                  }
-                  setShowOtherMenu(false);
-                }}
-              >
-                <Store size={16} /> {lang === 'en' ? 'Rest stop' : '道の駅'}
-              </button>
             </div>
           </div>
         </div>
@@ -9545,21 +10427,23 @@ function MairuDemoInner() {
             </>
             )}
 
+            {!isMapFull && (
             <button
-              className={isMapFull ? 'floating-back-btn floating-back-btn-icon kyushu-back-right' : 'floating-back-btn'}
+              className="floating-back-btn"
               onClick={() => { if (isIsahaya && view === 'route') { setView('select'); } else { setAppStage('region'); } }}
-              title={isMapFull ? (lang === 'en' ? 'Back' : '戻る') : undefined}
-              aria-label={isMapFull ? (lang === 'en' ? 'Back' : '戻る') : undefined}
             >
-              {isMapFull ? <ChevronLeft size={20} /> : (lang === 'en' ? '← Back' : '← 戻る')}
+              {lang === 'en' ? '← Back' : '← 戻る'}
             </button>
+            )}
 
             {isMapFull && (
               <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
                 <div className="entry-footer-links">
-                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
                   <span className="entry-footer-dot-sep">・</span>
-                  <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+                  <span className="entry-footer-dot-sep">・</span>
+                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
                 </div>
               </div>
             )}
@@ -9578,15 +10462,9 @@ function MairuDemoInner() {
                 <p className="entry-catch">{lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}</p>
               </div>
               <div className="entry-lang-toggle">
-                <button
-                  className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                  onClick={() => setLang('ja')}
-                >JP</button>
+                <button className={lang === 'ja' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('ja')}>JP</button>
                 <span className="lang-toggle-sep">/</span>
-                <button
-                  className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'}
-                  onClick={() => setLang('en')}
-                >EN</button>
+                <button className={lang === 'en' ? 'lang-toggle-opt active' : 'lang-toggle-opt'} onClick={() => setLang('en')}>EN</button>
               </div>
             </div>
           </div>
@@ -9685,9 +10563,11 @@ function MairuDemoInner() {
           </svg>
           <div className="entry-footer-wrap">
             <div className="entry-footer-links">
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Terms of Service' : '利用規約'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
               <span className="entry-footer-dot-sep">・</span>
-              <a href="#" className="entry-footer-link">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</a>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
+              <span className="entry-footer-dot-sep">・</span>
+              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
             </div>
           </div>
 
@@ -9781,6 +10661,300 @@ function MairuDemoInner() {
           </div>
         );
       })()}
+
+      {legalOverlay && (
+        <div className="overlay-backdrop" onClick={() => setLegalOverlay(null)}>
+          <div className={`legal-dialog-card ${legalOverlay ? 'legal-dialog-card-dark' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="legal-dialog-header">
+              <button className="plan-dialog-x" onClick={() => setLegalOverlay(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+              <h3 className="plan-dialog-title">
+                {legalOverlay === 'terms' && (lang === 'en' ? 'Terms of Service' : '利用規約')}
+                {legalOverlay === 'privacy' && (lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー')}
+                {legalOverlay === 'contact' && (lang === 'en' ? 'Contact' : 'お問い合わせ')}
+              </h3>
+            </div>
+            <div className="legal-dialog-body">
+
+              {legalOverlay === 'terms' && (
+              lang === 'en' ? (
+                  <>
+                    <div className="legal-section">
+                      <p>These Terms of Service ("Terms") govern the use of CONOTAVI (the "Service"), a Kyushu travel-planning web app. By using the Service, you agree to these Terms.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. Service Description</h4>
+                      <p>The Service provides maps, sightseeing/dining/lodging information, and trip-planning tools for the Kyushu region. Some categories are still under preparation and may not be available yet.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. Accuracy of Information</h4>
+                      <p>We make reasonable efforts to keep information accurate, but business hours, prices, availability, and other details may change without notice. Please verify important details directly with each facility before your visit.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. Prohibited Actions</h4>
+                      <ul>
+                        <li>Unauthorized access, scraping, or bulk automated retrieval of the Service</li>
+                        <li>Actions that interfere with the operation of the Service</li>
+                        <li>Infringing the intellectual property or other rights of the operator or third parties</li>
+                        <li>Any other action the operator deems inappropriate</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. Saved Plans</h4>
+                      <p>Trip plans you save are stored only in your device's browser storage. They are not sent to or stored on our servers, and are not synced across devices. Clearing your browser data will delete them.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. Disclaimer</h4>
+                      <p>The operator is not liable for any damage arising from the use of the Service, including but not limited to trip delays, changes in facility information, or issues with external websites linked from the Service, except where caused by the operator's willful misconduct or gross negligence.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. Suspension &amp; Changes</h4>
+                      <p>The operator may suspend, change, or discontinue all or part of the Service without prior notice.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. Copyright</h4>
+                      <p>Text, images, maps, and other content on the Service are protected by copyright and may not be reproduced or redistributed without permission, except as permitted by law.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. Governing Law &amp; Jurisdiction</h4>
+                      <p>These Terms are governed by the laws of Japan. Any disputes shall be subject to the exclusive jurisdiction of the court having jurisdiction over the operator's location.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>9. Changes to These Terms</h4>
+                      <p>These Terms may be revised as needed. The latest version in the app always applies.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>10. Contact</h4>
+                      <p>For questions about these Terms, please use the Contact form in the app.</p>
+                    </div>
+                    <p className="legal-updated">Established: July 2026</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="legal-section">
+                      <p>この利用規約(以下「本規約」)は、CONOTAVI(九州旅行プランニングアプリ、以下「本サービス」)の利用条件を定めるものです。本サービスをご利用いただいた場合、本規約に同意したものとみなします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第1条(サービス内容)</h4>
+                      <p>本サービスは、九州地域の地図表示、観光・飲食・宿泊等のスポット情報の提供、旅行プランの作成支援を行うものです。一部の機能・カテゴリは準備中であり、ご利用いただけない場合があります。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第2条(情報の正確性)</h4>
+                      <p>掲載する情報は可能な限り正確な内容となるよう努めておりますが、営業時間・料金・営業状況等は変更される場合があります。ご来訪の際は、各施設に直接ご確認ください。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第3条(禁止事項)</h4>
+                      <ul>
+                        <li>本サービスへの不正アクセス、スクレイピング等による大量・自動的な情報取得</li>
+                        <li>本サービスの運営を妨害する行為</li>
+                        <li>運営者または第三者の知的財産権その他の権利を侵害する行為</li>
+                        <li>その他、運営者が不適切と判断する行為</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第4条(保存したプランについて)</h4>
+                      <p>保存したプランのデータは、ご利用の端末のブラウザ内にのみ保存され、運営者のサーバーには送信・保存されません。また、他の端末とは同期されません。ブラウザのデータを削除すると、保存内容も削除されます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第5条(免責事項)</h4>
+                      <p>運営者は、本サービスの利用により生じた旅行日程の遅延、施設情報の変更、本サービスからリンクする外部サイトに関する損害等について、運営者の故意または重大な過失による場合を除き、一切の責任を負いません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第6条(サービスの停止・変更)</h4>
+                      <p>運営者は、事前の予告なく本サービスの全部または一部の提供を停止・変更することができるものとします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第7条(著作権)</h4>
+                      <p>本サービスに掲載する文章・画像・地図等のコンテンツの著作権は、運営者または正当な権利を有する第三者に帰属します。法令で認められる場合を除き、無断で複製・転載することを禁じます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第8条(準拠法・管轄裁判所)</h4>
+                      <p>本規約の解釈にあたっては、日本法を準拠法とします。本サービスに関して紛争が生じた場合には、運営者の所在地を管轄する裁判所を専属的合意管轄とします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第9条(規約の変更)</h4>
+                      <p>運営者は、必要と判断した場合、本規約を変更することができるものとします。変更後の規約は、本アプリ上に表示した時点から効力を生じるものとします。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>第10条(お問い合わせ)</h4>
+                      <p>本規約に関するお問い合わせは、アプリ内のお問い合わせフォームよりご連絡ください。</p>
+                    </div>
+                    <p className="legal-updated">制定日:2026年7月</p>
+                  </>
+                )
+              )}
+
+              {legalOverlay === 'privacy' && (
+                lang === 'en' ? (
+                  <>
+                    <div className="legal-section">
+                      <p>This Privacy Policy explains how CONOTAVI (the "Service") handles information when you use it.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. Information We Handle</h4>
+                      <ul>
+                        <li>Location information — only when you use the "Show current location" feature, obtained via your browser's Geolocation API with your permission</li>
+                        <li>Saved trip plans — stored only in your device's browser (localStorage); never sent to or stored on our servers</li>
+                        <li>Contact form submissions — the name, email address, and message you choose to enter</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. Purpose of Use</h4>
+                      <ul>
+                        <li>To show your current location on the map</li>
+                        <li>To save and restore your trip plan on your own device</li>
+                        <li>To respond to inquiries submitted via the Contact form</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. About Location Information</h4>
+                      <p>Location data is only obtained when you tap "Show current location" and grant permission in your browser. It is used solely to display your position on the map and is not transmitted to or stored on our servers.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. About Saved Plans</h4>
+                      <p>Saved plans are stored only in your browser's local storage on your device. They are not synced across devices and are not accessible to the operator. Clearing your browser data will delete them.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. Third-Party Services</h4>
+                      <p>The Service loads webfonts from Google Fonts, which may send your access information (such as IP address) to Google. The Contact form is processed using a third-party form service (Formspree); the information you submit is sent to the operator through that service. We do not currently use any analytics services.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. Disclosure to Third Parties</h4>
+                      <p>We do not provide personal information to third parties, except as described above, as required by law, or with your consent.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. Contact</h4>
+                      <p>For questions about this Privacy Policy, please use the Contact form in the app.</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. Changes to This Policy</h4>
+                      <p>This Policy may be revised as needed. The latest version in the app always applies.</p>
+                    </div>
+                    <p className="legal-updated">Established: July 2026</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="legal-section">
+                      <p>本プライバシーポリシーは、CONOTAVI(以下「本サービス」)における情報の取り扱いについて定めるものです。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>1. 取得する情報</h4>
+                      <ul>
+                        <li>位置情報:「現在地を表示」機能をご利用いただいた場合のみ、ブラウザの位置情報機能(Geolocation API)を通じて、ご本人の許可のもと取得します</li>
+                        <li>保存プラン:ご利用の端末のブラウザ内(localStorage)にのみ保存され、運営者のサーバーには送信・保存されません</li>
+                        <li>お問い合わせフォームの送信内容:お客様が任意でご入力いただいたお名前・メールアドレス・お問い合わせ内容</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>2. 利用目的</h4>
+                      <ul>
+                        <li>地図上に現在地を表示するため</li>
+                        <li>作成した旅行プランを、ご利用の端末内で保存・復元するため</li>
+                        <li>お問い合わせフォームからいただいたご連絡に対応するため</li>
+                      </ul>
+                    </div>
+                    <div className="legal-section">
+                      <h4>3. 位置情報について</h4>
+                      <p>「現在地を表示」ボタンをタップし、ブラウザの位置情報取得の許可をいただいた場合にのみ取得します。取得した位置情報は地図上への表示にのみ使用し、運営者のサーバーへ送信・保存することはありません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>4. 保存プランについて</h4>
+                      <p>保存されたプランのデータは、ご利用の端末のブラウザ内にのみ保存されます。他の端末とは同期されず、運営者が内容を閲覧することもできません。ブラウザのデータを削除すると、保存内容も削除されます。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>5. 外部サービスの利用</h4>
+                      <p>本サービスは、フォント表示のためGoogle Fontsを利用しており、その際にIPアドレス等のアクセス情報がGoogleに送信される場合があります。また、お問い合わせフォームの送信処理には外部のフォーム送信サービス(Formspree)を利用しており、ご入力いただいた内容は同サービスを通じて運営者に送付されます。なお、現時点でアクセス解析サービス(Google Analytics等)は導入しておりません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>6. 第三者への提供</h4>
+                      <p>上記に記載した場合を除き、法令に基づく場合やご本人の同意がある場合を除いて、取得した情報を第三者に提供することはありません。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>7. お問い合わせ窓口</h4>
+                      <p>本ポリシーに関するお問い合わせは、アプリ内のお問い合わせフォームよりご連絡ください。</p>
+                    </div>
+                    <div className="legal-section">
+                      <h4>8. 本ポリシーの変更</h4>
+                      <p>本ポリシーは、必要に応じて内容を変更する場合があります。変更後の内容は、本アプリ上に表示した時点から適用されるものとします。</p>
+                    </div>
+                    <p className="legal-updated">制定日:2026年7月</p>
+                  </>
+                )
+              )}
+
+              {legalOverlay === 'contact' && (
+                <>
+                  <div className="legal-section">
+                    <p>
+                      {lang === 'en'
+                        ? "Questions, feedback, or issue reports about CONOTAVI are welcome below. We'll get back to you at the email address you provide."
+                        : 'CONOTAVIに関するご質問・ご意見・不具合のご報告などは、下記フォームよりお送りください。ご入力いただいたメールアドレス宛にご返信いたします。'}
+                    </p>
+                  </div>
+                  <form onSubmit={handleContactSubmit}>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-name">{lang === 'en' ? 'Name' : 'お名前'}</label>
+                      <input
+                        id="contact-name"
+                        type="text"
+                        required
+                        className="contact-form-input"
+                        value={contactForm.name}
+                        onChange={(e) => setContactForm((f) => ({ ...f, name: e.target.value }))}
+                      />
+                    </div>
+                    <p className="contact-form-hint">
+                      {lang === 'en' ? 'Please provide at least one way to reach you: email or phone number.' : 'メールアドレス・電話番号のいずれか一方は必ずご入力ください。'}
+                    </p>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-email">{lang === 'en' ? 'Email' : 'メールアドレス'}</label>
+                      <input
+                        id="contact-email"
+                        type="email"
+                        className="contact-form-input"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm((f) => ({ ...f, email: e.target.value }))}
+                      />
+                    </div>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-phone">{lang === 'en' ? 'Phone number' : '電話番号'}</label>
+                      <input
+                        id="contact-phone"
+                        type="tel"
+                        className="contact-form-input"
+                        value={contactForm.phone}
+                        onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
+                      />
+                    </div>
+                    <div className="contact-form-field">
+                      <label className="contact-form-label" htmlFor="contact-message">{lang === 'en' ? 'Message' : 'お問い合わせ内容'}</label>
+                      <textarea
+                        id="contact-message"
+                        required
+                        className="contact-form-textarea"
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm((f) => ({ ...f, message: e.target.value }))}
+                      />
+                    </div>
+                    <button type="submit" className="contact-form-submit" disabled={contactStatus === 'sending'}>
+                      {contactStatus === 'sending' ? (lang === 'en' ? 'Sending…' : '送信中…') : (lang === 'en' ? 'Send' : '送信する')}
+                    </button>
+                    {contactStatus === 'missing_contact' && (
+                      <p className="contact-form-status is-error">{lang === 'en' ? 'Please enter an email address or phone number.' : 'メールアドレスまたは電話番号をご入力ください。'}</p>
+                    )}
+                    {contactStatus === 'sent' && (
+                      <p className="contact-form-status is-sent">{lang === 'en' ? 'Thank you! Your message has been sent.' : 'お問い合わせを送信しました。ありがとうございます。'}</p>
+                    )}
+                    {contactStatus === 'error' && (
+                      <p className="contact-form-status is-error">{lang === 'en' ? 'Sending failed. Please try again later.' : '送信に失敗しました。時間をおいて再度お試しください。'}</p>
+                    )}
+                  </form>
+                </>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
