@@ -5289,6 +5289,10 @@ function MairuDemoInner() {
   const [muniZoom, setMuniZoom] = useState(1); // 市町村ページの地図拡大率
   const [muniPanX, setMuniPanX] = useState(0); // 市町村ページの地図の中心位置ズレ(SVG座標単位、目的地選択で変化)
   const [muniPanY, setMuniPanY] = useState(0);
+  const muniPanXRef = useRef(0); // muniPanXの最新値への参照(アニメーション開始時の現在地点を取るため)
+  const muniPanYRef = useRef(0);
+  useEffect(() => { muniPanXRef.current = muniPanX; }, [muniPanX]);
+  useEffect(() => { muniPanYRef.current = muniPanY; }, [muniPanY]);
   useEffect(() => {
     if (appStage !== 'kyushu') setKyushuZoom(1); // 九州ページ以外に移動したら拡大率をリセットする
   }, [appStage]);
@@ -5377,7 +5381,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 30) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5399,7 +5403,7 @@ function MairuDemoInner() {
     // 本島をそのまま基準にしつつ、離島がある方向にだけ届く分の余白を追加する。
     const muniXsB = munis.map((x) => x.cx);
     const muniYsB = munis.map((x) => x.cy);
-    const bufB = Math.max(prefViewBox.w, prefViewBox.h) * 0.5;
+    const bufB = Math.max(prefViewBox.w, prefViewBox.h) * 0.7;
     const fvbMinXB = Math.min(prefViewBox.x, ...muniXsB) - bufB;
     const fvbMinYB = Math.min(prefViewBox.y, ...muniYsB) - bufB;
     const fvbMaxXB = Math.max(prefViewBox.x + prefViewBox.w, ...muniXsB) + bufB;
@@ -5417,7 +5421,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 30) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5686,7 +5690,7 @@ function MairuDemoInner() {
   // (大分県のように端にある県でも中央に来せるために必要な余白)。
   // さらに奄美群島(与論島など)がぎりぎり収まる分だけ下にも延長する。
   const islandMaxY = Math.max(...Object.values(AIRPORT_SVG_OVERRIDE).map((p) => p.y));
-  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.3;
+  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.6; // 横に広い画面でも西端(長崎県など)までスクロールで中央寄せできるよう、余白を多めに確保
   const kyushuVPad = kyushuSizingBox.h * 0.4;
   const kyushuPanBoxBase = {
     x: kyushuSizingBox.x - kyushuHPad,
@@ -5719,7 +5723,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 20) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -5746,7 +5750,7 @@ function MairuDemoInner() {
     const frame = () => {
       if (el.clientWidth && el.clientHeight && el.scrollWidth) {
         apply();
-      } else if (tries < 20) {
+      } else if (tries < 180) {
         tries += 1;
         raf = requestAnimationFrame(frame);
       }
@@ -6155,7 +6159,7 @@ function MairuDemoInner() {
     setMuniPanY(0);
   }, [selectedCity]);
 
-  // 市町村ページで目的地(ピン)が選ばれたら、その地点が画面の中心にくるよう地図を動かす
+  // 市町村ページで目的地(ピン)が選ばれたら、その地点が画面の中心にくるよう地図を動かす(ぬるっと滑らかに)
   useEffect(() => {
     if (!linkedId) return;
     const spot = SPOTS.find((s) => s.id === linkedId);
@@ -6165,8 +6169,24 @@ function MairuDemoInner() {
     const cy = crop.y + activeCityConfig.viewH / 2;
     const limitX = activeCityConfig.viewW / 2;
     const limitY = activeCityConfig.viewH / 2;
-    setMuniPanX(Math.min(limitX, Math.max(-limitX, spot.x - cx)));
-    setMuniPanY(Math.min(limitY, Math.max(-limitY, spot.y - cy)));
+    const targetX = Math.min(limitX, Math.max(-limitX, spot.x - cx));
+    const targetY = Math.min(limitY, Math.max(-limitY, spot.y - cy));
+    const startX = muniPanXRef.current;
+    const startY = muniPanYRef.current;
+    const duration = 350; // ミリ秒
+    const startTime = performance.now();
+    // ease-out: 動き始めは速く、終わりにかけてゆっくり止まる(スクロールのsmoothと同じ感覚)
+    const easeOut = (t) => 1 - (1 - t) * (1 - t) * (1 - t);
+    let raf;
+    const step = (now) => {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = easeOut(t);
+      setMuniPanX(startX + (targetX - startX) * eased);
+      setMuniPanY(startY + (targetY - startY) * eased);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
   }, [linkedId]);
 
   // 「目的で探す」: 県を選ぶと、その県内の全市町村のスポットデータ(CITY_CONFIGSにdataUrlがあるもの)を
@@ -8706,7 +8726,7 @@ function MairuDemoInner() {
         // 均等に広げると、その分だけ無駄な余白ができてしまうため、必要な方向だけ広げる)。
         const prefMuniXs2 = prefMunicipalities.map((m) => m.cx);
         const prefMuniYs2 = prefMunicipalities.map((m) => m.cy);
-        const buf = Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.5; // 端の市町村でも画面中央まで来られるようにする余裕分
+        const buf = Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.7; // 端の市町村でも画面中央まで来られるようにする余裕分(横に広い画面向けに多めに確保)
         const fullMinX = Math.min(prefViewBox.x, ...prefMuniXs2) - buf;
         const fullMinY = Math.min(prefViewBox.y, ...prefMuniYs2) - buf;
         const fullMaxX = Math.max(prefViewBox.x + prefViewBox.w, ...prefMuniXs2) + buf;
