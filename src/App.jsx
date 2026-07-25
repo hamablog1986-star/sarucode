@@ -5286,6 +5286,8 @@ function MairuDemoInner() {
     setPeekCityId(null);
   }
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
+  const kyushuZoomRef = useRef(1); // kyushuZoomの最新値への参照(Ctrl+ホイールズームで使う)
+  useEffect(() => { kyushuZoomRef.current = kyushuZoom; }, [kyushuZoom]);
   const [muniZoom, setMuniZoom] = useState(1); // 市町村ページの地図拡大率
   const [muniPanX, setMuniPanX] = useState(0); // 市町村ページの地図の中心位置ズレ(SVG座標単位、目的地選択で変化)
   const [muniPanY, setMuniPanY] = useState(0);
@@ -5308,6 +5310,8 @@ function MairuDemoInner() {
     return () => clearTimeout(t);
   }, [iconLabelPeek]);
   const [regionZoom, setRegionZoom] = useState(1); // 県ページの拡大率
+  const regionZoomRef = useRef(1); // regionZoomの最新値への参照(Ctrl+ホイールズームで使う)
+  useEffect(() => { regionZoomRef.current = regionZoom; }, [regionZoom]);
   const muniMapFrameRef = useRef(null); // 市町村ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
   const [muniMapSize, setMuniMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const kyushuMapFrameRef = useRef(null); // 九州ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
@@ -5631,64 +5635,6 @@ function MairuDemoInner() {
     });
   }
   const kyushuMapContentRef = useRef(null); // 九州全体図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
-  // PC画面向け: Ctrlキーを押しながらのマウスホイール操作で、カーソルの位置を基準に地図を拡大縮小する。
-  // (トラックパッドのピンチ操作も、ブラウザ上ではctrlKey付きのwheelイベントとして送られてくるため、
-  // この仕組みだけでトラックパッドのピンチズームにも対応できる)
-  //
-  // 注意: Reactの onWheel(合成イベント)経由だと、ブラウザによっては passive:true 扱いになり
-  // e.preventDefault() が効かず、ブラウザ本来のページ拡大縮小(ヘッダー文字やアイコンまで
-  // 一緒に拡大されてしまう)がこの地図ズームと同時に発生してしまうことがある。
-  // そのため、地図のスクロール要素に直接、passive:false のネイティブイベントリスナーを
-  // 登録することで、ブラウザ本来の拡大縮小を確実に止め、地図の中身だけがズームされるようにする。
-  function useCtrlWheelZoom(scrollRef, zoom, setZoom, reattachKey) {
-    const zoomRef = useRef(zoom);
-    useEffect(() => { zoomRef.current = zoom; }, [zoom]);
-    useEffect(() => {
-      const el = scrollRef.current;
-      if (!el) return undefined;
-      let raf1 = null;
-      let raf2 = null;
-      const onWheel = (e) => {
-        if (!e.ctrlKey) return; // Ctrlを押していない通常のスクロールは何もしない(そのままページ/一覧のスクロールとして機能させる)
-        e.preventDefault();
-        // 前回のwheelイベント分の補正がまだ実行されていなければキャンセルする。
-        // 連続して素早くホイール操作すると、実行が積み重なり、古いカーソル位置の情報で
-        // 後から上書きしてしまってガクガクした動きになっていたため。
-        if (raf1) cancelAnimationFrame(raf1);
-        if (raf2) cancelAnimationFrame(raf2);
-
-        const rect = el.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const ratioX = el.scrollWidth > 0 ? (el.scrollLeft + mouseX) / el.scrollWidth : 0.5;
-        const ratioY = el.scrollHeight > 0 ? (el.scrollTop + mouseY) / el.scrollHeight : 0.5;
-        const factor = e.deltaY > 0 ? 0.92 : 1.08; // 下スクロール(deltaYが正)で縮小、上スクロールで拡大
-        const newZoom = Math.min(3, Math.max(1, +(zoomRef.current * factor).toFixed(2)));
-        zoomRef.current = newZoom;
-        setZoom(newZoom);
-        // Reactが新しいサイズを実際に反映し終えるまで待ってから、カーソルの位置が
-        // ズーム前と同じ場所を指し続けるようスクロール位置を計算し直す
-        raf1 = requestAnimationFrame(() => {
-          raf2 = requestAnimationFrame(() => {
-            el.scrollLeft = ratioX * el.scrollWidth - mouseX;
-            el.scrollTop = ratioY * el.scrollHeight - mouseY;
-          });
-        });
-      };
-      el.addEventListener('wheel', onWheel, { passive: false });
-      return () => {
-        el.removeEventListener('wheel', onWheel);
-        if (raf1) cancelAnimationFrame(raf1);
-        if (raf2) cancelAnimationFrame(raf2);
-      };
-      // scrollRef/setZoomは値が変わらないため、reattachKey(ページの表示状態)が変わるたびに
-      // 実行し直すことで、地図要素がまだ存在しないマウント時に一度失敗しても、
-      // 実際にそのページが表示されたタイミングで確実に登録し直せるようにする。
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reattachKey]);
-  }
-  useCtrlWheelZoom(kyushuMapScrollRef, kyushuZoom, setKyushuZoom, `${appStage}-${kyushuMode}`);
-  useCtrlWheelZoom(regionMapScrollRef, regionZoom, setRegionZoom, `${appStage}-${regionMode}-${selectedPrefId}`);
 
   const handleKyushuPanMouseDown = makePanMouseDown(kyushuMapScrollRef);
   // 拡大率(全体表示)の基準は、KYUSHU_MAINLAND_VIEWBOX(対馬・壱岐・五島・種子島・屋久島まで
@@ -5845,22 +5791,103 @@ function MairuDemoInner() {
     return () => ro.disconnect();
   }, [appStage, selectedCity, view, selectMode]);
 
-  // 市町村ページ(全画面地図)向けのCtrl+ホイールズーム。
-  // 九州・県ページと違い、市町村ページはスクロール要素ではなくSVGのviewBoxを直接動かす方式のため、
-  // scrollLeft/scrollWidthではなく、共通関数(computeMuniMapBox)で表示範囲を計算し直してカーソル位置を基準にする。
+  // ==== Ctrl+ホイールズーム(九州・県・市町村ページ共通、PC画面向け) ====
+  // これまで「そのページを表示した時にイベントを登録し直す」方式を何度か試したが、
+  // 登録タイミングがズレる・素早い連続操作で処理が競合する、といった不具合が繰り返し発生した。
+  // そこで今回は、document全体に対して「常時ただ1つだけ」イベントリスナーを登録しておき、
+  // ホイール操作が実際に発生した瞬間に「今どの画面を見ているか」をrefから判定して処理を振り分ける
+  // 方式に変更する。登録・解除のタイミングに一切依存しないため、この種の不具合が起こりようがない。
+  const appStageRef = useRef(appStage);
+  const kyushuModeRef = useRef(kyushuMode);
+  const regionModeRef = useRef(regionMode);
+  const isMapFullRef = useRef(false); // 市町村ページが全画面地図モードかどうか
+  useEffect(() => { appStageRef.current = appStage; }, [appStage]);
+  useEffect(() => { kyushuModeRef.current = kyushuMode; }, [kyushuMode]);
+  useEffect(() => { regionModeRef.current = regionMode; }, [regionMode]);
   useEffect(() => {
-    const el = muniMapFrameRef.current;
-    if (!el) return undefined;
-    const onWheel = (e) => {
-      if (!e.ctrlKey) return;
-      e.preventDefault();
+    isMapFullRef.current = ACTIVE_CITY_IDS.includes(selectedCity) && view === 'select' && selectMode === 'map';
+  }, [selectedCity, view, selectMode]);
+
+  useEffect(() => {
+    // 九州・県ページ用: ピンチズーム(makePinchHandlers)と全く同じ考え方を採用する。
+    // 「ホイール操作のたびにReactのstateとscrollLeftを毎回計算し直す」方式は、
+    // 連続した細かいイベントの積み重ねでズレが蓄積し、ズームしながら左にスライドしていく
+    // 不具合が起きていた。そこで、操作している最中(ジェスチャー中)はReactの再描画を挟まず
+    // CSSのtransform(scale)だけで見た目を動かし、操作が止まった瞬間に一度だけ
+    // 実際のズーム状態(width/height方式)に確定させる方式に変更する。
+    function makeWheelZoomState() {
+      return { active: false, startZoom: 1, midX: 0, midY: 0, scrollLeftBefore: 0, scrollTopBefore: 0, pendingScale: 1, raf: null, endTimer: null };
+    }
+    function finishWheelZoom(s, contentRef, scrollRef, zoomRef, setZoom) {
+      const content = contentRef.current;
+      const el = scrollRef.current;
+      if (!s.active || !content || !el) { s.active = false; return; }
+      const finalZoom = Math.min(3, Math.max(1, +(s.startZoom * s.pendingScale).toFixed(2)));
+      const ratio = finalZoom / s.startZoom;
+      // つまんだ(カーソルを置いた)場所が画面上で同じ位置に見え続けるよう、
+      // 通常表示(width/height方式)に戻すタイミングでスクロール位置を計算し直す
+      const newScrollLeft = s.midX * (ratio - 1) + s.scrollLeftBefore;
+      const newScrollTop = s.midY * (ratio - 1) + s.scrollTopBefore;
+      content.style.transform = '';
+      content.style.transformOrigin = '';
+      content.style.willChange = '';
+      zoomRef.current = finalZoom;
+      setZoom(finalZoom);
+      // Reactが新しいサイズを実際に反映し終えるまで待ってからスクロール位置を設定する
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.scrollLeft = newScrollLeft;
+          el.scrollTop = newScrollTop;
+        });
+      });
+      s.active = false;
+    }
+    function zoomScrollElement(e, s, contentRef, scrollRef, zoomRef, setZoom) {
+      const content = contentRef.current;
+      const el = scrollRef.current;
+      if (!content || !el) return;
+
+      if (!s.active) {
+        // ジェスチャー(一連の操作)の開始: 基準となる情報を記録する
+        const rect = content.getBoundingClientRect();
+        s.active = true;
+        s.startZoom = zoomRef.current;
+        s.midX = e.clientX - rect.left;
+        s.midY = e.clientY - rect.top;
+        s.scrollLeftBefore = el.scrollLeft;
+        s.scrollTopBefore = el.scrollTop;
+        s.pendingScale = 1;
+        content.style.transformOrigin = `${s.midX}px ${s.midY}px`;
+        content.style.willChange = 'transform'; // 拡大縮小中の描画がチラつかないよう、ブラウザに専用の描画レイヤーを用意させておく
+      }
+
+      const factor = e.deltaY > 0 ? 0.92 : 1.08; // 下スクロールで縮小、上スクロールで拡大
+      const rawScale = s.pendingScale * factor;
+      // 最終的なズーム(startZoom × scale)が1〜3の範囲に収まるよう、scale自体をクランプしておく
+      s.pendingScale = Math.min(3 / s.startZoom, Math.max(1 / s.startZoom, rawScale));
+
+      if (!s.raf) {
+        s.raf = requestAnimationFrame(() => {
+          s.raf = null;
+          if (s.active && content) content.style.transform = `scale(${s.pendingScale})`;
+        });
+      }
+
+      // 一定時間(150ms)ホイール操作が来なければ、操作が止まったとみなして確定させる
+      if (s.endTimer) clearTimeout(s.endTimer);
+      s.endTimer = setTimeout(() => finishWheelZoom(s, contentRef, scrollRef, zoomRef, setZoom), 400);
+    }
+
+    // 市町村ページ用: SVGのviewBoxを直接動かす方式のため、共通関数(computeMuniMapBox)で
+    // 表示範囲を計算し直してカーソル位置を基準にする。(こちらは動作確認済みのため変更しない)
+    function zoomMuniMap(e) {
+      const el = muniMapFrameRef.current;
+      if (!el) return;
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
       const factor = e.deltaY > 0 ? 0.92 : 1.08;
-      // setState(関数)の中で別のsetStateを呼ぶと、React側で不安定な二重実行が起きうるため、
-      // 先にrefから現在値を読んで必要な計算を全部済ませてから、最後にまとめてsetStateする。
       const z = muniZoomRef.current;
       const newZoom = Math.min(3, Math.max(1, +(z * factor).toFixed(2)));
       const beforeBox = computeMuniMapBox(activeCityConfig, muniMapSize, z, muniPanXRef.current, muniPanYRef.current);
@@ -5877,11 +5904,36 @@ function MairuDemoInner() {
       setMuniZoom(newZoom);
       setMuniPanX(nextPanX);
       setMuniPanY(nextPanY);
+    }
+
+    const kyushuWheelState = makeWheelZoomState();
+    const regionWheelState = makeWheelZoomState();
+
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return; // Ctrlを押していない通常のスクロールは何もしない
+      const stage = appStageRef.current;
+      if (stage === 'kyushu' && kyushuModeRef.current === 'map') {
+        e.preventDefault();
+        zoomScrollElement(e, kyushuWheelState, kyushuMapContentRef, kyushuMapScrollRef, kyushuZoomRef, setKyushuZoom);
+      } else if (stage === 'region' && regionModeRef.current === 'map') {
+        e.preventDefault();
+        zoomScrollElement(e, regionWheelState, regionMapContentRef, regionMapScrollRef, regionZoomRef, setRegionZoom);
+      } else if (stage === 'muni' && isMapFullRef.current) {
+        e.preventDefault();
+        zoomMuniMap(e);
+      }
+      // どの地図画面でもない場合は、preventDefaultを呼ばず、ページ本来の拡大縮小に任せる
     };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appStage, view, selectMode, selectedCity]);
+    document.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      document.removeEventListener('wheel', onWheel);
+      if (kyushuWheelState.raf) cancelAnimationFrame(kyushuWheelState.raf);
+      if (kyushuWheelState.endTimer) clearTimeout(kyushuWheelState.endTimer);
+      if (regionWheelState.raf) cancelAnimationFrame(regionWheelState.raf);
+      if (regionWheelState.endTimer) clearTimeout(regionWheelState.endTimer);
+    };
+  }, []); // 常時1つだけ登録し、以後は一切付け外ししない
+
   useEffect(() => {
     const el = kyushuMapFrameRef.current;
     if (!el) return undefined;
