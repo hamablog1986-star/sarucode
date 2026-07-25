@@ -5415,7 +5415,13 @@ function MairuDemoInner() {
     // 本島をそのまま基準にしつつ、離島がある方向にだけ届く分の余白を追加する。
     const muniXsB = munis.map((x) => x.cx);
     const muniYsB = munis.map((x) => x.cy);
-    const bufB = Math.max(prefViewBox.w, prefViewBox.h) * 0.7;
+    const bufB = regionMapSize
+      ? (() => {
+          const boost = { '40': 1.0, '41': 1.0, '42': 1.2, '43': 1.0, '44': 1.0, '45': 1.0, '46': 1.2 }[selectedPrefId] ?? 1.2;
+          const s = Math.min(regionMapSize.w / prefViewBox.w, regionMapSize.h / prefViewBox.h) * boost;
+          return Math.max(regionMapSize.w, regionMapSize.h) / s / 2;
+        })()
+      : Math.max(prefViewBox.w, prefViewBox.h) * 0.5;
     const fvbMinXB = Math.min(prefViewBox.x, ...muniXsB) - bufB;
     const fvbMinYB = Math.min(prefViewBox.y, ...muniYsB) - bufB;
     const fvbMaxXB = Math.max(prefViewBox.x + prefViewBox.w, ...muniXsB) + bufB;
@@ -5440,7 +5446,7 @@ function MairuDemoInner() {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [peekCityId, selectedPrefId, appStage]);
+  }, [peekCityId, selectedPrefId, appStage, regionMapSize]);
 
   const panDragRef = useRef({ dragging: false, startX: 0, startY: 0, startScrollLeft: 0, startScrollTop: 0, moved: false, el: null });
 
@@ -5657,8 +5663,15 @@ function MairuDemoInner() {
   // (大分県のように端にある県でも中央に来せるために必要な余白)。
   // さらに奄美群島(与論島など)がぎりぎり収まる分だけ下にも延長する。
   const islandMaxY = Math.max(...Object.values(AIRPORT_SVG_OVERRIDE).map((p) => p.y));
-  const kyushuHPad = Math.max(kyushuSizingBox.w, kyushuSizingBox.h) * 0.6; // 横に広い画面でも西端(長崎県など)までスクロールで中央寄せできるよう、余白を多めに確保
-  const kyushuVPad = kyushuSizingBox.h * 0.4;
+  // 余白は「今実際に見えている画面の半分の大きさ」だけあれば、どの県でもちょうど画面中央まで
+  // 持ってこられる(これより少ないと中央に届かない、これより多いと無駄な余白になる)。
+  // 固定の倍率にしていた頃は、PCの横長画面向けの量がスマホの縦長画面では過大になっていたため、
+  // 実際の画面サイズ(kyushuMapSize)から計算し直す。
+  const kyushuPadScale = kyushuMapSize && kyushuMapSize.w > 0 && kyushuMapSize.h > 0
+    ? Math.min(kyushuMapSize.w / kyushuSizingBox.w, kyushuMapSize.h / kyushuSizingBox.h) * 1.25
+    : 1;
+  const kyushuHPad = kyushuMapSize ? (kyushuMapSize.w / kyushuPadScale) / 2 : kyushuSizingBox.w * 0.5;
+  const kyushuVPad = kyushuMapSize ? (kyushuMapSize.h / kyushuPadScale) / 2 : kyushuSizingBox.h * 0.5;
   const kyushuPanBoxBase = {
     x: kyushuSizingBox.x - kyushuHPad,
     y: kyushuSizingBox.y - kyushuVPad,
@@ -7697,11 +7710,12 @@ function MairuDemoInner() {
           position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
         }
         @media (max-height:430px) {
-          /* 横向き画面など縦幅が狭い場合は、アイコンを少し小さくして画面内に収まるようにする */
-          .map-toggle-group { gap:3px; }
-          .locate-me-btn.icon-only { width:26px; height:26px; padding:5px; }
-          .icon-group-submenu { padding:4px 6px; gap:4px; }
-          .map-toggle-divider { margin:1px 0; }
+          /* 横向き画面など縦幅が狭い場合は、アイコンをさらに小さく・詰めて、画面内に収まるようにする */
+          .kyushu-icons-consolidated .map-toggle-group { top:8px; }
+          .map-toggle-group { gap:2px; }
+          .locate-me-btn.icon-only { width:24px; height:24px; padding:4px; }
+          .icon-group-submenu { padding:3px 5px; gap:3px; }
+          .map-toggle-divider { margin:0; }
         }
         .icon-group-wrap { position:relative; }
         .icon-group-submenu {
@@ -8827,7 +8841,16 @@ function MairuDemoInner() {
         // 均等に広げると、その分だけ無駄な余白ができてしまうため、必要な方向だけ広げる)。
         const prefMuniXs2 = prefMunicipalities.map((m) => m.cx);
         const prefMuniYs2 = prefMunicipalities.map((m) => m.cy);
-        const buf = Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.7; // 端の市町村でも画面中央まで来られるようにする余裕分(横に広い画面向けに多めに確保)
+        // 余白は「今実際に見えている画面の半分の大きさ」だけあれば、どの市町村でもちょうど画面中央まで
+        // 持ってこられる。固定倍率だと横長のPC画面向けの量がスマホの縦長画面では過大になっていたため、
+        // 実際の画面サイズ(regionMapSize)から計算し直す。
+        const REGION_ZOOM_BOOST_FOR_PAD = { '40': 1.0, '41': 1.0, '42': 1.2, '43': 1.0, '44': 1.0, '45': 1.0, '46': 1.2 };
+        const regionPadScale = regionMapSize && regionMapSize.w > 0 && regionMapSize.h > 0
+          ? Math.min(regionMapSize.w / prefSizingViewBox.w, regionMapSize.h / prefSizingViewBox.h) * (REGION_ZOOM_BOOST_FOR_PAD[selectedPrefId] ?? 1.2)
+          : 1;
+        const buf = regionMapSize
+          ? Math.max(regionMapSize.w, regionMapSize.h) / regionPadScale / 2
+          : Math.max(prefSizingViewBox.w, prefSizingViewBox.h) * 0.5;
         const fullMinX = Math.min(prefViewBox.x, ...prefMuniXs2) - buf;
         const fullMinY = Math.min(prefViewBox.y, ...prefMuniYs2) - buf;
         const fullMaxX = Math.max(prefViewBox.x + prefViewBox.w, ...prefMuniXs2) + buf;
@@ -10766,26 +10789,70 @@ function MairuDemoInner() {
         };
         const meta = metaByType[type];
         const name = lang === 'en' ? (data.nameEn || data.name) : data.name;
-        const desc = type === 'roadside' ? (lang === 'en' ? (data.descEn || data.desc) : data.desc) : null;
+        const desc = lang === 'en' ? (data.descEn || data.desc) : data.desc;
         return (
           <div className="overlay-backdrop detail-backdrop" onClick={() => setPoiDetail(null)}>
-            <div className="detail-card" onClick={(e) => e.stopPropagation()} style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
-              <div className="detail-hero" style={{ background: 'var(--cat-tint)' }}>
-                <meta.Icon size={42} color={meta.color} />
-              </div>
-              <div className="detail-body">
-                <div className="detail-tag">
-                  <meta.Icon size={14} />
+            <div className="detail-card-shell" style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
+            <div className="detail-card" onClick={(e) => e.stopPropagation()}>
+              <div className={`detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
+                {data.image ? (
+                  <img src={data.image} alt={name} className="detail-hero-img" loading="eager" decoding="async" />
+                ) : (
+                  <meta.Icon size={42} color={meta.color} className="detail-hero-icon" />
+                )}
+                <span className="detail-hero-tag">
+                  <meta.Icon size={12} />
                   {meta.label}
-                </div>
-                <h2 className="detail-name">{name}</h2>
-                {type === 'roadside' && data.city && <p style={{ fontSize: '12px', color: '#8A9FA8', margin: '0 0 8px' }}>{data.city}</p>}
-                {desc && <p className="detail-desc">{desc}</p>}
+                </span>
               </div>
+              {data.image ? (
+                <div className="detail-textblock">
+                  <h2 className="detail-textblock-name">{name}</h2>
+                  {type === 'roadside' && data.city && <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{data.city}</p>}
+                  {desc && <p className="detail-textblock-desc">{desc}</p>}
+                </div>
+              ) : (
+                <div className="detail-body">
+                  <div className="detail-tag">
+                    <meta.Icon size={14} />
+                    {meta.label}
+                  </div>
+                  <h2 className="detail-name">{name}</h2>
+                  {type === 'roadside' && data.city && <p style={{ fontSize: '12px', color: '#8A9FA8', margin: '0 0 8px' }}>{data.city}</p>}
+                  {desc && <p className="detail-desc">{desc}</p>}
+                </div>
+              )}
+            </div>
+            <div className="detail-float-actions" onClick={(e) => e.stopPropagation()}>
+              {data.lat && data.lng && (
+                <button
+                  type="button"
+                  className="detail-float-btn"
+                  onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lng), '_blank', 'noopener,noreferrer')}
+                  aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
+                  title={lang === 'en' ? 'Navigate' : 'ナビ'}
+                >
+                  <Navigation size={19} />
+                </button>
+              )}
+              {data.officialUrl && (
+                <a
+                  className="detail-float-btn"
+                  href={data.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
+                  title={lang === 'en' ? 'Official website' : '公式ページ'}
+                >
+                  <Globe size={19} />
+                </a>
+              )}
+            </div>
             </div>
           </div>
         );
       })()}
+
 
       {legalOverlay && (
         <div className="overlay-backdrop" onClick={() => setLegalOverlay(null)}>
