@@ -8422,7 +8422,15 @@ function MairuDemoInner() {
                       <div key={groupKey} className="icon-group-wrap">
                         <button
                           className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (hasActiveItem) {
+                              setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
+                              setExpandedIconGroup(null);
+                            } else {
+                              setExpandedIconGroup(isExpanded ? null : groupKey);
+                            }
+                          }}
                           title={lang === 'en' ? group.labelEn : group.label}
                           aria-label={lang === 'en' ? group.labelEn : group.label}
                         >
@@ -8954,7 +8962,15 @@ function MairuDemoInner() {
                       <div key={groupKey} className="icon-group-wrap">
                         <button
                           className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (hasActiveItem) {
+                              setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
+                              setExpandedIconGroup(null);
+                            } else {
+                              setExpandedIconGroup(isExpanded ? null : groupKey);
+                            }
+                          }}
                           title={lang === 'en' ? group.labelEn : group.label}
                           aria-label={lang === 'en' ? group.labelEn : group.label}
                         >
@@ -9675,7 +9691,15 @@ function MairuDemoInner() {
                         <div key={groupKey} className="icon-group-wrap">
                           <button
                             className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(isExpanded ? null : groupKey); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (hasActiveItem) {
+                                setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
+                                setExpandedIconGroup(null);
+                              } else {
+                                setExpandedIconGroup(isExpanded ? null : groupKey);
+                              }
+                            }}
                             title={lang === 'en' ? group.labelEn : group.label}
                             aria-label={lang === 'en' ? group.labelEn : group.label}
                           >
