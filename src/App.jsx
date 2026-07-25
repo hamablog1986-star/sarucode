@@ -7781,7 +7781,7 @@ function MairuDemoInner() {
         .poi-pin-icon-ferry.is-peeked { background:#1F7A6C; color:#fff; }
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
-        .poi-pin-label { position:absolute; bottom:32px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5; }
+        .poi-pin-label { position:absolute; bottom:40px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:6; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
           white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
@@ -7789,7 +7789,8 @@ function MairuDemoInner() {
         }
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
-        .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; }
+        .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; justify-content:space-between; }
+        .poi-pin-label-row-arrow { color:rgba(255,255,255,0.6); font-weight:700; }
         .show-names-inline-btn.active { color:#E2613D; text-decoration:underline; }
         .region-dim-overlay { fill:rgba(16,20,24,0.55); pointer-events:none; }
         .pref-floating-label { position:absolute; transform:translate(-50%, -50%); pointer-events:auto; white-space:nowrap; z-index:1; }
@@ -8628,7 +8629,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name}
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
                                     </button>
                                   ))}
                                 </span>
@@ -8669,7 +8670,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: i }); setPeekFerryId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name}
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9173,7 +9174,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name}
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9217,7 +9218,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: i }); setPeekFerryId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name}
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9258,7 +9259,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: i }); setPeekRoadsideId(null); }}>
-                                      {lang === 'en' ? (i.nameEn || i.name) : i.name}
+                                      {lang === 'en' ? (i.nameEn || i.name) : i.name} <span className="poi-pin-label-row-arrow">›</span>
                                     </button>
                                   ))}
                                 </span>
