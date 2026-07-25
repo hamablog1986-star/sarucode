@@ -5940,8 +5940,12 @@ function MairuDemoInner() {
       } else if (stage === 'muni' && isMapFullRef.current) {
         e.preventDefault();
         zoomMuniMap(e);
+      } else {
+        // 地図の拡大縮小に対応していない画面(TOPページなど)であっても、ブラウザ本来の
+        // ページ拡大縮小自体は止めておく。ここでページが拡大されたまま別の画面(九州・県・
+        // 市町村ページ)に進むと、画面サイズの測定基準がズレて、そちらの表示が崩れる原因になるため。
+        e.preventDefault();
       }
-      // どの地図画面でもない場合は、preventDefaultを呼ばず、ページ本来の拡大縮小に任せる
     };
     document.addEventListener('wheel', onWheel, { passive: false });
     return () => {
@@ -7709,7 +7713,7 @@ function MairuDemoInner() {
         .map-toggle-group {
           position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
         }
-        @media (max-height:430px) {
+        @media (max-height:430px) and (pointer:coarse) {
           /* 横向き画面など縦幅が狭い場合は、アイコンをさらに小さく・詰めて、画面内に収まるようにする */
           .kyushu-icons-consolidated .map-toggle-group { top:8px; }
           .map-toggle-group { gap:2px; }
