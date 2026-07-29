@@ -2543,6 +2543,8 @@ FERRIES = DEFAULT_FERRIES;
 // 成功すればこちらに追加され、失敗・空だった場合でもこの既定値が表示される。
 const DEFAULT_ROADSIDE = [
   { id: 'rs-fukuoka-ukiha', name: '道の駅うきは', nameEn: 'Michi-no-Eki Ukiha', prefId: '40', category: '道の駅', x: 520.37, y: 350.09 },
+  { id: 'rs-fukuoka-hara', name: '道の駅原鶴', nameEn: 'Michi-no-Eki Harazuru', prefId: '40', category: '道の駅', x: 523.10, y: 347.50 },
+  { id: 'rs-fukuoka-toho', name: '道の駅とうほう', nameEn: 'Michi-no-Eki Toho', prefId: '40', category: '道の駅', x: 517.80, y: 352.60 },
   { id: 'rs-saga-yoshinogari', name: '道の駅吉野ヶ里', nameEn: 'Michi-no-Eki Yoshinogari', prefId: '41', category: '道の駅', x: 441.88, y: 358.39 },
   { id: 'rs-nagasaki-mikawa', name: '道の駅みかわ', nameEn: 'Michi-no-Eki Mikawa', prefId: '42', category: '道の駅', x: 309.93, y: 472.06 },
   { id: 'rs-kumamoto-aso', name: '道の駅阿蘇', nameEn: 'Michi-no-Eki Aso', prefId: '43', category: '道の駅', x: 590.94, y: 448.17 },
@@ -5290,6 +5292,7 @@ function MairuDemoInner() {
     setPeekRoadsideId(type === 'roadside' ? (peekRoadsideId === key ? null : key) : null);
     setPeekPrefId(null);
     setPeekCityId(null);
+    setExpandedIconGroup(null); // 吹き出しとアイコン列の展開メニューが重ならないよう、片方を開いたらもう片方は閉じる
   }
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const kyushuZoomRef = useRef(1); // kyushuZoomの最新値への参照(Ctrl+ホイールズームで使う)
@@ -7781,7 +7784,7 @@ function MairuDemoInner() {
         .poi-pin-icon-ferry.is-peeked { background:#1F7A6C; color:#fff; }
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
-        .poi-pin-label { position:absolute; bottom:40px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:6; }
+        .poi-pin-label { position:absolute; bottom:56px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:6; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
           white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
@@ -7790,7 +7793,7 @@ function MairuDemoInner() {
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; justify-content:space-between; }
-        .poi-pin-label-row-arrow { color:rgba(255,255,255,0.6); font-weight:700; }
+        .poi-pin-label-row-arrow { background:#E2613D; color:#fff; border-radius:6px; padding:4px 7px; font-size:10.5px; font-weight:600; white-space:nowrap; }
         .show-names-inline-btn.active { color:#E2613D; text-decoration:underline; }
         .region-dim-overlay { fill:rgba(16,20,24,0.55); pointer-events:none; }
         .pref-floating-label { position:absolute; transform:translate(-50%, -50%); pointer-events:auto; white-space:nowrap; z-index:1; }
@@ -8428,6 +8431,10 @@ function MairuDemoInner() {
                               setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
                               setExpandedIconGroup(null);
                             } else {
+                              if (!isExpanded) {
+                                // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
+                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
+                              }
                               setExpandedIconGroup(isExpanded ? null : groupKey);
                             }
                           }}
@@ -8637,7 +8644,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
                                     </button>
                                   ))}
                                 </span>
@@ -8678,7 +8685,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: i }); setPeekFerryId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
                                     </button>
                                   ))}
                                 </span>
@@ -8968,6 +8975,10 @@ function MairuDemoInner() {
                               setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
                               setExpandedIconGroup(null);
                             } else {
+                              if (!isExpanded) {
+                                // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
+                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
+                              }
                               setExpandedIconGroup(isExpanded ? null : groupKey);
                             }
                           }}
@@ -9190,7 +9201,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9234,7 +9245,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: i }); setPeekFerryId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">›</span>
+                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9275,7 +9286,7 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: i }); setPeekRoadsideId(null); }}>
-                                      {lang === 'en' ? (i.nameEn || i.name) : i.name} <span className="poi-pin-label-row-arrow">›</span>
+                                      {lang === 'en' ? (i.nameEn || i.name) : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
                                     </button>
                                   ))}
                                 </span>
@@ -9697,6 +9708,10 @@ function MairuDemoInner() {
                                 setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
                                 setExpandedIconGroup(null);
                               } else {
+                                if (!isExpanded) {
+                                  // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
+                                  setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
+                                }
                                 setExpandedIconGroup(isExpanded ? null : groupKey);
                               }
                             }}
@@ -9855,6 +9870,48 @@ function MairuDemoInner() {
                           </div>
                         )}
                       </Fragment>
+                    );
+                  })}
+
+                  {showRoadsidePins && clusterPins(
+                    roadsideMapSpots.map((s) => ({ ...s })),
+                    poiClusterCellSize
+                  ).map((cluster) => {
+                    const key = cluster.items.map((i) => i.id).join('|');
+                    const isCluster = cluster.items.length > 1;
+                    return (
+                      <div
+                        key={`muni-roadside-c-${key}`}
+                        className="poi-pin roadside-pin"
+                        style={{ left: pct(cluster.x - muniMapBox.x, muniMapBox.w) + '%', top: pct(cluster.y - muniMapBox.y, muniMapBox.h) + '%' }}
+                        onClick={(e) => { e.stopPropagation(); peekPoi('roadside', key); }}
+                      >
+                        {isCluster ? (
+                          <span className={`poi-pin-cluster poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><Store size={11} />{cluster.items.length}</span>
+                        ) : (
+                          <span className={`poi-pin-icon poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><span className="poi-pin-icon-glyph"><Store size={12} /></span></span>
+                        )}
+                        {peekRoadsideId === key && (
+                          <span className="poi-pin-label">
+                            {isCluster ? (
+                              <span className="poi-pin-label-list">
+                                {cluster.items.map((i) => (
+                                  <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: i }); setPeekRoadsideId(null); }}>
+                                    {lang === 'en' ? (i.nameEn || i.name) : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
+                                  </button>
+                                ))}
+                              </span>
+                            ) : (
+                              <>
+                                <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
+                                <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }}>
+                                  {lang === 'en' ? 'Select ›' : '選択する ›'}
+                                </button>
+                              </>
+                            )}
+                          </span>
+                        )}
+                      </div>
                     );
                   })}
 
