@@ -7914,6 +7914,7 @@ function MairuDemoInner() {
           .detail-card-shell { max-width:980px; }
         }
         .detail-float-actions { position:absolute; right:0; bottom:0; transform:translateY(calc(100% + 12px)); display:flex; gap:10px; z-index:5; }
+        .detail-actions-row { display:flex; gap:10px; margin-top:6px; }
         .detail-float-btn {
           width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
           background:rgba(255,255,255,0.95); border:1px solid rgba(255,255,255,0.6); box-shadow:0 4px 14px rgba(0,0,0,0.28);
@@ -9625,7 +9626,7 @@ function MairuDemoInner() {
                 <div
                   className="map-frame muni-fullmap-frame"
                   ref={muniMapFrameRef}
-                  onClick={() => { setPeekAirportId(null); setPeekFerryId(null); setExpandedIconGroup(null); }}
+                  onClick={() => { setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); setLinkedId(null); }}
                   onMouseDown={handleMuniMapPanStart}
                   onTouchStart={handleMuniMapPanStart}
                 >
@@ -9854,7 +9855,7 @@ function MairuDemoInner() {
                         <button
                           className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${overBudget ? 'is-over-budget' : ''} ${isLinked ? 'is-linked' : ''}`}
                           style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                          onClick={() => handleSpotTap(spot.id)}
+                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
                           aria-label={sName(spot)}
                         >
                           <span className="spot-pin-icon">
@@ -10148,7 +10149,7 @@ function MairuDemoInner() {
                         <button
                           className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
                           style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                          onClick={() => handleSpotTap(spot.id)}
+                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
                           aria-label={sName(spot)}
                         >
                           <span className="spot-pin-icon">
@@ -10211,7 +10212,7 @@ function MairuDemoInner() {
                           key={spot.id}
                           className={`spot-index-item ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
                           style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                          onClick={() => handleSpotTap(spot.id)}
+                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
                         >
                           <span className="spot-index-num">{state === 'decided' ? <Check size={11} /> : <Icon size={11} />}</span>
                           <span className="spot-index-name">{sName(spot)}</span>
@@ -10516,39 +10517,39 @@ function MairuDemoInner() {
                 </div>
               </div>
             )}
-            </div>
-          </div>
-          <div className="detail-float-actions" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className={`detail-float-btn ${candidates.includes(selectedSpot.id) ? 'active' : ''}`}
-              onClick={() => toggleCandidate(selectedSpot.id)}
-              aria-label={lang === 'en' ? 'Save' : '保存'}
-              title={lang === 'en' ? 'Save' : '保存'}
-            >
-              <Bookmark size={19} fill={candidates.includes(selectedSpot.id) ? 'currentColor' : 'none'} />
-            </button>
-            <button
-              type="button"
-              className="detail-float-btn"
-              onClick={() => window.open(gmapsNavigateUrl(selectedSpot.lat, selectedSpot.lng), '_blank', 'noopener,noreferrer')}
-              aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
-              title={lang === 'en' ? 'Navigate' : 'ナビ'}
-            >
-              <Navigation size={19} />
-            </button>
-            {selectedSpot.officialUrl && (
-              <a
-                className="detail-float-btn"
-                href={selectedSpot.officialUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
-                title={lang === 'en' ? 'Official website' : '公式ページ'}
+            <div className="detail-actions-row">
+              <button
+                type="button"
+                className={`detail-float-btn ${decided.includes(selectedSpot.id) ? 'active' : ''}`}
+                onClick={() => toggleDecided(selectedSpot.id)}
+                aria-label={lang === 'en' ? 'Save' : '保存'}
+                title={lang === 'en' ? 'Save' : '保存'}
               >
-                <Globe size={19} />
-              </a>
-            )}
+                <Bookmark size={19} fill={decided.includes(selectedSpot.id) ? 'currentColor' : 'none'} />
+              </button>
+              <button
+                type="button"
+                className="detail-float-btn"
+                onClick={() => window.open(gmapsNavigateUrl(selectedSpot.lat, selectedSpot.lng), '_blank', 'noopener,noreferrer')}
+                aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
+                title={lang === 'en' ? 'Navigate' : 'ナビ'}
+              >
+                <Navigation size={19} />
+              </button>
+              {selectedSpot.officialUrl && (
+                <a
+                  className="detail-float-btn"
+                  href={selectedSpot.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
+                  title={lang === 'en' ? 'Official website' : '公式ページ'}
+                >
+                  <Globe size={19} />
+                </a>
+              )}
+            </div>
+            </div>
           </div>
         </div>
         </div>
