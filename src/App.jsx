@@ -6370,7 +6370,9 @@ function MairuDemoInner() {
     setDescExpanded(false);
   }, [selectedId]);
 
-  const visibleSpots = SPOTS.filter((s) => s.category === activeCategory);
+  // 道の駅カテゴリのスポットだけは、カテゴリタブ(activeCategory)ではなく、
+  // 右アイコン列の「道の駅」ボタン(showRoadsidePins)のON/OFFで表示・非表示を切り替える
+  const visibleSpots = SPOTS.filter((s) => (s.category === 'roadside' ? showRoadsidePins : s.category === activeCategory));
   const selectedSpot = SPOTS.find((s) => s.id === selectedId) || null;
   // 詳細モーダルが開いていればそのスポット、それ以外は地図/リストでハイライト中(1回タップ)のスポットを対象にする
   const travelTargetSpot = selectedSpot || SPOTS.find((s) => s.id === linkedId) || null;
@@ -7784,11 +7786,11 @@ function MairuDemoInner() {
         .poi-pin-icon-ferry.is-peeked { background:#1F7A6C; color:#fff; }
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
-        .poi-pin-label { position:absolute; bottom:56px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:6; }
+        .poi-pin-label { position:absolute; bottom:56px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
           white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
-          padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:5;
+          padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50;
         }
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
