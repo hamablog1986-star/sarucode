@@ -7699,6 +7699,8 @@ function MairuDemoInner() {
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt { color:#fff; }
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang { background:rgba(255,255,255,0.15); }
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang.muni-location-pill { background:none; color:#fff; }
+        .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang.muni-location-pill ruby,
+        .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang.muni-location-pill rt { color:#fff; }
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt.active { color:#fff; font-weight:800; }
         .map-toggle-divider { width:22px; height:1px; background:var(--line); margin:2px 0; }
         @media (max-width:560px) {
