@@ -7040,8 +7040,8 @@ function MairuDemoInner() {
         html, body { margin:0; padding:0; }
 
         /* ふりがな(読み方)表示。漢字の上に小さく表示する */
-        ruby { ruby-position: over; }
-        rt { font-size:0.55em; font-weight:500; opacity:0.75; user-select:none; letter-spacing:0; }
+        ruby { ruby-position: over; color:inherit; }
+        rt { font-size:0.55em; font-weight:500; opacity:0.75; user-select:none; letter-spacing:0; color:inherit; }
 
         .mairu-app {
           --ink: #21262C;
@@ -7804,7 +7804,7 @@ function MairuDemoInner() {
         .poi-pin-icon-ferry.is-peeked { background:#1F7A6C; color:#fff; }
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
-        .poi-pin-label { position:absolute; bottom:56px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50; }
+        .poi-pin-label { position:absolute; bottom:40px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
           white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
