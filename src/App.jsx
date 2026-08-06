@@ -7767,18 +7767,18 @@ function MairuDemoInner() {
           position:absolute; left:0; right:0; bottom:0; z-index:4;
           display:flex; justify-content:space-around; align-items:flex-start;
           padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
-          background:rgba(255,255,255,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-          border-top:1px solid rgba(255,255,255,0.6);
+          background:transparent;
         }
         .bottom-bar-btn {
           display:flex; flex-direction:column; align-items:center; gap:3px;
           background:none; border:none; padding:4px; cursor:pointer; color:#1F6E45;
           -webkit-tap-highlight-color:transparent;
         }
-        .bottom-bar-btn-label { font-size:10px; font-weight:700; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
+        .bottom-bar-btn-label { font-size:10px; font-weight:700; text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9); }
         .bottom-bar-icon-circle {
           width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-          box-sizing:border-box; background:rgba(255,255,255,0.55); color:#1F6E45;
+          box-sizing:border-box; background:rgba(255,255,255,0.85); color:#1F6E45;
+          box-shadow:0 2px 6px rgba(0,0,0,0.18);
         }
         .bottom-bar-btn.active .bottom-bar-icon-circle { background:#1F6E45; color:#fff; }
         .bottom-bar-btn.active .bottom-bar-btn-label { color:#1F6E45; }
@@ -7789,11 +7789,10 @@ function MairuDemoInner() {
         }
         .route-fab svg { width:56px; height:56px; padding:16px; box-sizing:border-box; border-radius:50%; background:#D85A30; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
         .reset-fab {
-          position:absolute; right:22px; bottom:164px; z-index:5;
-          display:flex; align-items:center; gap:6px; cursor:pointer; -webkit-tap-highlight-color:transparent;
-          background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-          border:none; border-radius:999px; padding:7px 12px; color:#1F6E45; font-size:11px; font-weight:700;
-          box-shadow:0 2px 8px rgba(0,0,0,0.18);
+          position:absolute; right:22px; bottom:166px; z-index:5;
+          display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent;
+          width:38px; height:38px; background:rgba(255,255,255,0.85); border:none; border-radius:50%; color:#1F6E45;
+          box-shadow:0 2px 6px rgba(0,0,0,0.18);
         }
         .bottom-bar-toast {
           position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
@@ -8464,7 +8463,6 @@ function MairuDemoInner() {
                     aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
                   >
                     <RotateCcw size={16} />
-                    <span>{lang === 'en' ? 'Reset' : 'リセット'}</span>
                   </button>
                 )}
 
