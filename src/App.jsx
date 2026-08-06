@@ -5250,18 +5250,6 @@ function MairuDemoInner() {
   const [showAirportPins, setShowAirportPins] = useState(false); // 空港のピン表示トグル(九州・県ページ共通)
   const [expandedIconGroup, setExpandedIconGroup] = useState(null); // 右側アイコン列で今展開中の大分類('transport'|'rest'|'see'|'eat'|null)
   const [bottomSheetOpen, setBottomSheetOpen] = useState(null); // 下部バーの「探す」「規約」ボトムシート: null | 'find' | 'legal'
-  const backResetLongPressRef = useRef({ timer: null, fired: false }); // 戻る/リセット統合ボタン:長押し判定用
-  function handleBackResetPressStart(onReset) {
-    backResetLongPressRef.current.fired = false;
-    backResetLongPressRef.current.timer = setTimeout(() => {
-      backResetLongPressRef.current.fired = true;
-      onReset();
-    }, 550);
-  }
-  function handleBackResetPressEnd(onBack) {
-    if (backResetLongPressRef.current.timer) clearTimeout(backResetLongPressRef.current.timer);
-    if (!backResetLongPressRef.current.fired) onBack();
-  }
   const [langMenuOpen, setLangMenuOpen] = useState(false); // JP/EN切り替えを1つのアイコンにまとめた時の展開状態
   function LangToggleIcon({ className, inColumn }) {
     return (
@@ -5311,6 +5299,9 @@ function MairuDemoInner() {
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const kyushuZoomRef = useRef(1); // kyushuZoomの最新値への参照(Ctrl+ホイールズームで使う)
   useEffect(() => { kyushuZoomRef.current = kyushuZoom; }, [kyushuZoom]);
+  useEffect(() => { if (kyushuZoom !== 1) setKyushuViewMoved(true); }, [kyushuZoom]);
+  const [kyushuViewMoved, setKyushuViewMoved] = useState(false); // 九州地図が初期表示から動かされたか(拡大/パン)。動いた時だけ「リセット」ボタンを出す
+  const kyushuProgrammaticScrollRef = useRef(false); // 自動センタリング/リセット中はonScrollでの検知を無視するためのフラグ
   const [muniZoom, setMuniZoom] = useState(1); // 市町村ページの地図拡大率
   const [muniPanX, setMuniPanX] = useState(0); // 市町村ページの地図の中心位置ズレ(SVG座標単位、目的地選択で変化)
   const [muniPanY, setMuniPanY] = useState(0);
@@ -5508,6 +5499,25 @@ function MairuDemoInner() {
     setIconLabelPeek(null);
     setMuniPanX(0);
     setMuniPanY(0);
+  }
+  // 九州トップ画面用: 上のresetMapDisplayに加えて、拡大率とスクロール位置(パン)も初期状態に戻す
+  function resetKyushuMapView() {
+    resetMapDisplay();
+    setKyushuZoom(1);
+    const el = kyushuMapScrollRef.current;
+    if (el) {
+      kyushuProgrammaticScrollRef.current = true;
+      const centerXRef = KYUSHU_PREFS.reduce((sum, p) => sum + p.cx, 0) / KYUSHU_PREFS.length;
+      const centerYRef = KYUSHU_PREFS.reduce((sum, p) => sum + p.cy, 0) / KYUSHU_PREFS.length;
+      const scaleX = el.scrollWidth / kyushuPanBox.w;
+      const scaleY = el.scrollHeight / kyushuPanBox.h;
+      const centerX = (centerXRef - kyushuPanBox.x) * scaleX;
+      const centerY = (centerYRef - kyushuPanBox.y) * scaleY;
+      el.scrollLeft = centerX - el.clientWidth / 2;
+      el.scrollTop = centerY - el.clientHeight / 2;
+      setTimeout(() => { kyushuProgrammaticScrollRef.current = false; }, 0);
+    }
+    setKyushuViewMoved(false);
   }
 
   // 近い場所に複数のピンが重なって見づらくなるのを防ぐため、指定した距離(データ座標系の単位)以内の
@@ -5708,12 +5718,14 @@ function MairuDemoInner() {
     const centerXRef = KYUSHU_PREFS.reduce((sum, p) => sum + p.cx, 0) / KYUSHU_PREFS.length;
     const centerYRef = KYUSHU_PREFS.reduce((sum, p) => sum + p.cy, 0) / KYUSHU_PREFS.length;
     const apply = () => {
+      kyushuProgrammaticScrollRef.current = true;
       const scaleX = el.scrollWidth / kyushuPanBox.w;
       const scaleY = el.scrollHeight / kyushuPanBox.h;
       const centerX = (centerXRef - kyushuPanBox.x) * scaleX;
       const centerY = (centerYRef - kyushuPanBox.y) * scaleY;
       el.scrollLeft = centerX - el.clientWidth / 2;
       el.scrollTop = centerY - el.clientHeight / 2;
+      setTimeout(() => { kyushuProgrammaticScrollRef.current = false; }, 0);
     };
     let tries = 0;
     let raf;
@@ -7706,7 +7718,7 @@ function MairuDemoInner() {
         .kyushu-topbar-view .map-toggle-group { top:136px; }
         .kyushu-icons-consolidated .map-location-label { top:auto; bottom:64px; left:14px; }
         .kyushu-icons-consolidated .map-toggle-group { top:76px; }
-        .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:84px; padding-right:56px; }
+        .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:84px; padding-right:16px; }
         .kyushu-float-header.kyushu-float-header-dimmed { background:transparent; transition:background 0.15s ease; }
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-title,
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt { color:#fff; }
@@ -7725,7 +7737,7 @@ function MairuDemoInner() {
           .kyushu-topbar-view .map-toggle-group { top:70px; }
           .kyushu-icons-consolidated .map-location-label { top:auto; bottom:64px; left:14px; }
           .kyushu-icons-consolidated .map-toggle-group { top:calc(env(safe-area-inset-top, 0px) + 66px); }
-          .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:calc(env(safe-area-inset-top, 0px) + 76px); padding-right:52px; }
+          .kyushu-icons-consolidated .muni-name-grid-overlay { padding-top:calc(env(safe-area-inset-top, 0px) + 76px); padding-right:16px; }
         }
         .entry-fullmap-bg { position:absolute; inset:0; z-index:0; }
         .entry-cards-float { position:absolute; left:0; right:0; top:92px; z-index:5; padding:0 18px; max-width:460px; margin:0 auto; }
@@ -7755,17 +7767,18 @@ function MairuDemoInner() {
           position:absolute; left:0; right:0; bottom:0; z-index:4;
           display:flex; justify-content:space-around; align-items:flex-start;
           padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
-          background:rgba(255,255,255,0.96); border-top:1px solid var(--line);
+          background:rgba(255,255,255,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+          border-top:1px solid rgba(255,255,255,0.6);
         }
         .bottom-bar-btn {
           display:flex; flex-direction:column; align-items:center; gap:3px;
           background:none; border:none; padding:4px; cursor:pointer; color:#1F6E45;
           -webkit-tap-highlight-color:transparent;
         }
-        .bottom-bar-btn-label { font-size:10px; font-weight:700; }
+        .bottom-bar-btn-label { font-size:10px; font-weight:700; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
         .bottom-bar-icon-circle {
           width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-          box-sizing:border-box; background:transparent; color:#1F6E45;
+          box-sizing:border-box; background:rgba(255,255,255,0.55); color:#1F6E45;
         }
         .bottom-bar-btn.active .bottom-bar-icon-circle { background:#1F6E45; color:#fff; }
         .bottom-bar-btn.active .bottom-bar-btn-label { color:#1F6E45; }
@@ -7775,7 +7788,13 @@ function MairuDemoInner() {
           background:none; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
         }
         .route-fab svg { width:56px; height:56px; padding:16px; box-sizing:border-box; border-radius:50%; background:#D85A30; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
-        .route-fab-label { font-size:10px; font-weight:700; color:#D85A30; background:rgba(255,255,255,0.9); padding:1px 8px; border-radius:999px; }
+        .reset-fab {
+          position:absolute; right:22px; bottom:164px; z-index:5;
+          display:flex; align-items:center; gap:6px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+          background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+          border:none; border-radius:999px; padding:7px 12px; color:#1F6E45; font-size:11px; font-weight:700;
+          box-shadow:0 2px 8px rgba(0,0,0,0.18);
+        }
         .bottom-bar-toast {
           position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
@@ -8423,9 +8442,11 @@ function MairuDemoInner() {
               <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
                 <h1 className="kyushu-float-title">CONOTAVI</h1>
               </button>
-              <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
-                {lang === 'en' ? 'Kyushu' : '九州'}
-              </span>
+              {showAllPrefNames && (
+                <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
+                  {lang === 'en' ? 'Kyushu' : '九州'}
+                </span>
+              )}
             </div>
           </div>
 
@@ -8433,6 +8454,18 @@ function MairuDemoInner() {
               <div className="region-map-frame kyushu-map-frame kyushu-fullmap-frame nagasaki-sea-bg" ref={kyushuMapFrameRef}>
                 {iconLabelPeek && (
                   <div className="bottom-bar-toast">{iconLabelPeek}</div>
+                )}
+
+                {kyushuViewMoved && (
+                  <button
+                    className="reset-fab"
+                    onClick={(e) => { e.stopPropagation(); resetKyushuMapView(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                  >
+                    <RotateCcw size={16} />
+                    <span>{lang === 'en' ? 'Reset' : 'リセット'}</span>
+                  </button>
                 )}
 
                 <button
@@ -8484,13 +8517,9 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onMouseDown={(e) => { e.stopPropagation(); handleBackResetPressStart(() => resetMapDisplay()); }}
-                    onMouseUp={(e) => { e.stopPropagation(); handleBackResetPressEnd(() => { setAppStage('entry'); setPeekIslandKey(null); }); }}
-                    onMouseLeave={() => { if (backResetLongPressRef.current.timer) clearTimeout(backResetLongPressRef.current.timer); }}
-                    onTouchStart={(e) => { e.stopPropagation(); handleBackResetPressStart(() => resetMapDisplay()); }}
-                    onTouchEnd={(e) => { e.stopPropagation(); handleBackResetPressEnd(() => { setAppStage('entry'); setPeekIslandKey(null); }); }}
-                    title={lang === 'en' ? 'Back (hold to reset)' : '戻る(長押しでリセット)'}
-                    aria-label={lang === 'en' ? 'Back (hold to reset)' : '戻る(長押しでリセット)'}
+                    onClick={(e) => { e.stopPropagation(); setAppStage('entry'); setPeekIslandKey(null); }}
+                    title={lang === 'en' ? 'Back' : '戻る'}
+                    aria-label={lang === 'en' ? 'Back' : '戻る'}
                   >
                     <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
                     <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
@@ -8586,6 +8615,7 @@ function MairuDemoInner() {
                   className="map-pan-scroll"
                   ref={kyushuMapScrollRef}
                   onMouseDown={handleKyushuPanMouseDown}
+                  onScroll={() => { if (!kyushuProgrammaticScrollRef.current) setKyushuViewMoved(true); }}
                   onClick={() => { if (peekPrefId) setPeekPrefId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
                   {...makePinchHandlers(setKyushuZoom, kyushuMapContentRef, kyushuMapScrollRef)}
                 >
