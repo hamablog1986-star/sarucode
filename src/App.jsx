@@ -5,7 +5,7 @@ import {
   Save, Share2, Download, Upload, X, Trash2, ExternalLink,
   Calendar, TrainFront, Trees, Sparkles, ShoppingBag, Stethoscope, Droplet, PartyPopper, Coffee, ZoomIn, Mountain,
   MapPin, BookOpen, Building2, Fuel, Wallet, Soup, Search, Languages,
-  ChevronRight, ChevronLeft, Plane, Ship, Bookmark, Globe,
+  ChevronRight, ChevronLeft, Plane, Ship, Bookmark, Globe, FileText, MoreHorizontal,
 } from 'lucide-react';
 
 /* ---------------------------------------------------------
@@ -5249,6 +5249,19 @@ function MairuDemoInner() {
   const [myLocationStatus, setMyLocationStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
   const [showAirportPins, setShowAirportPins] = useState(false); // 空港のピン表示トグル(九州・県ページ共通)
   const [expandedIconGroup, setExpandedIconGroup] = useState(null); // 右側アイコン列で今展開中の大分類('transport'|'rest'|'see'|'eat'|null)
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(null); // 下部バーの「探す」「規約」ボトムシート: null | 'find' | 'legal'
+  const backResetLongPressRef = useRef({ timer: null, fired: false }); // 戻る/リセット統合ボタン:長押し判定用
+  function handleBackResetPressStart(onReset) {
+    backResetLongPressRef.current.fired = false;
+    backResetLongPressRef.current.timer = setTimeout(() => {
+      backResetLongPressRef.current.fired = true;
+      onReset();
+    }, 550);
+  }
+  function handleBackResetPressEnd(onBack) {
+    if (backResetLongPressRef.current.timer) clearTimeout(backResetLongPressRef.current.timer);
+    if (!backResetLongPressRef.current.fired) onBack();
+  }
   const [langMenuOpen, setLangMenuOpen] = useState(false); // JP/EN切り替えを1つのアイコンにまとめた時の展開状態
   function LangToggleIcon({ className, inColumn }) {
     return (
@@ -7737,6 +7750,49 @@ function MairuDemoInner() {
         .map-toggle-group {
           position:absolute; right:10px; top:10px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
         }
+        .top-right-lang-toggle { position:absolute; right:10px; top:10px; z-index:5; }
+        .bottom-icon-bar {
+          position:absolute; left:0; right:0; bottom:0; z-index:4;
+          display:flex; justify-content:space-around; align-items:flex-start;
+          padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+          background:rgba(255,255,255,0.96); border-top:1px solid var(--line);
+        }
+        .bottom-bar-btn {
+          display:flex; flex-direction:column; align-items:center; gap:3px;
+          background:none; border:none; padding:4px; cursor:pointer; color:#1F6E45;
+          -webkit-tap-highlight-color:transparent;
+        }
+        .bottom-bar-btn-label { font-size:10px; font-weight:700; }
+        .bottom-bar-icon-circle {
+          width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+          box-sizing:border-box; background:transparent; color:#1F6E45;
+        }
+        .bottom-bar-btn.active .bottom-bar-icon-circle { background:#1F6E45; color:#fff; }
+        .bottom-bar-btn.active .bottom-bar-btn-label { color:#1F6E45; }
+        .route-fab {
+          position:absolute; right:16px; bottom:96px; z-index:5;
+          display:flex; flex-direction:column; align-items:center; gap:4px;
+          background:none; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
+        }
+        .route-fab svg { width:56px; height:56px; padding:16px; box-sizing:border-box; border-radius:50%; background:#D85A30; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
+        .route-fab-label { font-size:10px; font-weight:700; color:#D85A30; background:rgba(255,255,255,0.9); padding:1px 8px; border-radius:999px; }
+        .bottom-bar-toast {
+          position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
+          white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
+          padding:8px 14px; border-radius:999px; pointer-events:none;
+        }
+        .find-sheet-backdrop { position:absolute; inset:0; z-index:8; background:rgba(0,0,0,0.35); display:flex; align-items:flex-end; }
+        .find-sheet { width:100%; background:#fff; border-radius:16px 16px 0 0; padding:12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); max-height:60%; overflow-y:auto; }
+        .find-sheet-handle { width:32px; height:4px; background:var(--line); border-radius:2px; margin:0 auto 10px; }
+        .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 6px; }
+        .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); }
+        .find-sheet-item {
+          display:flex; flex-direction:column; align-items:center; gap:4px;
+          background:none; border:none; padding:4px; cursor:pointer; color:var(--ink);
+        }
+        .find-sheet-item span { font-size:10.5px; font-weight:600; text-align:center; }
+        .find-sheet-item.active svg { color:#1F6E45; }
+        .find-sheet-item.coming-soon { opacity:0.4; }
         @media (max-height:430px) and (pointer:coarse) {
           /* 横向き画面など縦幅が狭い場合は、アイコンをさらに小さく・詰めて、画面内に収まるようにする */
           .kyushu-icons-consolidated .map-toggle-group { top:8px; }
@@ -8375,197 +8431,157 @@ function MairuDemoInner() {
 
             <div className="map-scroll kyushu-fullmap-scroll">
               <div className="region-map-frame kyushu-map-frame kyushu-fullmap-frame nagasaki-sea-bg" ref={kyushuMapFrameRef}>
-                <div className={`map-toggle-group ${showAllPrefNames ? 'map-toggle-group-solid' : ''}`}>
-                  <LangToggleIcon inColumn />
+                {iconLabelPeek && (
+                  <div className="bottom-bar-toast">{iconLabelPeek}</div>
+                )}
+
+                <button
+                  className="route-fab"
+                  onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
+                  title={lang === 'en' ? 'Create route' : 'ルート検索'}
+                  aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
+                >
+                  <Route size={22} />
+                </button>
+
+                <div className="bottom-icon-bar">
                   <button
-                    className="locate-me-btn icon-only"
-                    onClick={() => { handleLocateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); handleLocateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
                     disabled={myLocationStatus === 'loading'}
                     title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                   >
-                    <Navigation size={16} />
-                    {myLocationStatus === 'error' && (
-                      <span className="locate-me-error">
-                        {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
-                      </span>
-                    )}
+                    <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                   </button>
-                  <div className="icon-group-wrap">
-                    <button
-                      className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
-                      title={lang === 'en' ? 'Search by' : '探し方'}
-                      aria-label={lang === 'en' ? 'Search by' : '探し方'}
-                    >
-                      <Search size={16} />
-                    </button>
-                    {expandedIconGroup === 'findBy' && (
-                      <div className="icon-group-submenu">
-                        <button
-                          className={`locate-me-btn icon-only submenu-item ${kyushuMode === 'map' ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); setExpandedIconGroup(null); }}
-                          title={lang === 'en' ? 'By Area' : '地域で探す'}
-                          aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
-                        >
-                          <MapIcon size={14} />
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item coming-soon"
-                          onClick={(e) => e.stopPropagation()}
-                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                        >
-                          <Compass size={14} />
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item coming-soon"
-                          onClick={(e) => e.stopPropagation()}
-                          title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
-                          aria-label="NO PLAN"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="map-toggle-divider" />
                   <button
-                    className={`locate-me-btn icon-only ${showAllPrefNames ? 'active' : ''}`}
-                    onClick={() => { setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); setIconLabelPeek(lang === 'en' ? 'Show place names' : '地名を表示'); }}
+                    className={`bottom-bar-btn ${showAllPrefNames ? 'active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); }}
                     title={lang === 'en' ? 'Show place names' : '地名を表示'}
                     aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                   >
-                    <MapPin size={16} />
-                  </button>
-                  {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
-                    const GroupIcon = group.icon;
-                    const isExpanded = expandedIconGroup === groupKey;
-                    const hasActiveItem =
-                      (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
-                      (groupKey === 'rest' && showRoadsidePins);
-                    return (
-                      <div key={groupKey} className="icon-group-wrap">
-                        <button
-                          className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (hasActiveItem) {
-                              setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
-                              setExpandedIconGroup(null);
-                            } else {
-                              if (!isExpanded) {
-                                // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
-                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
-                              }
-                              setExpandedIconGroup(isExpanded ? null : groupKey);
-                            }
-                          }}
-                          title={lang === 'en' ? group.labelEn : group.label}
-                          aria-label={lang === 'en' ? group.labelEn : group.label}
-                        >
-                          <GroupIcon size={16} />
-                        </button>
-                        {isExpanded && (
-                          <div className="icon-group-submenu">
-                            {group.items.map((item) => {
-                              const ItemIcon = item.icon;
-                              const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
-                              const isOn =
-                                (item.key === 'airport' && showAirportPins) ||
-                                (item.key === 'ferry' && showFerryPins) ||
-                                (item.key === 'roadside' && showRoadsidePins);
-                              return (
-                                <button
-                                  key={item.key}
-                                  className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!effectiveReady) return;
-                                    setShowAllPrefNames(false);
-                                    setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
-                                    if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
-                                    else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
-                                    else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
-                                  }}
-                                  title={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                  aria-label={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                >
-                                  {item.key === 'roadside' && roadsideMapLoading ? <Clock size={14} /> : <ItemIcon size={14} />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <button
-                    className="locate-me-btn icon-only coming-soon"
-                    onClick={(e) => e.stopPropagation()}
-                    title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
-                    aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
-                  >
-                    <Stethoscope size={16} />
-                  </button>
-                  <div className="map-toggle-divider" />
-                  <div className="icon-group-wrap">
-                    <button
-                      className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
-                      title={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                      aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                    >
-                      <ZoomIn size={16} />
-                    </button>
-                    {expandedIconGroup === 'zoom' && (
-                      <div className="icon-group-submenu">
-                        <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
-                          disabled={kyushuZoom >= 3}
-                          title={lang === 'en' ? 'Zoom in' : '拡大'}
-                          aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
-                        >
-                          +
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setKyushuZoom, kyushuMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
-                          disabled={kyushuZoom <= 1}
-                          title={lang === 'en' ? 'Zoom out' : '縮小'}
-                          aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
-                        >
-                          −
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    className="locate-me-btn icon-only coming-soon"
-                    onClick={(e) => e.stopPropagation()}
-                    title={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
-                    aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
-                  >
-                    <Route size={16} />
+                    <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
                   </button>
                   <button
-                    className="locate-me-btn icon-only"
-                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
-                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
-                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+                    title={lang === 'en' ? 'Search' : '探す'}
+                    aria-label={lang === 'en' ? 'Search' : '探す'}
                   >
-                    <RotateCcw size={16} />
+                    <span className="bottom-bar-icon-circle"><Search size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'Search' : '探す'}</span>
                   </button>
                   <button
-                    className="locate-me-btn icon-only"
-                    onClick={(e) => { e.stopPropagation(); setAppStage('entry'); setPeekIslandKey(null); }}
-                    title={lang === 'en' ? 'Back' : '戻る'}
-                    aria-label={lang === 'en' ? 'Back' : '戻る'}
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+                    title={lang === 'en' ? 'More' : 'その他'}
+                    aria-label={lang === 'en' ? 'More' : 'その他'}
                   >
-                    <ChevronLeft size={16} />
+                    <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
+                  </button>
+                  <button
+                    className="bottom-bar-btn"
+                    onMouseDown={(e) => { e.stopPropagation(); handleBackResetPressStart(() => resetMapDisplay()); }}
+                    onMouseUp={(e) => { e.stopPropagation(); handleBackResetPressEnd(() => { setAppStage('entry'); setPeekIslandKey(null); }); }}
+                    onMouseLeave={() => { if (backResetLongPressRef.current.timer) clearTimeout(backResetLongPressRef.current.timer); }}
+                    onTouchStart={(e) => { e.stopPropagation(); handleBackResetPressStart(() => resetMapDisplay()); }}
+                    onTouchEnd={(e) => { e.stopPropagation(); handleBackResetPressEnd(() => { setAppStage('entry'); setPeekIslandKey(null); }); }}
+                    title={lang === 'en' ? 'Back (hold to reset)' : '戻る(長押しでリセット)'}
+                    aria-label={lang === 'en' ? 'Back (hold to reset)' : '戻る(長押しでリセット)'}
+                  >
+                    <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
                   </button>
                 </div>
+
+                {bottomSheetOpen === 'find' && (
+                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
+                      <div className="find-sheet-handle" />
+                      <div className="find-sheet-grid">
+                        {ICON_CATEGORY_GROUPS.findBy.items.map((item) => {
+                          const ItemIcon = item.icon;
+                          return (
+                            <button
+                              key={`findby-${item.key}`}
+                              className={`find-sheet-item ${!item.ready ? 'coming-soon' : ''}`}
+                              onClick={() => {
+                                if (!item.ready) return;
+                                setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); setBottomSheetOpen(null);
+                              }}
+                            >
+                              <ItemIcon size={18} />
+                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
+                            </button>
+                          );
+                        })}
+                        {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                          const ItemIcon = item.icon;
+                          const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
+                          const isOn =
+                            (item.key === 'airport' && showAirportPins) ||
+                            (item.key === 'ferry' && showFerryPins) ||
+                            (item.key === 'roadside' && showRoadsidePins);
+                          return (
+                            <button
+                              key={`${groupKey}-${item.key}`}
+                              className={`find-sheet-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
+                              onClick={() => {
+                                if (!effectiveReady) return;
+                                setShowAllPrefNames(false);
+                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
+                                if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
+                                else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
+                                else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
+                                setBottomSheetOpen(null);
+                              }}
+                            >
+                              {item.key === 'roadside' && roadsideMapLoading ? <Clock size={18} /> : <ItemIcon size={18} />}
+                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
+                            </button>
+                          );
+                        }))}
+                        <button className="find-sheet-item coming-soon" onClick={() => {}}>
+                          <Stethoscope size={18} />
+                          <span>{lang === 'en' ? 'Medical' : '医療'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {bottomSheetOpen === 'legal' && (
+                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
+                      <div className="find-sheet-handle" />
+                      <div className="find-sheet-grid legal-sheet-grid">
+                        <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
+                          <Languages size={18} />
+                          <span>日本語</span>
+                        </button>
+                        <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
+                          <Languages size={18} />
+                          <span>English</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div
                   className="map-pan-scroll"
                   ref={kyushuMapScrollRef}
@@ -8780,15 +8796,6 @@ function MairuDemoInner() {
               </div>
             </div>
 
-          <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
-            <div className="entry-footer-links">
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
-              <span className="entry-footer-dot-sep">・</span>
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
-              <span className="entry-footer-dot-sep">・</span>
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
-            </div>
-          </div>
         </div>
         ) : (
         <div className="entry-view region-scroll nagasaki-sea-bg kyushu-page-view">
