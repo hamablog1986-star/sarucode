@@ -5296,6 +5296,7 @@ function MairuDemoInner() {
     setPeekCityId(null);
     setExpandedIconGroup(null); // 吹き出しとアイコン列の展開メニューが重ならないよう、片方を開いたらもう片方は閉じる
   }
+  const KYUSHU_DEFAULT_VERTICAL_SHIFT = 40; // 九州地図のデフォルト表示位置を、計算上の中心よりこの分(px)だけ上にずらす
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const kyushuZoomRef = useRef(1); // kyushuZoomの最新値への参照(Ctrl+ホイールズームで使う)
   useEffect(() => { kyushuZoomRef.current = kyushuZoom; }, [kyushuZoom]);
@@ -5514,7 +5515,7 @@ function MairuDemoInner() {
       const centerX = (centerXRef - kyushuPanBox.x) * scaleX;
       const centerY = (centerYRef - kyushuPanBox.y) * scaleY;
       el.scrollLeft = centerX - el.clientWidth / 2;
-      el.scrollTop = centerY - el.clientHeight / 2;
+      el.scrollTop = centerY - el.clientHeight / 2 + KYUSHU_DEFAULT_VERTICAL_SHIFT;
       setTimeout(() => { kyushuProgrammaticScrollRef.current = false; }, 0);
     }
     setKyushuViewMoved(false);
@@ -5724,7 +5725,7 @@ function MairuDemoInner() {
       const centerX = (centerXRef - kyushuPanBox.x) * scaleX;
       const centerY = (centerYRef - kyushuPanBox.y) * scaleY;
       el.scrollLeft = centerX - el.clientWidth / 2;
-      el.scrollTop = centerY - el.clientHeight / 2;
+      el.scrollTop = centerY - el.clientHeight / 2 + KYUSHU_DEFAULT_VERTICAL_SHIFT;
       setTimeout(() => { kyushuProgrammaticScrollRef.current = false; }, 0);
     };
     let tries = 0;
@@ -7770,7 +7771,7 @@ function MairuDemoInner() {
           background:transparent;
         }
         .bottom-bar-btn {
-          display:flex; flex-direction:column; align-items:center; gap:3px;
+          display:flex; flex-direction:column; align-items:center; gap:3px; flex:1 1 0;
           background:none; border:none; padding:4px; cursor:pointer; color:#1F6E45;
           -webkit-tap-highlight-color:transparent;
         }
@@ -7778,22 +7779,22 @@ function MairuDemoInner() {
         .bottom-bar-icon-circle {
           width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
           box-sizing:border-box; background:rgba(255,255,255,0.85); color:#1F6E45;
-          box-shadow:0 2px 6px rgba(0,0,0,0.18);
         }
         .bottom-bar-btn.active .bottom-bar-icon-circle { background:#1F6E45; color:#fff; }
         .bottom-bar-btn.active .bottom-bar-btn-label { color:#1F6E45; }
-        .route-fab {
-          position:absolute; right:16px; bottom:96px; z-index:5;
-          display:flex; flex-direction:column; align-items:center; gap:4px;
-          background:none; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
-        }
-        .route-fab svg { width:56px; height:56px; padding:16px; box-sizing:border-box; border-radius:50%; background:#D85A30; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.25); }
+        .route-bar-icon-circle { width:40px; height:40px; background:#D85A30; color:#fff; margin-top:-8px; }
+        .route-bar-label { color:#D85A30; }
         .reset-fab {
-          position:absolute; right:22px; bottom:166px; z-index:5;
-          display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent;
-          width:38px; height:38px; background:rgba(255,255,255,0.85); border:none; border-radius:50%; color:#1F6E45;
-          box-shadow:0 2px 6px rgba(0,0,0,0.18);
+          position:absolute; right:calc(8px + (100% - 16px) / 12); bottom:118px; z-index:5;
+          transform:translateX(50%);
+          display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+          background:none; border:none;
         }
+        .reset-fab-circle {
+          width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+          background:rgba(255,255,255,0.85); border-radius:50%; color:#1F6E45;
+        }
+        .reset-fab-label { font-size:10px; font-weight:700; color:#1F6E45; text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9); }
         .bottom-bar-toast {
           position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
@@ -8462,18 +8463,10 @@ function MairuDemoInner() {
                     title={lang === 'en' ? 'Reset display' : '表示をリセット'}
                     aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
                   >
-                    <RotateCcw size={16} />
+                    <span className="reset-fab-circle"><RotateCcw size={16} /></span>
+                    <span className="reset-fab-label">{lang === 'en' ? 'Reset' : 'リセット'}</span>
                   </button>
                 )}
-
-                <button
-                  className="route-fab"
-                  onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
-                  title={lang === 'en' ? 'Create route' : 'ルート検索'}
-                  aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
-                >
-                  <Route size={22} />
-                </button>
 
                 <div className="bottom-icon-bar">
                   <button
@@ -8512,6 +8505,15 @@ function MairuDemoInner() {
                   >
                     <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
                     <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
+                  </button>
+                  <button
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
+                    title={lang === 'en' ? 'Create route' : 'ルート検索'}
+                    aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
+                  >
+                    <span className="bottom-bar-icon-circle route-bar-icon-circle"><Route size={17} /></span>
+                    <span className="bottom-bar-btn-label route-bar-label">{lang === 'en' ? 'Route' : 'ルート検索'}</span>
                   </button>
                   <button
                     className="bottom-bar-btn"
