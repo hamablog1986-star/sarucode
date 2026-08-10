@@ -5327,6 +5327,9 @@ function MairuDemoInner() {
   const [regionZoom, setRegionZoom] = useState(1); // 県ページの拡大率
   const regionZoomRef = useRef(1); // regionZoomの最新値への参照(Ctrl+ホイールズームで使う)
   useEffect(() => { regionZoomRef.current = regionZoom; }, [regionZoom]);
+  const [regionViewMoved, setRegionViewMoved] = useState(false); // 県地図が初期表示から動かされたか(拡大/パン)
+  const regionProgrammaticScrollRef = useRef(false); // 自動センタリング/リセット中はonScrollでの検知を無視するためのフラグ
+  useEffect(() => { if (regionZoom !== 1) setRegionViewMoved(true); }, [regionZoom]);
   const muniMapFrameRef = useRef(null); // 市町村ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
   const [muniMapSize, setMuniMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const kyushuMapFrameRef = useRef(null); // 九州ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
@@ -5335,6 +5338,7 @@ function MairuDemoInner() {
   const [regionMapSize, setRegionMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
 
   const [showAllCityNames, setShowAllCityNames] = useState(false); // 県ページの「地名を表示」ボタン:長崎県のみ試験導入
+  const [showMuniNeighborNames, setShowMuniNeighborNames] = useState(false); // 市町村ページの「地名を表示」ボタン:近隣市町村名を地図に表示
   const regionMapScrollRef = useRef(null); // 県ページの地図(本島+離島)のスクロール領域
   const regionMapContentRef = useRef(null); // 県ページの地図の中身(拡大縮小される要素)本体への参照(ピンチ操作で直接操作するため)
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
@@ -5342,6 +5346,7 @@ function MairuDemoInner() {
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
   useEffect(() => {
     setRegionZoom(1); // 県ページ以外に移動した時・選んでいる県が変わった時は拡大率をリセットする
+    setRegionViewMoved(false);
   }, [appStage, selectedPrefId]);
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
 
@@ -5357,18 +5362,14 @@ function MairuDemoInner() {
     setPoiDetail(null);
   }, [appStage, selectedPrefId, selectedCity]);
 
-  useEffect(() => {
-    if (appStage !== 'region') return;
-    const currentPref = KYUSHU_PREFS.find((x) => x.id === selectedPrefId);
-    if (!currentPref) return;
-    const el = regionMapScrollRef.current;
-    if (!el) return;
+  // 県ページの地図の「見た目の中心」を計算する。本島+離島の表示範囲(fvb)と、中心に据える座標(県により
+  // 大村市・鹿児島市などを直接使う特例あり)を返す。初期表示エフェクトとリセット処理の両方から使う共通ロジック。
+  function getRegionMapCenter(prefId) {
+    const currentPref = KYUSHU_PREFS.find((x) => x.id === prefId);
+    if (!currentPref) return null;
     const rvb = currentPref.regionViewBox;
-    const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === selectedPrefId);
-    if (!munis.length) return;
-    // 実際に描画される地図の座標範囲(prefFullViewBox)は、県ページの表示コードと全く同じ
-    // 計算を使う必要がある。本島をそのまま基準にしつつ、離島がある方向にだけ届く分の
-    // 余白を追加する(使わない方向にまで均等に広げると無駄な余白になるため)。
+    const munis = KYUSHU_MUNICIPALITIES.filter((m) => m.prefId === prefId);
+    if (!munis.length) return null;
     const muniXsA = munis.map((m) => m.cx);
     const muniYsA = munis.map((m) => m.cy);
     const bufA = Math.max(rvb.w, rvb.h) * 0.5;
@@ -5377,16 +5378,40 @@ function MairuDemoInner() {
     const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
     const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
     const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
-    // 県ごとに用意されている表示範囲(regionViewBox)自体が、その県の本島を
-    // 綺麗に収める形であらかじめ調整されているため、基本的には中心もそのままその範囲の中心を使う。
-    // ただし長崎県・鹿児島県は、それでもまだズレて見えるとのフィードバックがあったため、
-    // 代わりに分かりやすい目印(大村市・鹿児島市)の位置を直接中心にする。
     const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: 0 }, '46': { name: '鹿児島市', offsetX: 25 } };
-    const override = REGION_CENTER_OVERRIDE[selectedPrefId];
+    const override = REGION_CENTER_OVERRIDE[prefId];
     const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
     const mainlandCx = overrideMuni ? overrideMuni.cx + (override.offsetX || 0) : rvb.x + rvb.w / 2;
     const mainlandCy = overrideMuni ? overrideMuni.cy : rvb.y + rvb.h / 2;
+    return { fvb, mainlandCx, mainlandCy };
+  }
+  // 県ページ用: 拡大率・ピン・地名表示などをすべて初期状態に戻し、地図の表示位置も再センタリングする
+  function resetRegionMapView() {
+    resetMapDisplay();
+    setRegionZoom(1);
+    const el = regionMapScrollRef.current;
+    const center = getRegionMapCenter(selectedPrefId);
+    if (el && center) {
+      regionProgrammaticScrollRef.current = true;
+      const { fvb, mainlandCx, mainlandCy } = center;
+      const scaleX = el.scrollWidth / fvb.w;
+      const scaleY = el.scrollHeight / fvb.h;
+      el.scrollLeft = (mainlandCx - fvb.x) * scaleX - el.clientWidth / 2;
+      el.scrollTop = (mainlandCy - fvb.y) * scaleY - el.clientHeight / 2;
+      setTimeout(() => { regionProgrammaticScrollRef.current = false; }, 0);
+    }
+    setRegionViewMoved(false);
+  }
+
+  useEffect(() => {
+    if (appStage !== 'region') return;
+    const center = getRegionMapCenter(selectedPrefId);
+    if (!center) return;
+    const { fvb, mainlandCx, mainlandCy } = center;
+    const el = regionMapScrollRef.current;
+    if (!el) return;
     const apply = () => {
+      regionProgrammaticScrollRef.current = true;
       // ウィンドウの縦横比を固定したことで、X方向とY方向の拡大率が異なる場合があるため、別々に計算する
       const scaleX = el.scrollWidth / fvb.w;
       const scaleY = el.scrollHeight / fvb.h;
@@ -5394,6 +5419,7 @@ function MairuDemoInner() {
       const mainlandCenterY = (mainlandCy - fvb.y) * scaleY;
       el.scrollLeft = mainlandCenterX - el.clientWidth / 2;
       el.scrollTop = mainlandCenterY - el.clientHeight / 2;
+      setTimeout(() => { regionProgrammaticScrollRef.current = false; }, 0);
     };
     // モバイルなどでレイアウト確定が1フレームで間に合わないことがあるため、
     // サイズが取得できるまで数フレーム試行する
@@ -6279,6 +6305,7 @@ function MairuDemoInner() {
     setMuniZoom(1);
     setMuniPanX(0);
     setMuniPanY(0);
+    setShowMuniNeighborNames(false);
   }, [selectedCity]);
 
   // 市町村ページで目的地(ピン)が選ばれたら、その地点が画面の中心にくるよう地図を動かす(ぬるっと滑らかに)
@@ -7775,7 +7802,7 @@ function MairuDemoInner() {
           background:none; border:none; padding:4px; cursor:pointer; color:#1F6E45;
           -webkit-tap-highlight-color:transparent;
         }
-        .bottom-bar-btn-label { font-size:10px; font-weight:700; text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9); }
+        .bottom-bar-btn-label { font-size:10px; font-weight:700; }
         .bottom-bar-icon-circle {
           width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
           box-sizing:border-box; background:rgba(255,255,255,0.85); color:#1F6E45;
@@ -7794,7 +7821,7 @@ function MairuDemoInner() {
           width:34px; height:34px; display:flex; align-items:center; justify-content:center;
           background:rgba(255,255,255,0.85); border-radius:50%; color:#1F6E45;
         }
-        .reset-fab-label { font-size:10px; font-weight:700; color:#1F6E45; text-shadow:0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9); }
+        .reset-fab-label { font-size:10px; font-weight:700; color:#1F6E45; }
         .bottom-bar-toast {
           position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
@@ -7895,6 +7922,7 @@ function MairuDemoInner() {
         .region-dim-overlay { fill:rgba(16,20,24,0.55); pointer-events:none; }
         .pref-floating-label { position:absolute; transform:translate(-50%, -50%); pointer-events:auto; white-space:nowrap; z-index:1; }
         .pref-floating-label-text { display:flex; align-items:center; background:rgba(33,38,44,0.85); backdrop-filter:blur(2px); color:#fff; padding:4px 7px; border-radius:6px; font-size:9.5px; font-weight:600; border:none; outline:none; box-shadow:none; -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
+        .pref-floating-label-text.current-city-label { background:#D85A30; }
         .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); display:flex; align-items:flex-start; justify-content:center; z-index:1; padding:48px 16px 16px; }
         .muni-name-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap:8px; max-height:100%; overflow-y:auto; width:100%; align-content:flex-start; }
         .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:8px 4px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
@@ -8946,210 +8974,181 @@ function MairuDemoInner() {
               <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
                 <h1 className="kyushu-float-title">CONOTAVI</h1>
               </button>
-              <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
-                {mNameFuri(currentPref)}
-              </span>
+              {showAllCityNames && (
+                <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
+                  {mNameFuri(currentPref)}
+                </span>
+              )}
             </div>
           </div>
 
             <div className="map-scroll kyushu-fullmap-scroll">
               <div className="region-map-frame kyushu-map-frame kyushu-fullmap-frame nagasaki-sea-bg" ref={regionMapFrameRef}>
-                <div className={`map-toggle-group ${showAllCityNames ? 'map-toggle-group-solid' : ''}`}>
-                  <LangToggleIcon inColumn />
+                {iconLabelPeek && (
+                  <div className="bottom-bar-toast">{iconLabelPeek}</div>
+                )}
+
+                {regionViewMoved && (
                   <button
-                    className="locate-me-btn icon-only"
-                    onClick={handleLocateMe}
+                    className="reset-fab"
+                    onClick={(e) => { e.stopPropagation(); resetRegionMapView(); }}
+                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                  >
+                    <span className="reset-fab-circle"><RotateCcw size={16} /></span>
+                    <span className="reset-fab-label">{lang === 'en' ? 'Reset' : 'リセット'}</span>
+                  </button>
+                )}
+
+                <div className="bottom-icon-bar">
+                  <button
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); handleLocateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
                     disabled={myLocationStatus === 'loading'}
                     title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                   >
-                    <Navigation size={16} />
-                    {myLocationStatus === 'error' && (
-                      <span className="locate-me-error">
-                        {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
-                      </span>
-                    )}
+                    <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                   </button>
-                  <div className="icon-group-wrap">
-                    <button
-                      className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
-                      title={lang === 'en' ? 'Search by' : '探し方'}
-                      aria-label={lang === 'en' ? 'Search by' : '探し方'}
-                    >
-                      <Search size={16} />
-                    </button>
-                    {expandedIconGroup === 'findBy' && (
-                      <div className="icon-group-submenu">
-                        <button
-                          className={`locate-me-btn icon-only submenu-item ${regionMode === 'map' ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); setExpandedIconGroup(null); }}
-                          title={lang === 'en' ? 'By Area' : '地域で探す'}
-                          aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
-                        >
-                          <MapIcon size={14} />
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item coming-soon"
-                          onClick={(e) => e.stopPropagation()}
-                          title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                          aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                        >
-                          <Compass size={14} />
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item coming-soon"
-                          onClick={(e) => e.stopPropagation()}
-                          title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
-                          aria-label="NO PLAN"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="map-toggle-divider" />
                   {['40','41','42','43','44','45','46'].includes(selectedPrefId) && (
                     <button
-                      className={`locate-me-btn icon-only ${showAllCityNames ? 'active' : ''}`}
-                      onClick={() => setShowAllCityNames((v) => !v)}
+                      className={`bottom-bar-btn ${showAllCityNames ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setShowAllCityNames((v) => !v); }}
                       title={lang === 'en' ? 'Show place names' : '地名を表示'}
                       aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                     >
-                      <MapPin size={16} />
+                      <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
                     </button>
                   )}
-                  {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
-                    const GroupIcon = group.icon;
-                    const isExpanded = expandedIconGroup === groupKey;
-                    const hasActiveItem =
-                      (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
-                      (groupKey === 'rest' && showRoadsidePins);
-                    return (
-                      <div key={groupKey} className="icon-group-wrap">
-                        <button
-                          className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (hasActiveItem) {
-                              setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
-                              setExpandedIconGroup(null);
-                            } else {
-                              if (!isExpanded) {
-                                // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
-                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
-                              }
-                              setExpandedIconGroup(isExpanded ? null : groupKey);
-                            }
-                          }}
-                          title={lang === 'en' ? group.labelEn : group.label}
-                          aria-label={lang === 'en' ? group.labelEn : group.label}
-                        >
-                          <GroupIcon size={16} />
-                        </button>
-                        {isExpanded && (
-                          <div className="icon-group-submenu">
-                            {group.items.map((item) => {
-                              const ItemIcon = item.icon;
-                              const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
-                              const isOn =
-                                (item.key === 'airport' && showAirportPins) ||
-                                (item.key === 'ferry' && showFerryPins) ||
-                                (item.key === 'roadside' && showRoadsidePins);
-                              return (
-                                <button
-                                  key={item.key}
-                                  className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!effectiveReady) return;
-                                    setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
-                                    if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
-                                    else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
-                                    else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
-                                  }}
-                                  title={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                  aria-label={!effectiveReady ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                >
-                                  {item.key === 'roadside' && roadsideMapLoading ? <Clock size={14} /> : <ItemIcon size={14} />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
                   <button
-                    className="locate-me-btn icon-only coming-soon"
-                    onClick={(e) => e.stopPropagation()}
-                    title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
-                    aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                    className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+                    title={lang === 'en' ? 'Search' : '探す'}
+                    aria-label={lang === 'en' ? 'Search' : '探す'}
                   >
-                    <Stethoscope size={16} />
-                  </button>
-                  <div className="map-toggle-divider" />
-                  <div className="icon-group-wrap">
-                    <button
-                      className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
-                      title={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                      aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                    >
-                      <ZoomIn size={16} />
-                    </button>
-                    {expandedIconGroup === 'zoom' && (
-                      <div className="icon-group-submenu">
-                        <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
-                          disabled={regionZoom >= 3}
-                          title={lang === 'en' ? 'Zoom in' : '拡大'}
-                          aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
-                        >
-                          +
-                        </button>
-                        <button
-                          className="locate-me-btn icon-only submenu-item"
-                          onClick={(e) => { e.stopPropagation(); zoomStepAroundCenter(setRegionZoom, regionMapScrollRef, (z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
-                          disabled={regionZoom <= 1}
-                          title={lang === 'en' ? 'Zoom out' : '縮小'}
-                          aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
-                        >
-                          −
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    className="locate-me-btn icon-only coming-soon"
-                    onClick={(e) => e.stopPropagation()}
-                    title={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
-                    aria-label={lang === 'en' ? 'Create route (select a city first)' : 'ルート検索(市町村を選んでください)'}
-                  >
-                    <Route size={16} />
+                    <span className="bottom-bar-icon-circle"><Search size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'Search' : '探す'}</span>
                   </button>
                   <button
-                    className="locate-me-btn icon-only"
-                    onClick={(e) => { e.stopPropagation(); resetMapDisplay(); }}
-                    title={lang === 'en' ? 'Reset display' : '表示をリセット'}
-                    aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+                    title={lang === 'en' ? 'More' : 'その他'}
+                    aria-label={lang === 'en' ? 'More' : 'その他'}
                   >
-                    <RotateCcw size={16} />
+                    <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
                   </button>
                   <button
-                    className="locate-me-btn icon-only"
+                    className="bottom-bar-btn"
+                    onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
+                    title={lang === 'en' ? 'Create route' : 'ルート検索'}
+                    aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
+                  >
+                    <span className="bottom-bar-icon-circle route-bar-icon-circle"><Route size={17} /></span>
+                    <span className="bottom-bar-btn-label route-bar-label">{lang === 'en' ? 'Route' : 'ルート検索'}</span>
+                  </button>
+                  <button
+                    className="bottom-bar-btn"
                     onClick={(e) => { e.stopPropagation(); setAppStage('kyushu'); setPeekIslandKey(null); }}
                     title={lang === 'en' ? 'Back' : '戻る'}
                     aria-label={lang === 'en' ? 'Back' : '戻る'}
                   >
-                    <ChevronLeft size={16} />
+                    <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
+                    <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
                   </button>
                 </div>
+
+                {bottomSheetOpen === 'find' && (
+                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
+                      <div className="find-sheet-handle" />
+                      <div className="find-sheet-grid">
+                        {ICON_CATEGORY_GROUPS.findBy.items.map((item) => {
+                          const ItemIcon = item.icon;
+                          return (
+                            <button
+                              key={`findby-${item.key}`}
+                              className={`find-sheet-item ${!item.ready ? 'coming-soon' : ''}`}
+                              onClick={() => {
+                                if (!item.ready) return;
+                                setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); setBottomSheetOpen(null);
+                              }}
+                            >
+                              <ItemIcon size={18} />
+                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
+                            </button>
+                          );
+                        })}
+                        {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                          const ItemIcon = item.icon;
+                          const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
+                          const isOn =
+                            (item.key === 'airport' && showAirportPins) ||
+                            (item.key === 'ferry' && showFerryPins) ||
+                            (item.key === 'roadside' && showRoadsidePins);
+                          return (
+                            <button
+                              key={`${groupKey}-${item.key}`}
+                              className={`find-sheet-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
+                              onClick={() => {
+                                if (!effectiveReady) return;
+                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
+                                if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
+                                else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
+                                else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
+                                setBottomSheetOpen(null);
+                              }}
+                            >
+                              {item.key === 'roadside' && roadsideMapLoading ? <Clock size={18} /> : <ItemIcon size={18} />}
+                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
+                            </button>
+                          );
+                        }))}
+                        <button className="find-sheet-item coming-soon" onClick={() => {}}>
+                          <Stethoscope size={18} />
+                          <span>{lang === 'en' ? 'Medical' : '医療'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {bottomSheetOpen === 'legal' && (
+                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
+                      <div className="find-sheet-handle" />
+                      <div className="find-sheet-grid legal-sheet-grid">
+                        <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
+                          <Languages size={18} />
+                          <span>日本語</span>
+                        </button>
+                        <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
+                          <Languages size={18} />
+                          <span>English</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
+                        </button>
+                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
+                          <FileText size={18} />
+                          <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div
                   className="map-pan-scroll"
                   ref={regionMapScrollRef}
                   onMouseDown={handlePanMouseDown}
+                  onScroll={() => { if (!regionProgrammaticScrollRef.current) setRegionViewMoved(true); }}
                   onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
                   {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef)}
                 >
@@ -9388,15 +9387,6 @@ function MairuDemoInner() {
 
             </div>
 
-          <div className={`entry-footer-wrap entry-footer-float kyushu-footer-float ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
-            <div className="entry-footer-links">
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
-              <span className="entry-footer-dot-sep">・</span>
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
-              <span className="entry-footer-dot-sep">・</span>
-              <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
-            </div>
-          </div>
         </div>
         ) : (
         <div className="entry-view region-scroll nagasaki-sea-bg kyushu-page-view">
@@ -9599,11 +9589,6 @@ function MairuDemoInner() {
                   <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
                     <h1 className="kyushu-float-title">CONOTAVI</h1>
                   </button>
-                  <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
-                    <span>{(() => { const ap = KYUSHU_PREFS.find((x) => x.id === activeCityConfig.prefId); return ap ? mNameFuri(ap) : ''; })()}</span>
-                    <span className="lang-toggle-sep">/</span>
-                    <span>{mNameFuri(activeCityConfig)}</span>
-                  </span>
                 </div>
               </div>
             ) : (
@@ -9689,204 +9674,169 @@ function MairuDemoInner() {
                   onMouseDown={handleMuniMapPanStart}
                   onTouchStart={handleMuniMapPanStart}
                 >
-                  <div className="map-toggle-group">
-                    <LangToggleIcon inColumn />
+                  {iconLabelPeek && (
+                    <div className="bottom-bar-toast">{iconLabelPeek}</div>
+                  )}
+
+                  {(muniZoom !== 1 || muniPanX !== 0 || muniPanY !== 0) && (
                     <button
-                      className="locate-me-btn icon-only"
-                      onClick={() => locateMe()}
+                      className="reset-fab"
+                      onClick={(e) => { e.stopPropagation(); setMuniZoom(1); resetMapDisplay(); setActiveCategory(null); setLinkedId(null); }}
+                      title={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                      aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
+                    >
+                      <span className="reset-fab-circle"><RotateCcw size={16} /></span>
+                      <span className="reset-fab-label">{lang === 'en' ? 'Reset' : 'リセット'}</span>
+                    </button>
+                  )}
+
+                  <div className="bottom-icon-bar">
+                    <button
+                      className="bottom-bar-btn"
+                      onClick={(e) => { e.stopPropagation(); locateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
                       disabled={myLocationStatus === 'loading' || locating}
                       title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                       aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     >
-                      <Navigation size={16} />
-                      {myLocationStatus === 'error' && (
-                        <span className="locate-me-error">
-                          {lang === 'en' ? 'Could not get location' : '現在地を取得できませんでした'}
-                        </span>
-                      )}
+                      <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                     </button>
-                    <div className="icon-group-wrap">
-                      <button
-                        className={`locate-me-btn icon-only ${expandedIconGroup === 'findBy' ? 'active' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'findBy' ? null : 'findBy'); }}
-                        title={lang === 'en' ? 'Search by' : '探し方'}
-                        aria-label={lang === 'en' ? 'Search by' : '探し方'}
-                      >
-                        <Search size={16} />
-                      </button>
-                      {expandedIconGroup === 'findBy' && (
-                        <div className="icon-group-submenu">
-                          <button
-                            className="locate-me-btn icon-only submenu-item active"
-                            onClick={(e) => { e.stopPropagation(); setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); setExpandedIconGroup(null); }}
-                            title={lang === 'en' ? 'By Area' : '地域で探す'}
-                            aria-label={lang === 'en' ? 'By Area' : '地域で探す'}
-                          >
-                            <MapIcon size={14} />
-                          </button>
-                          <button
-                            className="locate-me-btn icon-only submenu-item coming-soon"
-                            onClick={(e) => e.stopPropagation()}
-                            title={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                            aria-label={lang === 'en' ? 'By Purpose (Coming soon)' : '目的で探す(準備中)'}
-                          >
-                            <Compass size={14} />
-                          </button>
-                          <button
-                            className="locate-me-btn icon-only submenu-item coming-soon"
-                            onClick={(e) => e.stopPropagation()}
-                            title={lang === 'en' ? 'NO PLAN (Coming soon)' : 'NO PLAN(準備中)'}
-                            aria-label="NO PLAN"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="map-toggle-divider" />
                     <button
-                      className="locate-me-btn icon-only coming-soon"
-                      onClick={(e) => e.stopPropagation()}
-                      title={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
-                      aria-label={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+                      className={`bottom-bar-btn ${showMuniNeighborNames ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setShowMuniNeighborNames((v) => !v); }}
+                      title={lang === 'en' ? 'Show place names' : '地名を表示'}
+                      aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                     >
-                      <MapPin size={16} />
+                      <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
                     </button>
-                    {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').map(([groupKey, group]) => {
-                      const GroupIcon = group.icon;
-                      const isExpanded = expandedIconGroup === groupKey;
-                      const hasActiveItem =
-                        (groupKey === 'transport' && (showAirportPins || showFerryPins)) ||
-                        (groupKey === 'rest' && showRoadsidePins);
-                      return (
-                        <div key={groupKey} className="icon-group-wrap">
-                          <button
-                            className={`locate-me-btn icon-only ${isExpanded || hasActiveItem ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (hasActiveItem) {
-                                setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false);
-                                setExpandedIconGroup(null);
-                              } else {
-                                if (!isExpanded) {
-                                  // 展開する時は、地図側の吹き出し(ピンのポップアップ)と重ならないよう閉じておく
-                                  setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setPeekPrefId(null); setPeekCityId(null);
-                                }
-                                setExpandedIconGroup(isExpanded ? null : groupKey);
-                              }
-                            }}
-                            title={lang === 'en' ? group.labelEn : group.label}
-                            aria-label={lang === 'en' ? group.labelEn : group.label}
-                          >
-                            <GroupIcon size={16} />
-                          </button>
-                          {isExpanded && (
-                            <div className="icon-group-submenu">
-                              {group.items.map((item) => {
-                                const ItemIcon = item.icon;
-                                const isActiveSpotCat = item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
-                                const isOn =
-                                  (item.key === 'airport' && showAirportPins) ||
-                                  (item.key === 'ferry' && showFerryPins) ||
-                                  (item.key === 'roadside' && showRoadsidePins) ||
-                                  isActiveSpotCat;
-                                return (
-                                  <button
-                                    key={item.key}
-                                    className={`locate-me-btn icon-only submenu-item ${isOn ? 'active' : ''} ${!item.ready ? 'coming-soon' : ''}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!item.ready) return;
-                                      setPeekAirportId(null); setPeekFerryId(null);
-                                      if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); }
-                                      else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); }
-                                      else if (item.spotCategory) {
-                                        // 市町村ページでは、この項目はスポットの絞り込み(observation/food/lodging/roadside)につながっている
-                                        setActiveCategory(item.spotCategory);
-                                        setLinkedId(null);
-                                        if (selectMode === 'candidates' || selectMode === 'decided') setSelectMode(lastBrowseMode);
-                                        setExpandedIconGroup(null);
-                                      }
-                                    }}
-                                    title={!item.ready ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                    aria-label={!item.ready ? (lang === 'en' ? `${item.labelEn} (Coming soon)` : `${item.label}(準備中)`) : (lang === 'en' ? item.labelEn : item.label)}
-                                  >
-                                    <ItemIcon size={14} />
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
                     <button
-                      className="locate-me-btn icon-only coming-soon"
-                      onClick={(e) => e.stopPropagation()}
-                      title={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
-                      aria-label={lang === 'en' ? 'Medical (Coming soon)' : '医療(準備中)'}
+                      className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+                      title={lang === 'en' ? 'Search' : '探す'}
+                      aria-label={lang === 'en' ? 'Search' : '探す'}
                     >
-                      <Stethoscope size={16} />
+                      <span className="bottom-bar-icon-circle"><Search size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'Search' : '探す'}</span>
                     </button>
-                    <div className="map-toggle-divider" />
-                    <div className="icon-group-wrap">
-                      <button
-                        className={`locate-me-btn icon-only ${expandedIconGroup === 'zoom' ? 'active' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); setExpandedIconGroup(expandedIconGroup === 'zoom' ? null : 'zoom'); }}
-                        title={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                        aria-label={lang === 'en' ? 'Zoom' : '拡大縮小'}
-                      >
-                        <ZoomIn size={16} />
-                      </button>
-                      {expandedIconGroup === 'zoom' && (
-                        <div className="icon-group-submenu">
-                          <button
-                            className="locate-me-btn icon-only submenu-item"
-                            onClick={(e) => { e.stopPropagation(); setMuniZoom((z) => Math.min(3, +(z + 0.5).toFixed(1))); }}
-                            disabled={muniZoom >= 3}
-                            title={lang === 'en' ? 'Zoom in' : '拡大'}
-                            aria-label={lang === 'en' ? 'Zoom in' : '拡大'}
-                          >
-                            +
-                          </button>
-                          <button
-                            className="locate-me-btn icon-only submenu-item"
-                            onClick={(e) => { e.stopPropagation(); setMuniZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
-                            disabled={muniZoom <= 1}
-                            title={lang === 'en' ? 'Zoom out' : '縮小'}
-                            aria-label={lang === 'en' ? 'Zoom out' : '縮小'}
-                          >
-                            −
-                          </button>
-                        </div>
-                      )}
-                    </div>
                     <button
-                      className="locate-me-btn icon-only"
-                      disabled={!canCreateRoute || calculating}
-                      onClick={(e) => { e.stopPropagation(); buildRoute(); }}
+                      className="bottom-bar-btn"
+                      onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+                      title={lang === 'en' ? 'More' : 'その他'}
+                      aria-label={lang === 'en' ? 'More' : 'その他'}
+                    >
+                      <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
+                    </button>
+                    <button
+                      className="bottom-bar-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (calculating) return;
+                        if (!canCreateRoute) { setIconLabelPeek(lang === 'en' ? 'Please select destinations first' : '候補地を決定してください'); return; }
+                        buildRoute();
+                      }}
                       title={lang === 'en' ? 'Create route' : 'ルート検索'}
                       aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
                     >
-                      <Route size={16} />
+                      <span className="bottom-bar-icon-circle route-bar-icon-circle"><Route size={17} /></span>
+                      <span className="bottom-bar-btn-label route-bar-label">{lang === 'en' ? 'Route' : 'ルート検索'}</span>
                     </button>
                     <button
-                      className="locate-me-btn icon-only"
-                      onClick={(e) => { e.stopPropagation(); resetMapDisplay(); setActiveCategory(null); setLinkedId(null); }}
-                      title={lang === 'en' ? 'Reset display' : '表示をリセット'}
-                      aria-label={lang === 'en' ? 'Reset display' : '表示をリセット'}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      className="locate-me-btn icon-only"
+                      className="bottom-bar-btn"
                       onClick={(e) => { e.stopPropagation(); if (isIsahaya && view === 'route') { setView('select'); } else { setAppStage('region'); } }}
                       title={lang === 'en' ? 'Back' : '戻る'}
                       aria-label={lang === 'en' ? 'Back' : '戻る'}
                     >
-                      <ChevronLeft size={16} />
+                      <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
+                      <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
                     </button>
                   </div>
+
+                  {bottomSheetOpen === 'find' && (
+                    <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                      <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
+                        <div className="find-sheet-handle" />
+                        <div className="find-sheet-grid">
+                          <button className="find-sheet-item active" onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); setBottomSheetOpen(null); }}>
+                            <MapIcon size={18} />
+                            <span>{lang === 'en' ? 'By Area' : '地域で探す'}</span>
+                          </button>
+                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
+                            <Compass size={18} />
+                            <span>{lang === 'en' ? 'By Purpose' : '目的で探す'}</span>
+                          </button>
+                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
+                            <Compass size={18} />
+                            <span>NO PLAN</span>
+                          </button>
+                          {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                            const ItemIcon = item.icon;
+                            const isActiveSpotCat = item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
+                            const isOn =
+                              (item.key === 'airport' && showAirportPins) ||
+                              (item.key === 'ferry' && showFerryPins) ||
+                              isActiveSpotCat;
+                            return (
+                              <button
+                                key={`${groupKey}-${item.key}`}
+                                className={`find-sheet-item ${isOn ? 'active' : ''} ${!item.ready ? 'coming-soon' : ''}`}
+                                onClick={() => {
+                                  if (!item.ready) return;
+                                  setPeekAirportId(null); setPeekFerryId(null);
+                                  if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); }
+                                  else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); }
+                                  else if (item.spotCategory) {
+                                    setActiveCategory(item.spotCategory);
+                                    setLinkedId(null);
+                                    if (selectMode === 'candidates' || selectMode === 'decided') setSelectMode(lastBrowseMode);
+                                  }
+                                  setBottomSheetOpen(null);
+                                }}
+                              >
+                                <ItemIcon size={18} />
+                                <span>{lang === 'en' ? item.labelEn : item.label}</span>
+                              </button>
+                            );
+                          }))}
+                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
+                            <Stethoscope size={18} />
+                            <span>{lang === 'en' ? 'Medical' : '医療'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {bottomSheetOpen === 'legal' && (
+                    <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                      <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
+                        <div className="find-sheet-handle" />
+                        <div className="find-sheet-grid legal-sheet-grid">
+                          <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
+                            <Languages size={18} />
+                            <span>日本語</span>
+                          </button>
+                          <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
+                            <Languages size={18} />
+                            <span>English</span>
+                          </button>
+                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
+                            <FileText size={18} />
+                            <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
+                          </button>
+                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
+                            <FileText size={18} />
+                            <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
+                          </button>
+                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
+                            <FileText size={18} />
+                            <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <svg viewBox={`${muniMapBox.x} ${muniMapBox.y} ${muniMapBox.w} ${muniMapBox.h}`} className="map-svg" aria-hidden="true">
                     {KYUSHU_MUNICIPALITIES.filter((m) => {
                       if (m.id === selectedCity) return false;
@@ -9900,6 +9850,25 @@ function MairuDemoInner() {
                       className="city-outline"
                     />
                   </svg>
+
+                  {showMuniNeighborNames && (() => {
+                    const currentCity = KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity);
+                    const visibleNames = KYUSHU_MUNICIPALITIES.filter((m) => (
+                      m.cx > muniMapBox.x && m.cx < muniMapBox.x + muniMapBox.w &&
+                      m.cy > muniMapBox.y && m.cy < muniMapBox.y + muniMapBox.h
+                    ));
+                    return visibleNames.map((m) => (
+                      <div
+                        key={`name-${m.id}`}
+                        className="pref-floating-label"
+                        style={{ left: `${pct(m.cx - muniMapBox.x, muniMapBox.w)}%`, top: `${pct(m.cy - muniMapBox.y, muniMapBox.h)}%` }}
+                      >
+                        <span className={`pref-floating-label-text ${m.id === (currentCity && currentCity.id) ? 'current-city-label' : ''}`}>
+                          {lang === 'en' ? (m.nameEn || m.name) : m.name}
+                        </span>
+                      </div>
+                    ));
+                  })()}
 
                   {visibleSpots.map((spot) => {
                     const meta = CATEGORY_META[spot.category];
@@ -10730,17 +10699,7 @@ function MairuDemoInner() {
             </button>
             )}
 
-            {isMapFull && (
-              <div className="entry-footer-wrap entry-footer-float kyushu-footer-float">
-                <div className="entry-footer-links">
-                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('terms')}>{lang === 'en' ? 'Terms of Service' : '利用規約'}</button>
-                  <span className="entry-footer-dot-sep">・</span>
-                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('privacy')}>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</button>
-                  <span className="entry-footer-dot-sep">・</span>
-                  <button type="button" className="entry-footer-link" onClick={() => setLegalOverlay('contact')}>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</button>
-                </div>
-              </div>
-            )}
+
           </div>
         );
       })()}
