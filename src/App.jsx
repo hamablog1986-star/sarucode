@@ -7129,8 +7129,8 @@ function MairuDemoInner() {
         html, body { margin:0; padding:0; }
 
         /* ふりがな(読み方)表示。漢字の上に小さく表示する */
-        ruby { ruby-position: over; color:inherit; }
-        rt { font-size:0.55em; font-weight:500; opacity:0.75; user-select:none; letter-spacing:0; color:inherit; }
+        ruby { ruby-position: over; color:inherit; -webkit-text-emphasis: none; line-height: 1.9; }
+        rt { font-size:0.6em; font-weight:500; opacity:0.8; user-select:none; letter-spacing:0.02em; color:inherit; }
 
         .mairu-app {
           --ink: #21262C;
@@ -7617,7 +7617,7 @@ function MairuDemoInner() {
         .muni-shape.is-peeking { fill:#6E7A4C; stroke:#6E7A4C; }
         .muni-hit-region.is-peeking { fill:#6E7A4C; }
 
-        .muni-peek { position:absolute; transform:translate(-50%, calc(-100% - 10px)); background:#21262C; color:#fff; padding:7px 8px 7px 11px; border-radius:9px; font-size:11.5px; font-weight:600; white-space:nowrap; display:flex; align-items:center; gap:8px; z-index:5; }
+        .muni-peek { position:absolute; transform:translate(-50%, calc(-100% - 10px)); background:#21262C; color:#fff; padding:9px 8px 7px 11px; border-radius:9px; font-size:11.5px; line-height:1.9; font-weight:600; white-space:nowrap; display:flex; align-items:center; gap:8px; z-index:5; }
         .muni-peek-name { cursor:pointer; }
         .muni-peek::after { content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#21262C; }
         .muni-soon-tag { font-size:10px; color:#C9CCD1; font-weight:500; }
@@ -7960,8 +7960,8 @@ function MairuDemoInner() {
         .pref-floating-label-text { display:flex; align-items:center; background:rgba(33,38,44,0.85); backdrop-filter:blur(2px); color:#fff; padding:4px 7px; border-radius:6px; font-size:9.5px; font-weight:600; border:none; outline:none; box-shadow:none; -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
         .pref-floating-label-text.current-city-label { background:#D85A30; }
         .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); display:flex; align-items:flex-start; justify-content:center; z-index:1; padding:48px 16px 16px; }
-        .muni-name-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap:8px; max-height:100%; overflow-y:auto; width:100%; align-content:flex-start; }
-        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:8px 4px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+        .muni-name-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap:8px; max-height:100%; overflow-y:auto; width:100%; align-content:flex-start; }
+        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 6px; font-size:12px; line-height:1.9; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
@@ -8405,8 +8405,8 @@ function MairuDemoInner() {
           .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap:5px; }
-          .muni-name-grid-item { font-size:9.5px; padding:5px 2px; border-radius:8px; }
+          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:6px; }
+          .muni-name-grid-item { font-size:10px; padding:6px 3px; line-height:1.9; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
           .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
@@ -8441,8 +8441,8 @@ function MairuDemoInner() {
           .budget-input { width:44px; font-size:10px; }
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap:4px; }
-          .muni-name-grid-item { font-size:9px; padding:4px 2px; }
+          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap:5px; }
+          .muni-name-grid-item { font-size:9.5px; padding:5px 3px; line-height:1.9; }
 
         }
         @media (prefers-reduced-motion: reduce) {
