@@ -7952,6 +7952,8 @@ function MairuDemoInner() {
         }
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
+        .poi-pin-label-name-block { display:flex; flex-direction:column; gap:1px; cursor:default; }
+        .poi-pin-label-furi { font-size:6px; font-weight:500; color:rgba(255,255,255,0.65); white-space:nowrap; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; justify-content:space-between; }
         .poi-pin-label-row-arrow { background:#E2613D; color:#fff; border-radius:6px; padding:4px 7px; font-size:10.5px; font-weight:600; white-space:nowrap; }
         .show-names-inline-btn.active { color:#E2613D; text-decoration:underline; }
@@ -7961,7 +7963,10 @@ function MairuDemoInner() {
         .pref-floating-label-text.current-city-label { background:#D85A30; }
         .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); display:flex; align-items:flex-start; justify-content:center; z-index:1; padding:48px 16px 16px; }
         .muni-name-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap:8px; max-height:100%; overflow-y:auto; width:100%; align-content:flex-start; }
-        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 6px; font-size:12px; line-height:1.9; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 8px; font-size:11px; line-height:1.9; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px; }
+        .muni-name-grid-item rt { font-size:6px; }
+        .muni-name-grid-item-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .muni-name-grid-item-arrow { flex-shrink:0; opacity:0.55; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
@@ -8058,7 +8063,7 @@ function MairuDemoInner() {
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .detail-card::-webkit-scrollbar { display:none; }
-        .poi-card-rounded { border-radius:12px !important; }
+        .poi-card-rounded { border-radius:12px !important; border:none !important; }
         @media (min-width:900px) {
           .detail-card { max-width:820px; }
         }
@@ -8406,7 +8411,7 @@ function MairuDemoInner() {
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
           .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:6px; }
-          .muni-name-grid-item { font-size:10px; padding:6px 3px; line-height:1.9; border-radius:8px; }
+          .muni-name-grid-item { padding:6px 5px; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
           .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
@@ -8442,7 +8447,7 @@ function MairuDemoInner() {
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
           .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap:5px; }
-          .muni-name-grid-item { font-size:9.5px; padding:5px 3px; line-height:1.9; }
+          .muni-name-grid-item { padding:5px 4px; }
 
         }
         @media (prefers-reduced-motion: reduce) {
@@ -8770,10 +8775,12 @@ function MairuDemoInner() {
                         <div className="muni-peek" style={{ left: pct(p.cx - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(p.cy - kyushuPanBox.y, kyushuPanBox.h) + '%' }}>
                           <span className="muni-peek-name" onClick={() => setPeekPrefId(null)}>{mNameFuri(p)}</span>
                           <button
-                            className="peek-detail-btn"
+                            className="detail-hero-more-btn"
                             onClick={() => { setSelectedPrefId(p.id); setAppStage('region'); setPeekPrefId(null); setPeekIslandKey(null); }}
+                            aria-label={lang === 'en' ? 'Select' : '選択する'}
+                            title={lang === 'en' ? 'Select' : '選択する'}
                           >
-                            {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                           </button>
                         </div>
                       );
@@ -8818,9 +8825,12 @@ function MairuDemoInner() {
                                 </span>
                               ) : (
                                 <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
+                                  <span className="poi-pin-label-name-block">
+                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                  </span>
+                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                                    <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                                   </button>
                                 </>
                               )}
@@ -8859,10 +8869,13 @@ function MairuDemoInner() {
                                 </span>
                               ) : (
                                 <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: cluster.items[0] }); setPeekFerryId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
-                                  </button>
+                                  <span className="poi-pin-label-name-block">
+                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                  </span>
+                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: cluster.items[0] }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                            </button>
                                 </>
                               )}
                             </span>
@@ -8916,7 +8929,8 @@ function MairuDemoInner() {
                           className="muni-name-grid-item"
                           onClick={() => setPeekPrefId(p.id)}
                         >
-                          {mNameFuri(p)}
+                          <span className="muni-name-grid-item-text">{mNameFuri(p)}</span>
+                          <ChevronRight size={13} className="muni-name-grid-item-arrow" />
                         </button>
                       ))}
                     </div>
@@ -9283,10 +9297,12 @@ function MairuDemoInner() {
                           <span className="muni-peek-name" onClick={() => setPeekCityId(null)}>{mNameFuri(m)}</span>
                           {isActive ? (
                             <button
-                              className="peek-detail-btn"
+                              className="detail-hero-more-btn"
                               onClick={() => { setSelectedCity(m.id ?? m.name); setAppStage('muni'); setPeekCityId(null); }}
+                              aria-label={lang === 'en' ? 'Select' : '選択する'}
+                              title={lang === 'en' ? 'Select' : '選択する'}
                             >
-                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           ) : (
                             <span className="muni-soon-tag">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
@@ -9337,9 +9353,12 @@ function MairuDemoInner() {
                                 </span>
                               ) : (
                                 <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
+                                  <span className="poi-pin-label-name-block">
+                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                  </span>
+                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                                    <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                                   </button>
                                 </>
                               )}
@@ -9381,9 +9400,12 @@ function MairuDemoInner() {
                                 </span>
                               ) : (
                                 <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: cluster.items[0] }); setPeekFerryId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
+                                  <span className="poi-pin-label-name-block">
+                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                  </span>
+                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: cluster.items[0] }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                                    <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                                   </button>
                                 </>
                               )}
@@ -9423,9 +9445,9 @@ function MairuDemoInner() {
                               ) : (
                                 <>
                                   <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
-                                  <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }}>
-                                    {lang === 'en' ? 'Select ›' : '選択する ›'}
-                                  </button>
+                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                            </button>
                                 </>
                               )}
                             </span>
@@ -9447,7 +9469,8 @@ function MairuDemoInner() {
                             className="muni-name-grid-item"
                             onClick={() => setPeekCityId(mid)}
                           >
-                            {mNameFuri(m)}
+                            <span className="muni-name-grid-item-text">{mNameFuri(m)}</span>
+                            <ChevronRight size={13} className="muni-name-grid-item-arrow" />
                           </button>
                         );
                       })}
@@ -9964,8 +9987,8 @@ function MairuDemoInner() {
                         {isLinked && (
                           <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
                             <span className="poi-pin-label-name">{sName(spot)}</span>
-                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
-                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </div>
                         )}
@@ -10004,9 +10027,9 @@ function MairuDemoInner() {
                             ) : (
                               <>
                                 <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
-                                <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }}>
-                                  {lang === 'en' ? 'Select ›' : '選択する ›'}
-                                </button>
+                                <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                            </button>
                               </>
                             )}
                           </span>
@@ -10054,8 +10077,8 @@ function MairuDemoInner() {
                         {peekAirportId === id && (
                           <span className="poi-pin-label">
                             <span className="poi-pin-label-name">{lang === 'en' ? a.nameEn : a.name}</span>
-                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: a }); setPeekAirportId(null); }}>
-                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: a }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </span>
                         )}
@@ -10076,8 +10099,8 @@ function MairuDemoInner() {
                         {peekFerryId === id && (
                           <span className="poi-pin-label">
                             <span className="poi-pin-label-name">{lang === 'en' ? f.nameEn : f.name}</span>
-                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: f }); setPeekFerryId(null); }}>
-                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: f }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </span>
                         )}
@@ -10258,8 +10281,8 @@ function MairuDemoInner() {
                         {isLinked && (
                           <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
                             <span className="poi-pin-label-name">{sName(spot)}</span>
-                            <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }}>
-                              {lang === 'en' ? 'Select ›' : '選択する ›'}
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </div>
                         )}
@@ -10980,8 +11003,8 @@ function MairuDemoInner() {
 
                 <div className="detail-hero-name-row">
                   <span className="detail-hero-name-block">
-                    <span className="detail-hero-name">{name}</span>
                     {subLabel && <span className="detail-hero-furi">{subLabel}</span>}
+                    <span className="detail-hero-name">{name}</span>
                   </span>
                   {desc && (
                     <button
@@ -10991,7 +11014,7 @@ function MairuDemoInner() {
                       aria-label={lang === 'en' ? 'Show description' : '詳しく見る'}
                       title={lang === 'en' ? 'Show description' : '詳しく見る'}
                     >
-                      <Search size={12} />
+                      <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                     </button>
                   )}
                 </div>
@@ -11019,7 +11042,7 @@ function MairuDemoInner() {
                       <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
                     </button>
                   )}
-                  {data.officialUrl && (
+                  {data.officialUrl ? (
                     <a
                       className="poi-float-btn"
                       href={data.officialUrl}
@@ -11031,6 +11054,17 @@ function MairuDemoInner() {
                       <span className="poi-float-btn-circle"><Globe size={17} /></span>
                       <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式'}</span>
                     </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="poi-float-btn"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                      title={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                    >
+                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式'}</span>
+                    </button>
                   )}
                   {data.reserveUrl ? (
                     <a
