@@ -8058,6 +8058,7 @@ function MairuDemoInner() {
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .detail-card::-webkit-scrollbar { display:none; }
+        .poi-card-rounded { border-radius:12px !important; }
         @media (min-width:900px) {
           .detail-card { max-width:820px; }
         }
@@ -10969,7 +10970,7 @@ function MairuDemoInner() {
         return (
           <div className="overlay-backdrop detail-backdrop" onClick={() => setPoiDetail(null)}>
             <div className="detail-card-shell" style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
-            <div className="detail-card" onClick={(e) => e.stopPropagation()}>
+            <div className="detail-card poi-card-rounded" onClick={(e) => e.stopPropagation()}>
               <div className={`poi-hero-always169 detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
                 {data.image ? (
                   <img src={data.image} alt={name} className="detail-hero-img" loading="eager" decoding="async" />
@@ -11031,7 +11032,7 @@ function MairuDemoInner() {
                       <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式'}</span>
                     </a>
                   )}
-                  {data.reserveUrl && (
+                  {data.reserveUrl ? (
                     <a
                       className="poi-float-btn poi-reserve-btn"
                       href={data.reserveUrl}
@@ -11043,6 +11044,17 @@ function MairuDemoInner() {
                       <span className="poi-float-btn-circle"><Calendar size={17} /></span>
                       <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
                     </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="poi-float-btn poi-reserve-btn"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                      title={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                    >
+                      <span className="poi-float-btn-circle"><Calendar size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                    </button>
                   )}
                 </div>
 
