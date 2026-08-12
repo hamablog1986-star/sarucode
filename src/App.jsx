@@ -2460,7 +2460,7 @@ const DEFAULT_AIRPORTS = {
   fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506, desc: '福岡市博多区にある、九州最大の空港。国内外の多くの路線が就航し、九州の空の玄関口となっています。', descEn: "Kyushu's largest airport, located in Hakata Ward, Fukuoka City, with many domestic and international routes." },
   kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347, desc: '北九州市の沖合にある海上空港。24時間運用が可能で、国内線や貨物便が発着します。', descEn: 'An offshore airport off Kitakyushu City, operating 24 hours a day for domestic passenger and cargo flights.' },
   saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019, desc: '佐賀県佐賀市にある空港。福岡都市圏からもアクセスしやすく、格安航空会社(LCC)の便も就航しています。', descEn: 'Located in Saga City, easily accessible from the Fukuoka metro area, with several low-cost carrier routes.' },
-  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, desc: '（仮)大村湾に浮かぶ島を埋め立てて作られた、世界初の海上空港。長崎県のほぼ中央、大村市に位置し、県内各地からのアクセスも比較的良好です。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
+  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, furi: 'ながさきくうこう', desc: '（仮)大村湾に浮かぶ島を埋め立てて作られた、世界初の海上空港。長崎県のほぼ中央、大村市に位置し、県内各地からのアクセスも比較的良好です。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
   tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308, desc: '対馬にある空港。長崎・福岡便が就航し、離島へのアクセスを支えています。', descEn: 'Serves Tsushima Island with flights to Nagasaki and Fukuoka.' },
   iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856, desc: '壱岐島にある空港。長崎・福岡便が就航しています。', descEn: 'Serves Iki Island with flights to Nagasaki and Fukuoka.' },
   goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347, desc: '五島列島にある空港。五島つばき空港とも呼ばれ、長崎・福岡便が就航しています。', descEn: 'Also known as Goto Tsubaki Airport, serving the Goto Islands with flights to Nagasaki and Fukuoka.' },
@@ -6134,7 +6134,21 @@ function MairuDemoInner() {
         const nextMuniOverride = {};
         rows.forEach((a) => {
           if (!a.id) return;
-          nextAirports[a.id] = { name: a.name, nameEn: a.nameEn, lat: a.lat, lon: a.lng };
+          const fallback = DEFAULT_AIRPORTS[a.id] || {};
+          nextAirports[a.id] = {
+            name: a.name,
+            nameEn: a.nameEn,
+            lat: a.lat,
+            lon: a.lng,
+            // 以下は現状スプレッドシート「空港」シートにまだ無い列。追加され次第、自動でそちらが優先される。
+            // それまでは、コードに仮で入れているデモ用データ(DEFAULT_AIRPORTS)をフォールバックとして使う。
+            image: a.image ?? fallback.image,
+            desc: a.desc ?? fallback.desc,
+            descEn: a.descEn ?? fallback.descEn,
+            officialUrl: a.officialUrl ?? fallback.officialUrl,
+            reserveUrl: a.reserveUrl ?? fallback.reserveUrl,
+            furi: a.furi ?? fallback.furi,
+          };
           if (a.isPrefDefault) {
             const pref = KYUSHU_PREFS.find((p) => p.name === a.pref);
             if (pref) nextPrefAirport[pref.id] = a.id;
@@ -8774,7 +8788,7 @@ function MairuDemoInner() {
                       </div>
                     )}
                     {showAirportPins && clusterPins(
-                      Object.entries(AIRPORTS).map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; }),
+                      Object.entries(AIRPORTS).map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, ...a }; }),
                       poiClusterCellSize
                     ).map((cluster) => {
                       const key = cluster.items.map((i) => i.id).join('|');
@@ -8815,7 +8829,7 @@ function MairuDemoInner() {
                       );
                     })}
                     {showFerryPins && clusterPins(
-                      Object.entries(FERRIES).map(([id, f]) => { const svg = geoToSvg(f.lat, f.lon); return { id, x: svg.x, y: svg.y, name: f.name, nameEn: f.nameEn }; }),
+                      Object.entries(FERRIES).map(([id, f]) => { const svg = geoToSvg(f.lat, f.lon); return { id, x: svg.x, y: svg.y, ...f }; }),
                       poiClusterCellSize
                     ).map((cluster) => {
                       const key = cluster.items.map((i) => i.id).join('|');
@@ -9291,7 +9305,7 @@ function MairuDemoInner() {
                     )}
                     {showAirportPins && clusterPins(
                       Object.entries(AIRPORTS)
-                        .map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, name: a.name, nameEn: a.nameEn }; })
+                        .map(([id, a]) => { const svg = airportSvgPos(id, a); return { id, x: svg.x, y: svg.y, ...a }; })
                         .filter((p) => p.x >= prefFullViewBox.x && p.x <= prefFullViewBox.x + prefFullViewBox.w
                           && p.y >= prefFullViewBox.y && p.y <= prefFullViewBox.y + prefFullViewBox.h),
                       poiClusterCellSize
@@ -9335,7 +9349,7 @@ function MairuDemoInner() {
                     })}
                     {showFerryPins && clusterPins(
                       Object.entries(FERRIES)
-                        .map(([id, f]) => { const svg = geoToSvg(f.lat, f.lon); return { id, x: svg.x, y: svg.y, name: f.name, nameEn: f.nameEn }; })
+                        .map(([id, f]) => { const svg = geoToSvg(f.lat, f.lon); return { id, x: svg.x, y: svg.y, ...f }; })
                         .filter((p) => p.x >= prefFullViewBox.x && p.x <= prefFullViewBox.x + prefFullViewBox.w
                           && p.y >= prefFullViewBox.y && p.y <= prefFullViewBox.y + prefFullViewBox.h),
                       poiClusterCellSize
@@ -10992,11 +11006,11 @@ function MairuDemoInner() {
                     <span className="poi-float-btn-circle"><Bookmark size={17} fill={poiDetailSaved ? 'currentColor' : 'none'} /></span>
                     <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
                   </button>
-                  {data.lat && data.lng && (
+                  {data.lat && data.lon && (
                     <button
                       type="button"
                       className="poi-float-btn"
-                      onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lng), '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
                       aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
                       title={lang === 'en' ? 'Navigate' : 'ナビ'}
                     >
