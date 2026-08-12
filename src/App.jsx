@@ -2457,25 +2457,25 @@ const ICON_CATEGORY_GROUPS = {
 // これらはフォールバック用の既定値。実際にはdata/airports.json(スプレッドシート「空港」シート由来)を
 // 起動時に取得し、取得できればそちらの内容で上書きする(下のuseEffect参照)。
 const DEFAULT_AIRPORTS = {
-  fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506 },
-  kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347 },
-  saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019 },
-  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136 },
-  tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308 },
-  iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856 },
-  goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347 },
-  kumamoto: { name: '阿蘇くまもと空港', nameEn: 'Kumamoto Airport', lat: 32.8373, lon: 130.8556 },
-  amakusa: { name: '天草空港', nameEn: 'Amakusa Airport', lat: 32.4828, lon: 130.1508 },
-  oita: { name: '大分空港', nameEn: 'Oita Airport', lat: 33.4794, lon: 131.7369 },
-  miyazaki: { name: '宮崎空港', nameEn: 'Miyazaki Airport', lat: 31.8772, lon: 131.4486 },
-  kagoshima: { name: '鹿児島空港', nameEn: 'Kagoshima Airport', lat: 31.8034, lon: 130.7194 },
-  tanegashima: { name: '種子島空港', nameEn: 'Tanegashima Airport', lat: 30.6053, lon: 130.9917 },
-  yakushima: { name: '屋久島空港', nameEn: 'Yakushima Airport', lat: 30.3856, lon: 130.6592 },
-  amami: { name: '奄美空港', nameEn: 'Amami Airport', lat: 28.4308, lon: 129.7125 },
-  kikai: { name: '喜界空港', nameEn: 'Kikai Airport', lat: 28.4881, lon: 129.9281 },
-  tokunoshima: { name: '徳之島空港', nameEn: 'Tokunoshima Airport', lat: 27.8364, lon: 128.8814 },
-  okinoerabu: { name: '沖永良部空港', nameEn: 'Okinoerabu Airport', lat: 27.4317, lon: 128.7056 },
-  yoron: { name: '与論空港', nameEn: 'Yoron Airport', lat: 27.0439, lon: 128.4017 },
+  fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506, desc: '福岡市博多区にある、九州最大の空港。国内外の多くの路線が就航し、九州の空の玄関口となっています。', descEn: "Kyushu's largest airport, located in Hakata Ward, Fukuoka City, with many domestic and international routes." },
+  kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347, desc: '北九州市の沖合にある海上空港。24時間運用が可能で、国内線や貨物便が発着します。', descEn: 'An offshore airport off Kitakyushu City, operating 24 hours a day for domestic passenger and cargo flights.' },
+  saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019, desc: '佐賀県佐賀市にある空港。福岡都市圏からもアクセスしやすく、格安航空会社(LCC)の便も就航しています。', descEn: 'Located in Saga City, easily accessible from the Fukuoka metro area, with several low-cost carrier routes.' },
+  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, desc: '（仮)大村湾に浮かぶ島を埋め立てて作られた、世界初の海上空港。長崎県のほぼ中央、大村市に位置し、県内各地からのアクセスも比較的良好です。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
+  tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308, desc: '対馬にある空港。長崎・福岡便が就航し、離島へのアクセスを支えています。', descEn: 'Serves Tsushima Island with flights to Nagasaki and Fukuoka.' },
+  iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856, desc: '壱岐島にある空港。長崎・福岡便が就航しています。', descEn: 'Serves Iki Island with flights to Nagasaki and Fukuoka.' },
+  goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347, desc: '五島列島にある空港。五島つばき空港とも呼ばれ、長崎・福岡便が就航しています。', descEn: 'Also known as Goto Tsubaki Airport, serving the Goto Islands with flights to Nagasaki and Fukuoka.' },
+  kumamoto: { name: '阿蘇くまもと空港', nameEn: 'Kumamoto Airport', lat: 32.8373, lon: 130.8556, desc: '熊本県にある空港。阿蘇くまもと空港とも呼ばれ、熊本市中心部からアクセスできます。', descEn: 'Also known as Aso Kumamoto Airport, accessible from central Kumamoto City.' },
+  amakusa: { name: '天草空港', nameEn: 'Amakusa Airport', lat: 32.4828, lon: 130.1508, desc: '熊本県天草地方にある空港。天草エリアへのアクセスに利用されます。', descEn: 'Located in the Amakusa region of Kumamoto Prefecture, used for access to the Amakusa area.' },
+  oita: { name: '大分空港', nameEn: 'Oita Airport', lat: 33.4794, lon: 131.7369, desc: '大分県国東市にある空港。大分市中心部からはやや距離があります。', descEn: 'Located in Kunisaki City, Oita Prefecture, somewhat distant from central Oita City.' },
+  miyazaki: { name: '宮崎空港', nameEn: 'Miyazaki Airport', lat: 31.8772, lon: 131.4486, desc: '宮崎市にある空港。中心部から近く、アクセスの良さが特徴です。', descEn: 'Located in Miyazaki City, known for its convenient access close to the city center.' },
+  kagoshima: { name: '鹿児島空港', nameEn: 'Kagoshima Airport', lat: 31.8034, lon: 130.7194, desc: '鹿児島県霧島市にある空港。鹿児島県の空の玄関口です。', descEn: 'Located in Kirishima City, serving as the main air gateway to Kagoshima Prefecture.' },
+  tanegashima: { name: '種子島空港', nameEn: 'Tanegashima Airport', lat: 30.6053, lon: 130.9917, desc: '種子島にある空港。ロケット打ち上げで知られる島への玄関口です。', descEn: 'Serves Tanegashima Island, known for its rocket launch site.' },
+  yakushima: { name: '屋久島空港', nameEn: 'Yakushima Airport', lat: 30.3856, lon: 130.6592, desc: '屋久島にある空港。世界自然遺産の島への玄関口です。', descEn: 'Serves Yakushima Island, a UNESCO World Natural Heritage site.' },
+  amami: { name: '奄美空港', nameEn: 'Amami Airport', lat: 28.4308, lon: 129.7125, desc: '奄美大島にある空港。奄美群島の中心的な空港です。', descEn: 'Located on Amami Oshima, the main airport of the Amami island group.' },
+  kikai: { name: '喜界空港', nameEn: 'Kikai Airport', lat: 28.4881, lon: 129.9281, desc: '喜界島にある空港。', descEn: 'Serves Kikai Island.' },
+  tokunoshima: { name: '徳之島空港', nameEn: 'Tokunoshima Airport', lat: 27.8364, lon: 128.8814, desc: '徳之島にある空港。', descEn: 'Serves Tokunoshima Island.' },
+  okinoerabu: { name: '沖永良部空港', nameEn: 'Okinoerabu Airport', lat: 27.4317, lon: 128.7056, desc: '沖永良部島にある空港。', descEn: 'Serves Okinoerabu Island.' },
+  yoron: { name: '与論空港', nameEn: 'Yoron Airport', lat: 27.0439, lon: 128.4017, desc: '与論島にある空港。', descEn: 'Serves Yoron Island.' },
 };
 // 県ごとの代表空港(その県の市町村が既定で使う空港)
 const DEFAULT_PREF_AIRPORT = { '40': 'fukuoka', '41': 'saga', '42': 'nagasaki', '43': 'kumamoto', '44': 'oita', '45': 'miyazaki', '46': 'kagoshima' };
@@ -5285,6 +5285,9 @@ function MairuDemoInner() {
   const [roadsideMapLoading, setRoadsideMapLoading] = useState(false);
   const [peekRoadsideId, setPeekRoadsideId] = useState(null); // タップ中の道の駅ピン
   const [poiDetail, setPoiDetail] = useState(null); // 空港・フェリー・道の駅共通の詳細カード。{ type: 'airport'|'ferry'|'roadside', data } | null
+  const [poiDetailDescOpen, setPoiDetailDescOpen] = useState(false); // poiDetailカード:「詳しく見る」で紹介文を開いているか
+  const [poiDetailSaved, setPoiDetailSaved] = useState(false); // poiDetailカード:保存ボタンの状態(仮実装。永続化はまだしていない)
+  useEffect(() => { setPoiDetailDescOpen(false); setPoiDetailSaved(false); }, [poiDetail]);
 
   // 空港・フェリー・道の駅、いずれかのピンを選ぶときに使う共通関数。
   // 他のカテゴリで開いていた吹き出しは自動的に閉じ、最後にタップしたものだけが開いた状態になる。
@@ -5296,7 +5299,9 @@ function MairuDemoInner() {
     setPeekCityId(null);
     setExpandedIconGroup(null); // 吹き出しとアイコン列の展開メニューが重ならないよう、片方を開いたらもう片方は閉じる
   }
-  const KYUSHU_DEFAULT_VERTICAL_SHIFT = 40; // 九州地図のデフォルト表示位置を、計算上の中心よりこの分(px)だけ上にずらす
+  const KYUSHU_DEFAULT_VERTICAL_SHIFT = 65; // 九州地図のデフォルト表示位置を、計算上の中心よりこの分(px)だけ上にずらす
+  const titleAlignRef = useRef(null); // CONOTAVIタイトルのDOM要素(下部バー1番左のアイコンと左端を揃えるための測定用)
+  const firstBarIconAlignRef = useRef(null); // 下部バー1番左(現在地)のアイコン円のDOM要素
   const [kyushuZoom, setKyushuZoom] = useState(1); // 九州ページ(県を選ぶ前)の拡大率
   const kyushuZoomRef = useRef(1); // kyushuZoomの最新値への参照(Ctrl+ホイールズームで使う)
   useEffect(() => { kyushuZoomRef.current = kyushuZoom; }, [kyushuZoom]);
@@ -5344,6 +5349,23 @@ function MairuDemoInner() {
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
+  useEffect(() => {
+    function alignTitleWithFirstIcon() {
+      const icon = firstBarIconAlignRef.current;
+      const title = titleAlignRef.current;
+      if (!icon || !title) return;
+      title.style.marginLeft = '0px';
+      requestAnimationFrame(() => {
+        if (!firstBarIconAlignRef.current || !titleAlignRef.current) return;
+        const iconRect = firstBarIconAlignRef.current.getBoundingClientRect();
+        const titleRect = titleAlignRef.current.getBoundingClientRect();
+        titleAlignRef.current.style.marginLeft = `${iconRect.left - titleRect.left}px`;
+      });
+    }
+    alignTitleWithFirstIcon();
+    window.addEventListener('resize', alignTitleWithFirstIcon);
+    return () => window.removeEventListener('resize', alignTitleWithFirstIcon);
+  }, [appStage, selectedPrefId, selectedCity, lang]);
   useEffect(() => {
     setRegionZoom(1); // 県ページ以外に移動した時・選んでいる県が変わった時は拡大率をリセットする
     setRegionViewMoved(false);
@@ -7693,7 +7715,7 @@ function MairuDemoInner() {
         .kyushu-fullmap-view { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; background:#D9E8F0; }
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
-        .kyushu-float-header { position:absolute; top:14px; left:14px; z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
+        .kyushu-float-header { position:absolute; top:14px; left:calc(env(safe-area-inset-left, 0px) + 14px); z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
         .kyushu-float-title-btn { background:none; border:none; padding:0; margin:0; cursor:pointer; display:flex; align-items:center; }
         .kyushu-float-title { font-size:16px; font-weight:800; color:#1A2E3B; margin:0; letter-spacing:0.03em; }
         .kyushu-float-lang { display:flex; align-items:center; gap:4px; }
@@ -7701,7 +7723,7 @@ function MairuDemoInner() {
         .kyushu-float-tabs button { padding:8px 12px; }
         .show-names-inline-btn.icon-only { display:inline-flex; align-items:center; justify-content:center; }
         @media (max-width:560px) {
-          .kyushu-float-header { top:10px; left:10px; padding:6px 12px; }
+          .kyushu-float-header { top:10px; left:calc(env(safe-area-inset-left, 0px) + 10px); padding:6px 12px; }
           .kyushu-float-title { font-size:14px; }
           .kyushu-float-tabs { top:auto; bottom:14px; left:50%; }
         }
@@ -7794,7 +7816,7 @@ function MairuDemoInner() {
         .bottom-icon-bar {
           position:absolute; left:0; right:0; bottom:0; z-index:4;
           display:flex; justify-content:space-around; align-items:flex-start;
-          padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+          padding:10px calc(env(safe-area-inset-right, 0px) + 16px) calc(10px + env(safe-area-inset-bottom, 0px)) calc(env(safe-area-inset-left, 0px) + 16px);
           background:transparent;
         }
         .bottom-bar-btn {
@@ -7812,7 +7834,7 @@ function MairuDemoInner() {
         .route-bar-icon-circle { width:40px; height:40px; background:#D85A30; color:#fff; margin-top:-8px; }
         .route-bar-label { color:#D85A30; }
         .reset-fab {
-          position:absolute; right:calc(8px + (100% - 16px) / 12); bottom:118px; z-index:5;
+          position:absolute; right:calc(16px + (100% - 32px) / 12); bottom:82px; z-index:5;
           transform:translateX(50%);
           display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; -webkit-tap-highlight-color:transparent;
           background:none; border:none;
@@ -8054,6 +8076,40 @@ function MairuDemoInner() {
         .detail-textblock-top { display:flex; align-items:center; justify-content:flex-start; gap:8px; }
         .detail-textblock-tag { display:inline-flex; align-items:center; gap:5px; background:var(--cat-color); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.02em; padding:4px 10px; border-radius:7px; }
         .detail-hero-tag { position:absolute; top:12px; left:12px; z-index:2; display:inline-flex; align-items:center; gap:5px; background:var(--cat-color); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.02em; padding:4px 10px; border-radius:7px; }
+
+        /* 空港・フェリー・道の駅カード(poiDetail)専用: 画像は常に16:9、名前・詳細ボタン・保存/ナビ/公式/予約ボタンを画像の中に収めるデザイン */
+        .poi-hero-always169 { height:auto !important; aspect-ratio:16 / 9; }
+        .detail-hero-name-row {
+          position:absolute; top:12px; left:12px; z-index:3;
+          background:#21262C; color:#fff; padding:4px 6px 4px 9px; border-radius:7px;
+          display:inline-flex; align-items:center; gap:6px; max-width:calc(100% - 24px);
+        }
+        .detail-hero-name-block { display:flex; flex-direction:column; gap:1px; min-width:0; }
+        .detail-hero-name { font-size:11px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .detail-hero-furi { font-size:6px; font-weight:500; color:rgba(255,255,255,0.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .detail-hero-more-btn {
+          background:#fff; border:none; color:#1A2E3B; border-radius:50%; width:22px; height:22px;
+          display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; align-self:center;
+          -webkit-tap-highlight-color:transparent;
+        }
+        .detail-hero-desc-overlay {
+          position:absolute; left:0; right:0; top:60px; bottom:72px; z-index:2;
+          background:rgba(20,22,26,0.72); padding:10px 14px; display:none; overflow-y:auto;
+        }
+        .detail-hero-desc-overlay.show { display:block; }
+        .detail-hero-actions { position:absolute; right:10px; bottom:10px; z-index:3; display:flex; gap:8px; }
+        .poi-float-btn {
+          display:flex; flex-direction:column; align-items:center; gap:3px;
+          background:none; border:none; cursor:pointer; text-decoration:none; color:#1A2E3B;
+          -webkit-tap-highlight-color:transparent;
+        }
+        .poi-float-btn-circle {
+          width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+          background:rgba(255,255,255,0.9);
+        }
+        .poi-float-btn-label { font-size:10px; font-weight:700; color:#1A2E3B; }
+        .poi-float-btn.active .poi-float-btn-circle { background:var(--cat-color); color:#fff; }
+        .poi-reserve-btn .poi-float-btn-circle { background:#D85A30; color:#fff; }
         .detail-textblock-price { color:rgba(255,255,255,0.92); font-size:12.5px; font-weight:700; font-family:'JetBrains Mono', monospace; white-space:nowrap; }
         .detail-textblock-name { display:block; width:100%; color:#fff; font-family:'Zen Kaku Gothic New', sans-serif; font-size:21px; line-height:1.3; margin:0; text-align:left; }
         .detail-textblock-desc { color:rgba(255,255,255,0.82); font-size:13px; line-height:1.65; margin:0; text-align:left; }
@@ -8468,7 +8524,7 @@ function MairuDemoInner() {
           <div className={`kyushu-float-header ${showAllPrefNames && !peekPrefId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-header-left-group">
               <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-                <h1 className="kyushu-float-title">CONOTAVI</h1>
+                <h1 className="kyushu-float-title" ref={titleAlignRef}>CONOTAVI</h1>
               </button>
               {showAllPrefNames && (
                 <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
@@ -8504,7 +8560,7 @@ function MairuDemoInner() {
                     title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                   >
-                    <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                    <span className="bottom-bar-icon-circle" ref={firstBarIconAlignRef}><Navigation size={17} /></span>
                     <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                   </button>
                   <button
@@ -8972,7 +9028,7 @@ function MairuDemoInner() {
           <div className={`kyushu-float-header ${showAllCityNames && !peekCityId ? 'kyushu-float-header-dimmed' : ''}`}>
             <div className="entry-header-left-group">
               <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-                <h1 className="kyushu-float-title">CONOTAVI</h1>
+                <h1 className="kyushu-float-title" ref={titleAlignRef}>CONOTAVI</h1>
               </button>
               {showAllCityNames && (
                 <span className="entry-lang-toggle kyushu-float-lang muni-location-pill">
@@ -9008,7 +9064,7 @@ function MairuDemoInner() {
                     title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                   >
-                    <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                    <span className="bottom-bar-icon-circle" ref={firstBarIconAlignRef}><Navigation size={17} /></span>
                     <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                   </button>
                   {['40','41','42','43','44','45','46'].includes(selectedPrefId) && (
@@ -9587,7 +9643,7 @@ function MairuDemoInner() {
               <div className="kyushu-float-header">
                 <div className="entry-header-left-group">
                   <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-                    <h1 className="kyushu-float-title">CONOTAVI</h1>
+                    <h1 className="kyushu-float-title" ref={titleAlignRef}>CONOTAVI</h1>
                   </button>
                 </div>
               </div>
@@ -9698,7 +9754,7 @@ function MairuDemoInner() {
                       title={lang === 'en' ? 'Show my location' : '現在地を表示'}
                       aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
                     >
-                      <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+                      <span className="bottom-bar-icon-circle" ref={firstBarIconAlignRef}><Navigation size={17} /></span>
                       <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                     </button>
                     <button
@@ -10888,70 +10944,100 @@ function MairuDemoInner() {
       {poiDetail && (() => {
         const { type, data } = poiDetail;
         const metaByType = {
-          airport: { Icon: Plane, color: '#1B6CA8', tint: '#E7F0F7', label: lang === 'en' ? 'Airport' : '空港' },
-          ferry: { Icon: Ship, color: '#1F7A6C', tint: '#E6F1EE', label: lang === 'en' ? 'Ferry Terminal' : 'フェリーターミナル' },
-          roadside: { Icon: Store, color: CATEGORY_META.roadside.color, tint: CATEGORY_META.roadside.tint, label: lang === 'en' ? 'Roadside Station' : '道の駅' },
+          airport: { Icon: Plane, color: '#1B6CA8', tint: '#E7F0F7' },
+          ferry: { Icon: Ship, color: '#1F7A6C', tint: '#E6F1EE' },
+          roadside: { Icon: Store, color: CATEGORY_META.roadside.color, tint: CATEGORY_META.roadside.tint },
         };
         const meta = metaByType[type];
         const name = lang === 'en' ? (data.nameEn || data.name) : data.name;
         const desc = lang === 'en' ? (data.descEn || data.desc) : data.desc;
+        const subLabel = data.furi || (type === 'roadside' ? data.city : null);
         return (
           <div className="overlay-backdrop detail-backdrop" onClick={() => setPoiDetail(null)}>
             <div className="detail-card-shell" style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
             <div className="detail-card" onClick={(e) => e.stopPropagation()}>
-              <div className={`detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
+              <div className={`poi-hero-always169 detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
                 {data.image ? (
                   <img src={data.image} alt={name} className="detail-hero-img" loading="eager" decoding="async" />
                 ) : (
-                  <meta.Icon size={42} color={meta.color} className="detail-hero-icon" />
+                  <meta.Icon size={48} color={meta.color} className="detail-hero-icon" />
                 )}
-                <span className="detail-hero-tag">
-                  <meta.Icon size={12} />
-                  {meta.label}
-                </span>
-              </div>
-              {data.image ? (
-                <div className="detail-textblock">
-                  <h2 className="detail-textblock-name">{name}</h2>
-                  {type === 'roadside' && data.city && <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{data.city}</p>}
-                  {desc && <p className="detail-textblock-desc">{desc}</p>}
+
+                <div className="detail-hero-name-row">
+                  <span className="detail-hero-name-block">
+                    <span className="detail-hero-name">{name}</span>
+                    {subLabel && <span className="detail-hero-furi">{subLabel}</span>}
+                  </span>
+                  {desc && (
+                    <button
+                      type="button"
+                      className="detail-hero-more-btn"
+                      onClick={(e) => { e.stopPropagation(); setPoiDetailDescOpen((v) => !v); }}
+                      aria-label={lang === 'en' ? 'Show description' : '詳しく見る'}
+                      title={lang === 'en' ? 'Show description' : '詳しく見る'}
+                    >
+                      <Search size={12} />
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <div className="detail-body">
-                  <div className="detail-tag">
-                    <meta.Icon size={14} />
-                    {meta.label}
+
+                <div className="detail-hero-actions" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    className={`poi-float-btn ${poiDetailSaved ? 'active' : ''}`}
+                    onClick={() => setPoiDetailSaved((v) => !v)}
+                    aria-label={lang === 'en' ? 'Save' : '保存'}
+                    title={lang === 'en' ? 'Save' : '保存'}
+                  >
+                    <span className="poi-float-btn-circle"><Bookmark size={17} fill={poiDetailSaved ? 'currentColor' : 'none'} /></span>
+                    <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
+                  </button>
+                  {data.lat && data.lng && (
+                    <button
+                      type="button"
+                      className="poi-float-btn"
+                      onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lng), '_blank', 'noopener,noreferrer')}
+                      aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
+                      title={lang === 'en' ? 'Navigate' : 'ナビ'}
+                    >
+                      <span className="poi-float-btn-circle"><Navigation size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
+                    </button>
+                  )}
+                  {data.officialUrl && (
+                    <a
+                      className="poi-float-btn"
+                      href={data.officialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
+                      title={lang === 'en' ? 'Official website' : '公式ページ'}
+                    >
+                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式'}</span>
+                    </a>
+                  )}
+                  {data.reserveUrl && (
+                    <a
+                      className="poi-float-btn poi-reserve-btn"
+                      href={data.reserveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={lang === 'en' ? 'Reserve' : '予約'}
+                      title={lang === 'en' ? 'Reserve' : '予約'}
+                    >
+                      <span className="poi-float-btn-circle"><Calendar size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                    </a>
+                  )}
+                </div>
+
+                {desc && (
+                  <div className={`detail-hero-desc-overlay ${poiDetailDescOpen ? 'show' : ''}`} onClick={(e) => e.stopPropagation()}>
+                    <p className="detail-desc">{desc}</p>
                   </div>
-                  <h2 className="detail-name">{name}</h2>
-                  {type === 'roadside' && data.city && <p style={{ fontSize: '12px', color: '#8A9FA8', margin: '0 0 8px' }}>{data.city}</p>}
-                  {desc && <p className="detail-desc">{desc}</p>}
-                </div>
-              )}
-            </div>
-            <div className="detail-float-actions" onClick={(e) => e.stopPropagation()}>
-              {data.lat && data.lng && (
-                <button
-                  type="button"
-                  className="detail-float-btn"
-                  onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lng), '_blank', 'noopener,noreferrer')}
-                  aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
-                  title={lang === 'en' ? 'Navigate' : 'ナビ'}
-                >
-                  <Navigation size={19} />
-                </button>
-              )}
-              {data.officialUrl && (
-                <a
-                  className="detail-float-btn"
-                  href={data.officialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
-                  title={lang === 'en' ? 'Official website' : '公式ページ'}
-                >
-                  <Globe size={19} />
-                </a>
-              )}
+                )}
+              </div>
             </div>
             </div>
           </div>
