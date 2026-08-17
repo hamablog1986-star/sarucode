@@ -2457,25 +2457,25 @@ const ICON_CATEGORY_GROUPS = {
 // これらはフォールバック用の既定値。実際にはdata/airports.json(スプレッドシート「空港」シート由来)を
 // 起動時に取得し、取得できればそちらの内容で上書きする(下のuseEffect参照)。
 const DEFAULT_AIRPORTS = {
-  fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506, desc: '福岡市博多区にある、九州最大の空港。国内外の多くの路線が就航し、九州の空の玄関口となっています。', descEn: "Kyushu's largest airport, located in Hakata Ward, Fukuoka City, with many domestic and international routes." },
-  kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347, desc: '北九州市の沖合にある海上空港。24時間運用が可能で、国内線や貨物便が発着します。', descEn: 'An offshore airport off Kitakyushu City, operating 24 hours a day for domestic passenger and cargo flights.' },
-  saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019, desc: '佐賀県佐賀市にある空港。福岡都市圏からもアクセスしやすく、格安航空会社(LCC)の便も就航しています。', descEn: 'Located in Saga City, easily accessible from the Fukuoka metro area, with several low-cost carrier routes.' },
+  fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506, furi: 'ふくおかくうこう', desc: '福岡市博多区にある、九州最大の空港。国内外の多くの路線が就航し、九州の空の玄関口となっています。', descEn: "Kyushu's largest airport, located in Hakata Ward, Fukuoka City, with many domestic and international routes." },
+  kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347, furi: 'きたきゅうしゅうくうこう', desc: '北九州市の沖合にある海上空港。24時間運用が可能で、国内線や貨物便が発着します。', descEn: 'An offshore airport off Kitakyushu City, operating 24 hours a day for domestic passenger and cargo flights.' },
+  saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019, furi: 'きゅうしゅうさがこくさいくうこう', desc: '佐賀県佐賀市にある空港。福岡都市圏からもアクセスしやすく、格安航空会社(LCC)の便も就航しています。', descEn: 'Located in Saga City, easily accessible from the Fukuoka metro area, with several low-cost carrier routes.' },
   nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, furi: 'ながさきくうこう', desc: '（仮)大村湾に浮かぶ島を埋め立てて作られた、世界初の海上空港。長崎県のほぼ中央、大村市に位置し、県内各地からのアクセスも比較的良好です。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
-  tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308, desc: '対馬にある空港。長崎・福岡便が就航し、離島へのアクセスを支えています。', descEn: 'Serves Tsushima Island with flights to Nagasaki and Fukuoka.' },
-  iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856, desc: '壱岐島にある空港。長崎・福岡便が就航しています。', descEn: 'Serves Iki Island with flights to Nagasaki and Fukuoka.' },
-  goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347, desc: '五島列島にある空港。五島つばき空港とも呼ばれ、長崎・福岡便が就航しています。', descEn: 'Also known as Goto Tsubaki Airport, serving the Goto Islands with flights to Nagasaki and Fukuoka.' },
-  kumamoto: { name: '阿蘇くまもと空港', nameEn: 'Kumamoto Airport', lat: 32.8373, lon: 130.8556, desc: '熊本県にある空港。阿蘇くまもと空港とも呼ばれ、熊本市中心部からアクセスできます。', descEn: 'Also known as Aso Kumamoto Airport, accessible from central Kumamoto City.' },
-  amakusa: { name: '天草空港', nameEn: 'Amakusa Airport', lat: 32.4828, lon: 130.1508, desc: '熊本県天草地方にある空港。天草エリアへのアクセスに利用されます。', descEn: 'Located in the Amakusa region of Kumamoto Prefecture, used for access to the Amakusa area.' },
-  oita: { name: '大分空港', nameEn: 'Oita Airport', lat: 33.4794, lon: 131.7369, desc: '大分県国東市にある空港。大分市中心部からはやや距離があります。', descEn: 'Located in Kunisaki City, Oita Prefecture, somewhat distant from central Oita City.' },
-  miyazaki: { name: '宮崎空港', nameEn: 'Miyazaki Airport', lat: 31.8772, lon: 131.4486, desc: '宮崎市にある空港。中心部から近く、アクセスの良さが特徴です。', descEn: 'Located in Miyazaki City, known for its convenient access close to the city center.' },
-  kagoshima: { name: '鹿児島空港', nameEn: 'Kagoshima Airport', lat: 31.8034, lon: 130.7194, desc: '鹿児島県霧島市にある空港。鹿児島県の空の玄関口です。', descEn: 'Located in Kirishima City, serving as the main air gateway to Kagoshima Prefecture.' },
-  tanegashima: { name: '種子島空港', nameEn: 'Tanegashima Airport', lat: 30.6053, lon: 130.9917, desc: '種子島にある空港。ロケット打ち上げで知られる島への玄関口です。', descEn: 'Serves Tanegashima Island, known for its rocket launch site.' },
-  yakushima: { name: '屋久島空港', nameEn: 'Yakushima Airport', lat: 30.3856, lon: 130.6592, desc: '屋久島にある空港。世界自然遺産の島への玄関口です。', descEn: 'Serves Yakushima Island, a UNESCO World Natural Heritage site.' },
-  amami: { name: '奄美空港', nameEn: 'Amami Airport', lat: 28.4308, lon: 129.7125, desc: '奄美大島にある空港。奄美群島の中心的な空港です。', descEn: 'Located on Amami Oshima, the main airport of the Amami island group.' },
-  kikai: { name: '喜界空港', nameEn: 'Kikai Airport', lat: 28.4881, lon: 129.9281, desc: '喜界島にある空港。', descEn: 'Serves Kikai Island.' },
-  tokunoshima: { name: '徳之島空港', nameEn: 'Tokunoshima Airport', lat: 27.8364, lon: 128.8814, desc: '徳之島にある空港。', descEn: 'Serves Tokunoshima Island.' },
-  okinoerabu: { name: '沖永良部空港', nameEn: 'Okinoerabu Airport', lat: 27.4317, lon: 128.7056, desc: '沖永良部島にある空港。', descEn: 'Serves Okinoerabu Island.' },
-  yoron: { name: '与論空港', nameEn: 'Yoron Airport', lat: 27.0439, lon: 128.4017, desc: '与論島にある空港。', descEn: 'Serves Yoron Island.' },
+  tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308, furi: 'つしまくうこう', desc: '対馬にある空港。長崎・福岡便が就航し、離島へのアクセスを支えています。', descEn: 'Serves Tsushima Island with flights to Nagasaki and Fukuoka.' },
+  iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856, furi: 'いきくうこう', desc: '壱岐島にある空港。長崎・福岡便が就航しています。', descEn: 'Serves Iki Island with flights to Nagasaki and Fukuoka.' },
+  goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347, furi: 'ごとうつばきくうこう', desc: '五島列島にある空港。五島つばき空港とも呼ばれ、長崎・福岡便が就航しています。', descEn: 'Also known as Goto Tsubaki Airport, serving the Goto Islands with flights to Nagasaki and Fukuoka.' },
+  kumamoto: { name: '阿蘇くまもと空港', nameEn: 'Kumamoto Airport', lat: 32.8373, lon: 130.8556, furi: 'あそくまもとくうこう', desc: '熊本県にある空港。阿蘇くまもと空港とも呼ばれ、熊本市中心部からアクセスできます。', descEn: 'Also known as Aso Kumamoto Airport, accessible from central Kumamoto City.' },
+  amakusa: { name: '天草空港', nameEn: 'Amakusa Airport', lat: 32.4828, lon: 130.1508, furi: 'あまくさくうこう', desc: '熊本県天草地方にある空港。天草エリアへのアクセスに利用されます。', descEn: 'Located in the Amakusa region of Kumamoto Prefecture, used for access to the Amakusa area.' },
+  oita: { name: '大分空港', nameEn: 'Oita Airport', lat: 33.4794, lon: 131.7369, furi: 'おおいたくうこう', desc: '大分県国東市にある空港。大分市中心部からはやや距離があります。', descEn: 'Located in Kunisaki City, Oita Prefecture, somewhat distant from central Oita City.' },
+  miyazaki: { name: '宮崎空港', nameEn: 'Miyazaki Airport', lat: 31.8772, lon: 131.4486, furi: 'みやざきくうこう', desc: '宮崎市にある空港。中心部から近く、アクセスの良さが特徴です。', descEn: 'Located in Miyazaki City, known for its convenient access close to the city center.' },
+  kagoshima: { name: '鹿児島空港', nameEn: 'Kagoshima Airport', lat: 31.8034, lon: 130.7194, furi: 'かごしまくうこう', desc: '鹿児島県霧島市にある空港。鹿児島県の空の玄関口です。', descEn: 'Located in Kirishima City, serving as the main air gateway to Kagoshima Prefecture.' },
+  tanegashima: { name: '種子島空港', nameEn: 'Tanegashima Airport', lat: 30.6053, lon: 130.9917, furi: 'たねがしまくうこう', desc: '種子島にある空港。ロケット打ち上げで知られる島への玄関口です。', descEn: 'Serves Tanegashima Island, known for its rocket launch site.' },
+  yakushima: { name: '屋久島空港', nameEn: 'Yakushima Airport', lat: 30.3856, lon: 130.6592, furi: 'やくしまくうこう', desc: '屋久島にある空港。世界自然遺産の島への玄関口です。', descEn: 'Serves Yakushima Island, a UNESCO World Natural Heritage site.' },
+  amami: { name: '奄美空港', nameEn: 'Amami Airport', lat: 28.4308, lon: 129.7125, furi: 'あまみくうこう', desc: '奄美大島にある空港。奄美群島の中心的な空港です。', descEn: 'Located on Amami Oshima, the main airport of the Amami island group.' },
+  kikai: { name: '喜界空港', nameEn: 'Kikai Airport', lat: 28.4881, lon: 129.9281, furi: 'きかいくうこう', desc: '喜界島にある空港。', descEn: 'Serves Kikai Island.' },
+  tokunoshima: { name: '徳之島空港', nameEn: 'Tokunoshima Airport', lat: 27.8364, lon: 128.8814, furi: 'とくのしまくうこう', desc: '徳之島にある空港。', descEn: 'Serves Tokunoshima Island.' },
+  okinoerabu: { name: '沖永良部空港', nameEn: 'Okinoerabu Airport', lat: 27.4317, lon: 128.7056, furi: 'おきのえらぶくうこう', desc: '沖永良部島にある空港。', descEn: 'Serves Okinoerabu Island.' },
+  yoron: { name: '与論空港', nameEn: 'Yoron Airport', lat: 27.0439, lon: 128.4017, furi: 'よろんくうこう', desc: '与論島にある空港。', descEn: 'Serves Yoron Island.' },
 };
 // 県ごとの代表空港(その県の市町村が既定で使う空港)
 const DEFAULT_PREF_AIRPORT = { '40': 'fukuoka', '41': 'saga', '42': 'nagasaki', '43': 'kumamoto', '44': 'oita', '45': 'miyazaki', '46': 'kagoshima' };
@@ -5334,7 +5334,6 @@ function MairuDemoInner() {
   useEffect(() => { regionZoomRef.current = regionZoom; }, [regionZoom]);
   const [regionViewMoved, setRegionViewMoved] = useState(false); // 県地図が初期表示から動かされたか(拡大/パン)
   const regionProgrammaticScrollRef = useRef(false); // 自動センタリング/リセット中はonScrollでの検知を無視するためのフラグ
-  useEffect(() => { if (regionZoom !== 1) setRegionViewMoved(true); }, [regionZoom]);
   const muniMapFrameRef = useRef(null); // 市町村ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
   const [muniMapSize, setMuniMapSize] = useState(() => (typeof window !== 'undefined' ? { w: window.innerWidth, h: window.innerHeight } : null)); // 上記フレームの実測サイズ { w, h }(px)
   const kyushuMapFrameRef = useRef(null); // 九州ページ(全画面地図モード)の地図フレームDOM。実際の画面比率を測るために使う
@@ -5349,6 +5348,12 @@ function MairuDemoInner() {
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
+  // 県ページの初期拡大率(通常は1)。スマホとPC(横幅の広い画面)で見え方が違うため、別々に持つ。
+  const REGION_DEFAULT_ZOOM_MOBILE = { '40': 0.9, '41': 0.9, '42': 1.0, '43': 1.08, '44': 0.9, '45': 0.7 };
+  const REGION_DEFAULT_ZOOM_DESKTOP = { '42': 0.8 }; // PC用。長崎県は少し縮小
+  const isDesktopViewport = typeof window !== 'undefined' && window.innerWidth >= 900;
+  const REGION_DEFAULT_ZOOM = isDesktopViewport ? REGION_DEFAULT_ZOOM_DESKTOP : REGION_DEFAULT_ZOOM_MOBILE;
+  useEffect(() => { if (regionZoom !== (REGION_DEFAULT_ZOOM[selectedPrefId] || 1)) setRegionViewMoved(true); }, [regionZoom, selectedPrefId]);
   useEffect(() => {
     function alignTitleWithFirstIcon() {
       const icon = firstBarIconAlignRef.current;
@@ -5367,7 +5372,7 @@ function MairuDemoInner() {
     return () => window.removeEventListener('resize', alignTitleWithFirstIcon);
   }, [appStage, selectedPrefId, selectedCity, lang]);
   useEffect(() => {
-    setRegionZoom(1); // 県ページ以外に移動した時・選んでいる県が変わった時は拡大率をリセットする
+    setRegionZoom(REGION_DEFAULT_ZOOM[selectedPrefId] || 1); // 県ページ以外に移動した時・選んでいる県が変わった時は、県ごとの初期拡大率に戻す
     setRegionViewMoved(false);
   }, [appStage, selectedPrefId]);
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
@@ -5400,17 +5405,23 @@ function MairuDemoInner() {
     const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
     const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
     const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
-    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: 0 }, '46': { name: '鹿児島市', offsetX: 25 } };
+    const REGION_CENTER_OVERRIDE_MOBILE = { '42': { name: '大村市', offsetX: -18, offsetY: -8 }, '46': { name: '鹿児島市', offsetX: 15, offsetY: 20 } };
+    const REGION_CENTER_OVERRIDE_DESKTOP = { '42': { name: '大村市', offsetX: 0, offsetY: 0 }, '46': { name: '鹿児島市', offsetX: 0, offsetY: 0 } }; // PC用は未調整
+    const REGION_CENTER_OVERRIDE = isDesktopViewport ? REGION_CENTER_OVERRIDE_DESKTOP : REGION_CENTER_OVERRIDE_MOBILE;
+    const REGION_PLAIN_OFFSET_MOBILE = { '40': { offsetX: 0, offsetY: 50 }, '41': { offsetX: 2, offsetY: 12 }, '43': { offsetX: 28, offsetY: 13 }, '44': { offsetX: 0, offsetY: 20 }, '45': { offsetX: 0, offsetY: 20 } };
+    const REGION_PLAIN_OFFSET_DESKTOP = {}; // PC用はまだ未調整(ズレなし)
+    const REGION_PLAIN_OFFSET = isDesktopViewport ? REGION_PLAIN_OFFSET_DESKTOP : REGION_PLAIN_OFFSET_MOBILE; // 特定の市町村を基準にせず、単純に中心をずらしたい県用
     const override = REGION_CENTER_OVERRIDE[prefId];
     const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
-    const mainlandCx = overrideMuni ? overrideMuni.cx + (override.offsetX || 0) : rvb.x + rvb.w / 2;
-    const mainlandCy = overrideMuni ? overrideMuni.cy : rvb.y + rvb.h / 2;
+    const plainOffset = REGION_PLAIN_OFFSET[prefId];
+    const mainlandCx = overrideMuni ? overrideMuni.cx + (override.offsetX || 0) : rvb.x + rvb.w / 2 + (plainOffset?.offsetX || 0);
+    const mainlandCy = overrideMuni ? overrideMuni.cy + (override.offsetY || 0) : rvb.y + rvb.h / 2 + (plainOffset?.offsetY || 0);
     return { fvb, mainlandCx, mainlandCy };
   }
   // 県ページ用: 拡大率・ピン・地名表示などをすべて初期状態に戻し、地図の表示位置も再センタリングする
   function resetRegionMapView() {
     resetMapDisplay();
-    setRegionZoom(1);
+    setRegionZoom(REGION_DEFAULT_ZOOM[selectedPrefId] || 1);
     const el = regionMapScrollRef.current;
     const center = getRegionMapCenter(selectedPrefId);
     if (el && center) {
@@ -5629,7 +5640,7 @@ function MairuDemoInner() {
   // transform-origin を「つまんだ位置」に設定しておけば、拡大縮小はブラウザが
   // 自動でその位置を中心に行ってくれるため、自分でスクロール位置を計算し直す必要がない。
   const pinchRef = useRef({ active: false, startDist: 0, startZoom: 1, raf: null, pendingScale: null });
-  function makePinchHandlers(setZoom, contentRef, scrollRef) {
+  function makePinchHandlers(setZoom, contentRef, scrollRef, minZoom = 1) {
     function getDist(touches) {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
@@ -5663,7 +5674,7 @@ function MairuDemoInner() {
         if (e.touches.length === 2 && p.active && content) {
           e.preventDefault();
           const dist = getDist(e.touches);
-          const scale = Math.min(3 / p.startZoom, Math.max(1 / p.startZoom, dist / p.startDist));
+          const scale = Math.min(3 / p.startZoom, Math.max(minZoom / p.startZoom, dist / p.startDist));
           p.pendingScale = scale;
           if (!p.raf) {
             p.raf = requestAnimationFrame(() => {
@@ -5679,7 +5690,7 @@ function MairuDemoInner() {
           const content = contentRef.current;
           const el = scrollRef.current;
           if (p.active && content && el && p.pendingScale != null) {
-            const finalZoom = Math.min(3, Math.max(1, +(p.startZoom * p.pendingScale).toFixed(2)));
+            const finalZoom = Math.min(3, Math.max(minZoom, +(p.startZoom * p.pendingScale).toFixed(2)));
             const ratio = finalZoom / p.startZoom;
             // つまんだ場所が画面上で同じ位置に見え続けるよう、通常表示(width/height方式)に
             // 戻すタイミングでスクロール位置を計算し直す
@@ -6531,10 +6542,17 @@ function MairuDemoInner() {
   function sDesc(spot) { return lang === 'en' ? (spot.descEn || spot.desc) : spot.desc; }
   function mName(m) { return lang === 'en' ? (m.nameEn || m.name) : m.name; }
   // 県・市町村名を、日本語表示の時だけ読み方(ふりがな)付きで表示する
+  // すべての呼び出し箇所(グリッド・ポップアップ・見出しなど)で漢字-ふりがな間の余白が
+  // 完全に同じになるよう、<ruby>タグではなく共通のflex構造を使う。
   function mNameFuri(m) {
     if (lang === 'en') return m.nameEn || m.name;
     if (!m.yomi) return m.name;
-    return <ruby>{m.name}<rt>{m.yomi}</rt></ruby>;
+    return (
+      <span className="name-furi-wrap">
+        <span className="name-furi-line">{m.yomi}</span>
+        <span className="name-kanji-line">{m.name}</span>
+      </span>
+    );
   }
   function catLabel(meta) { return meta.label[lang]; }
   function modeLabel(mode) { return MODE_LABEL[mode][lang]; }
@@ -7131,6 +7149,11 @@ function MairuDemoInner() {
         /* ふりがな(読み方)表示。漢字の上に小さく表示する */
         ruby { ruby-position: over; color:inherit; -webkit-text-emphasis: none; line-height: 1.9; }
         rt { font-size:0.6em; font-weight:500; opacity:0.8; user-select:none; letter-spacing:0.02em; color:inherit; }
+        /* mNameFuri共通:県名・市町村名のふりがな+漢字。全呼び出し箇所でこの1つのルールだけを使うので、
+           間隔(gap)・文字間隔(letter-spacing)が呼び出し場所によらず必ず同じになる */
+        .name-furi-wrap { display:inline-flex; flex-direction:column; align-items:center; gap:2px; line-height:1; }
+        .name-furi-line { font-size:0.5em; font-weight:500; opacity:0.65; line-height:1; white-space:nowrap; }
+        .name-kanji-line { letter-spacing:0.15em; line-height:1; white-space:nowrap; }
 
         .mairu-app {
           --ink: #21262C;
@@ -7513,7 +7536,7 @@ function MairuDemoInner() {
         .entry-card-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px; }
         .entry-card-body { flex:1; min-width:0; }
         .entry-card-ja { font-size:13.5px; font-weight:800; margin:0 0 3px; color:#1A2E3B; }
-        .purpose-card-ja { font-size:13.5px; }
+        .purpose-card-ja { font-size:13.5px; display:flex; align-items:center; line-height:1; }
         .entry-card-desc { font-size:11.5px; margin:0; color:#8A9FA8; line-height:1.5; }
         .entry-card-chev { font-size:17px; color:#C8D4D8; flex-shrink:0; }
         .entry-card-arrow { font-size:22px; font-weight:700; color:#1A2E3B; flex-shrink:0; }
@@ -7617,8 +7640,8 @@ function MairuDemoInner() {
         .muni-shape.is-peeking { fill:#6E7A4C; stroke:#6E7A4C; }
         .muni-hit-region.is-peeking { fill:#6E7A4C; }
 
-        .muni-peek { position:absolute; transform:translate(-50%, calc(-100% - 10px)); background:#21262C; color:#fff; padding:9px 8px 7px 11px; border-radius:9px; font-size:11.5px; line-height:1.9; font-weight:600; white-space:nowrap; display:flex; align-items:center; gap:8px; z-index:5; }
-        .muni-peek-name { cursor:pointer; }
+        .muni-peek { position:absolute; transform:translate(-50%, calc(-100% - 10px)); background:#21262C; color:#fff; padding:8px 8px 8px 11px; border-radius:9px; font-size:11.5px; font-weight:600; white-space:nowrap; display:flex; align-items:center; gap:8px; z-index:5; }
+        .muni-peek-name { cursor:pointer; display:flex; align-items:center; line-height:1; }
         .muni-peek::after { content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#21262C; }
         .muni-soon-tag { font-size:10px; color:#C9CCD1; font-weight:500; }
 
@@ -7626,7 +7649,7 @@ function MairuDemoInner() {
         .muni-card { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-radius:12px; border:none; box-shadow: 0 2px 10px rgba(26,46,59,0.08); background:#fff; cursor:pointer; text-align:left; }
         .muni-card.is-active { box-shadow: 0 2px 10px rgba(226,97,61,0.18); border:1.5px solid #E2613D; cursor:pointer; }
         .muni-card.is-soon { opacity:0.55; cursor:not-allowed; }
-        .muni-card-name { font-size:13px; font-weight:700; }
+        .muni-card-name { font-size:13px; font-weight:700; display:flex; align-items:center; line-height:1; }
         .muni-card-tag { font-size:10px; font-weight:700; color:#A8B4B8; background:#EEF1F0; padding:3px 8px; border-radius:999px; }
         .muni-card-tag.active { color:#fff; background:#E2613D; }
         @media (min-width:640px) { .muni-card-grid { grid-template-columns:repeat(3,1fr); } }
@@ -7773,7 +7796,7 @@ function MairuDemoInner() {
         .kyushu-topbar-view .kyushu-float-lang.lang-icon-wrap { background:none; padding:0; }
         .entry-header-right-group { display:flex; align-items:center; gap:8px; }
         .entry-header-left-group { display:flex; align-items:center; gap:10px; }
-        .kyushu-float-lang.muni-location-pill { color:#7A9BAD; font-weight:500; font-size:11.5px; white-space:nowrap; background:none; padding:0; border-radius:0; border:none; }
+        .kyushu-float-lang.muni-location-pill { color:#7A9BAD; font-weight:500; font-size:11.5px; white-space:nowrap; background:none; padding:0; border-radius:0; border:none; display:flex; align-items:center; line-height:1; }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt { color:var(--muted); }
         .kyushu-topbar-view .kyushu-float-lang .lang-toggle-opt.active { color:var(--ink); }
         .kyushu-topbar-view .kyushu-float-tabs { top:80px; flex-wrap:nowrap; }
@@ -7926,12 +7949,16 @@ function MairuDemoInner() {
         .poi-pin-icon {
           position:absolute; left:0; top:0;
           width:22px; height:22px;
-          transform: translate(calc(22px * 0.20710678), calc(22px * -1.20710678)) rotate(-45deg) translate(-50%, -50%);
+          transform: translate(calc(22px * 0.20710678), calc(22px * -1.20710678)) rotate(-45deg) translate(-50%, -50%) translateZ(0);
           border-radius:50% 50% 50% 0;
           background:#fff;
           border:2px solid transparent;
           box-sizing:border-box;
+          will-change: background-color, border-color;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
         }
+        .poi-pin-cluster { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
         .poi-pin-icon-glyph { position:absolute; inset:0; transform:rotate(45deg); display:flex; align-items:center; justify-content:center; }
         .poi-pin-icon-airport { color:#1B6CA8; border-color:#1B6CA8; }
         .poi-pin-icon-ferry { color:#1F7A6C; border-color:#1F7A6C; }
@@ -7961,12 +7988,12 @@ function MairuDemoInner() {
         .pref-floating-label { position:absolute; transform:translate(-50%, -50%); pointer-events:auto; white-space:nowrap; z-index:1; }
         .pref-floating-label-text { display:flex; align-items:center; background:rgba(33,38,44,0.85); backdrop-filter:blur(2px); color:#fff; padding:4px 7px; border-radius:6px; font-size:9.5px; font-weight:600; border:none; outline:none; box-shadow:none; -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
         .pref-floating-label-text.current-city-label { background:#D85A30; }
-        .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); display:flex; align-items:flex-start; justify-content:center; z-index:1; padding:48px 16px 16px; }
-        .muni-name-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap:8px; max-height:100%; overflow-y:auto; width:100%; align-content:flex-start; }
-        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 8px; font-size:11px; line-height:1.9; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px; }
+        .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); z-index:1; padding:48px 16px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .muni-name-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; width:100%; padding-bottom:150px; box-sizing:border-box; }
+        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 15px 9px 4px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:flex-end; gap:3px; }
         .muni-name-grid-item rt { font-size:6px; }
-        .muni-name-grid-item-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .muni-name-grid-item-arrow { flex-shrink:0; opacity:0.55; }
+        .muni-name-grid-item-text { flex:1; min-width:0; display:flex; justify-content:center; margin-left:6px; overflow:hidden; }
+        .muni-name-grid-item-arrow { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(33,38,44,0.08); display:flex; align-items:center; justify-content:center; color:#1A2E3B; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
@@ -8112,6 +8139,7 @@ function MairuDemoInner() {
           display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; align-self:center;
           -webkit-tap-highlight-color:transparent;
         }
+        .muni-peek .muni-name-grid-item-arrow { background:#fff; color:#1A2E3B; }
         .detail-hero-desc-overlay {
           position:absolute; left:0; right:0; top:60px; bottom:72px; z-index:2;
           background:rgba(20,22,26,0.72); padding:10px 14px; display:none; overflow-y:auto;
@@ -8410,7 +8438,7 @@ function MairuDemoInner() {
           .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:6px; }
+          .muni-name-grid { grid-template-columns: repeat(4, 1fr); gap:6px; }
           .muni-name-grid-item { padding:6px 5px; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
@@ -8446,7 +8474,7 @@ function MairuDemoInner() {
           .budget-input { width:44px; font-size:10px; }
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
-          .muni-name-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap:5px; }
+          .muni-name-grid { grid-template-columns: repeat(4, 1fr); gap:5px; }
           .muni-name-grid-item { padding:5px 4px; }
 
         }
@@ -8560,7 +8588,7 @@ function MairuDemoInner() {
                   <div className="bottom-bar-toast">{iconLabelPeek}</div>
                 )}
 
-                {kyushuViewMoved && (
+                {true && (
                   <button
                     className="reset-fab"
                     onClick={(e) => { e.stopPropagation(); resetKyushuMapView(); }}
@@ -8775,12 +8803,12 @@ function MairuDemoInner() {
                         <div className="muni-peek" style={{ left: pct(p.cx - kyushuPanBox.x, kyushuPanBox.w) + '%', top: pct(p.cy - kyushuPanBox.y, kyushuPanBox.h) + '%' }}>
                           <span className="muni-peek-name" onClick={() => setPeekPrefId(null)}>{mNameFuri(p)}</span>
                           <button
-                            className="detail-hero-more-btn"
+                            className="muni-name-grid-item-arrow"
                             onClick={() => { setSelectedPrefId(p.id); setAppStage('region'); setPeekPrefId(null); setPeekIslandKey(null); }}
                             aria-label={lang === 'en' ? 'Select' : '選択する'}
                             title={lang === 'en' ? 'Select' : '選択する'}
                           >
-                            <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                            <ChevronRight size={13} />
                           </button>
                         </div>
                       );
@@ -8930,7 +8958,7 @@ function MairuDemoInner() {
                           onClick={() => setPeekPrefId(p.id)}
                         >
                           <span className="muni-name-grid-item-text">{mNameFuri(p)}</span>
-                          <ChevronRight size={13} className="muni-name-grid-item-arrow" />
+                          <span className="muni-name-grid-item-arrow"><ChevronRight size={13} /></span>
                         </button>
                       ))}
                     </div>
@@ -9073,7 +9101,7 @@ function MairuDemoInner() {
                   <div className="bottom-bar-toast">{iconLabelPeek}</div>
                 )}
 
-                {regionViewMoved && (
+                {true && (
                   <button
                     className="reset-fab"
                     onClick={(e) => { e.stopPropagation(); resetRegionMapView(); }}
@@ -9235,7 +9263,7 @@ function MairuDemoInner() {
                   onMouseDown={handlePanMouseDown}
                   onScroll={() => { if (!regionProgrammaticScrollRef.current) setRegionViewMoved(true); }}
                   onClick={() => { if (peekCityId) setPeekCityId(null); setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null); setExpandedIconGroup(null); }}
-                  {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef)}
+                  {...makePinchHandlers(setRegionZoom, regionMapContentRef, regionMapScrollRef, REGION_DEFAULT_ZOOM[selectedPrefId] || 1)}
                 >
                   <div ref={regionMapContentRef} className="map-pan-content kyushu-contain-fit" style={(() => {
                     let wPct = (prefFullViewBox.w / prefViewBox.w) * 100;
@@ -9297,12 +9325,12 @@ function MairuDemoInner() {
                           <span className="muni-peek-name" onClick={() => setPeekCityId(null)}>{mNameFuri(m)}</span>
                           {isActive ? (
                             <button
-                              className="detail-hero-more-btn"
+                              className="muni-name-grid-item-arrow"
                               onClick={() => { setSelectedCity(m.id ?? m.name); setAppStage('muni'); setPeekCityId(null); }}
                               aria-label={lang === 'en' ? 'Select' : '選択する'}
                               title={lang === 'en' ? 'Select' : '選択する'}
                             >
-                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                              <ChevronRight size={13} />
                             </button>
                           ) : (
                             <span className="muni-soon-tag">{lang === 'en' ? 'Coming soon' : '準備中'}</span>
@@ -9470,7 +9498,7 @@ function MairuDemoInner() {
                             onClick={() => setPeekCityId(mid)}
                           >
                             <span className="muni-name-grid-item-text">{mNameFuri(m)}</span>
-                            <ChevronRight size={13} className="muni-name-grid-item-arrow" />
+                            <span className="muni-name-grid-item-arrow"><ChevronRight size={13} /></span>
                           </button>
                         );
                       })}
@@ -9772,7 +9800,7 @@ function MairuDemoInner() {
                     <div className="bottom-bar-toast">{iconLabelPeek}</div>
                   )}
 
-                  {(muniZoom !== 1 || muniPanX !== 0 || muniPanY !== 0) && (
+                  {true && (
                     <button
                       className="reset-fab"
                       onClick={(e) => { e.stopPropagation(); setMuniZoom(1); resetMapDisplay(); setActiveCategory(null); setLinkedId(null); }}
@@ -9796,10 +9824,11 @@ function MairuDemoInner() {
                       <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
                     </button>
                     <button
-                      className={`bottom-bar-btn ${showMuniNeighborNames ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setShowMuniNeighborNames((v) => !v); }}
-                      title={lang === 'en' ? 'Show place names' : '地名を表示'}
-                      aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
+                      className="bottom-bar-btn"
+                      onClick={(e) => { e.stopPropagation(); }}
+                      title={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+                      aria-label={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+                      style={{ opacity: 0.4 }}
                     >
                       <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
                       <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
@@ -9945,25 +9974,6 @@ function MairuDemoInner() {
                     />
                   </svg>
 
-                  {showMuniNeighborNames && (() => {
-                    const currentCity = KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity);
-                    const visibleNames = KYUSHU_MUNICIPALITIES.filter((m) => (
-                      m.cx > muniMapBox.x && m.cx < muniMapBox.x + muniMapBox.w &&
-                      m.cy > muniMapBox.y && m.cy < muniMapBox.y + muniMapBox.h
-                    ));
-                    return visibleNames.map((m) => (
-                      <div
-                        key={`name-${m.id}`}
-                        className="pref-floating-label"
-                        style={{ left: `${pct(m.cx - muniMapBox.x, muniMapBox.w)}%`, top: `${pct(m.cy - muniMapBox.y, muniMapBox.h)}%` }}
-                      >
-                        <span className={`pref-floating-label-text ${m.id === (currentCity && currentCity.id) ? 'current-city-label' : ''}`}>
-                          {lang === 'en' ? (m.nameEn || m.name) : m.name}
-                        </span>
-                      </div>
-                    ));
-                  })()}
-
                   {visibleSpots.map((spot) => {
                     const meta = CATEGORY_META[spot.category];
                     const Icon = meta.icon;
@@ -10069,7 +10079,7 @@ function MairuDemoInner() {
                     return (
                       <div
                         key={`airport-${id}`}
-                        className={`poi-pin airport-pin ${peekAirportId === key ? 'is-peeked-pin' : ''}`}
+                        className={`poi-pin airport-pin ${peekAirportId === id ? 'is-peeked-pin' : ''}`}
                         style={{ left: pct(svg.x - muniMapBox.x, muniMapBox.w) + '%', top: pct(svg.y - muniMapBox.y, muniMapBox.h) + '%' }}
                         onClick={(e) => { e.stopPropagation(); peekPoi('airport', id); }}
                       >
@@ -10091,7 +10101,7 @@ function MairuDemoInner() {
                     return (
                       <div
                         key={`ferry-${id}`}
-                        className={`poi-pin ferry-pin ${peekFerryId === key ? 'is-peeked-pin' : ''}`}
+                        className={`poi-pin ferry-pin ${peekFerryId === id ? 'is-peeked-pin' : ''}`}
                         style={{ left: pct(svg.x - muniMapBox.x, muniMapBox.w) + '%', top: pct(svg.y - muniMapBox.y, muniMapBox.h) + '%' }}
                         onClick={(e) => { e.stopPropagation(); peekPoi('ferry', id); }}
                       >
