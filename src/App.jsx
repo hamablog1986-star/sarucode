@@ -5348,11 +5348,8 @@ function MairuDemoInner() {
   const muniGroupRef = useRef(null); // 県ページ:実際に描画されている市町村(本島側)のグループ。getBBoxで本当の中心を測るために使う
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
-  // 県ページの初期拡大率(通常は1)。スマホとPC(横幅の広い画面)で見え方が違うため、別々に持つ。
-  const REGION_DEFAULT_ZOOM_MOBILE = { '40': 0.9, '41': 0.9, '42': 1.0, '43': 1.08, '44': 0.9, '45': 0.7 };
-  const REGION_DEFAULT_ZOOM_DESKTOP = { '42': 0.8 }; // PC用。長崎県は少し縮小
-  const isDesktopViewport = typeof window !== 'undefined' && window.innerWidth >= 900;
-  const REGION_DEFAULT_ZOOM = isDesktopViewport ? REGION_DEFAULT_ZOOM_DESKTOP : REGION_DEFAULT_ZOOM_MOBILE;
+  // 県ページの初期拡大率(通常は1)。PCも幅480pxに収まる表示にしたので、モバイルと同じ数値をそのまま使う
+  const REGION_DEFAULT_ZOOM = { '40': 0.9, '41': 0.9, '42': 1.0, '43': 1.08, '44': 0.9, '45': 0.7 };
   useEffect(() => { if (regionZoom !== (REGION_DEFAULT_ZOOM[selectedPrefId] || 1)) setRegionViewMoved(true); }, [regionZoom, selectedPrefId]);
   useEffect(() => {
     function alignTitleWithFirstIcon() {
@@ -5372,7 +5369,7 @@ function MairuDemoInner() {
     return () => window.removeEventListener('resize', alignTitleWithFirstIcon);
   }, [appStage, selectedPrefId, selectedCity, lang]);
   useEffect(() => {
-    setRegionZoom(REGION_DEFAULT_ZOOM[selectedPrefId] || 1); // 県ページ以外に移動した時・選んでいる県が変わった時は、県ごとの初期拡大率に戻す
+    setRegionZoom(REGION_DEFAULT_ZOOM[selectedPrefId] || 1); // 県ページ以外に移動した時・選んでいる県が変わった時、またはPC/スマホの判定が切り替わった時は、県ごとの初期拡大率に戻す
     setRegionViewMoved(false);
   }, [appStage, selectedPrefId]);
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
@@ -5405,12 +5402,8 @@ function MairuDemoInner() {
     const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
     const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
     const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
-    const REGION_CENTER_OVERRIDE_MOBILE = { '42': { name: '大村市', offsetX: -18, offsetY: -8 }, '46': { name: '鹿児島市', offsetX: 15, offsetY: 20 } };
-    const REGION_CENTER_OVERRIDE_DESKTOP = { '42': { name: '大村市', offsetX: 0, offsetY: 0 }, '46': { name: '鹿児島市', offsetX: 0, offsetY: 0 } }; // PC用は未調整
-    const REGION_CENTER_OVERRIDE = isDesktopViewport ? REGION_CENTER_OVERRIDE_DESKTOP : REGION_CENTER_OVERRIDE_MOBILE;
-    const REGION_PLAIN_OFFSET_MOBILE = { '40': { offsetX: 0, offsetY: 50 }, '41': { offsetX: 2, offsetY: 12 }, '43': { offsetX: 28, offsetY: 13 }, '44': { offsetX: 0, offsetY: 20 }, '45': { offsetX: 0, offsetY: 20 } };
-    const REGION_PLAIN_OFFSET_DESKTOP = {}; // PC用はまだ未調整(ズレなし)
-    const REGION_PLAIN_OFFSET = isDesktopViewport ? REGION_PLAIN_OFFSET_DESKTOP : REGION_PLAIN_OFFSET_MOBILE; // 特定の市町村を基準にせず、単純に中心をずらしたい県用
+    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: -18, offsetY: -8 }, '46': { name: '鹿児島市', offsetX: 15, offsetY: 20 } };
+    const REGION_PLAIN_OFFSET = { '40': { offsetX: 0, offsetY: 50 }, '41': { offsetX: 2, offsetY: 12 }, '43': { offsetX: 28, offsetY: 13 }, '44': { offsetX: 0, offsetY: 20 }, '45': { offsetX: 0, offsetY: 20 } }; // 特定の市町村を基準にせず、単純に中心をずらしたい県用
     const override = REGION_CENTER_OVERRIDE[prefId];
     const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
     const plainOffset = REGION_PLAIN_OFFSET[prefId];
@@ -7171,6 +7164,9 @@ function MairuDemoInner() {
           position: relative;
           box-sizing: border-box;
         }
+        @media (min-width: 900px) {
+          .mairu-app { max-width:480px; margin:0 auto; }
+        }
         .mairu-app * {
           box-sizing: border-box;
           color-scheme: light only;
@@ -7750,6 +7746,10 @@ function MairuDemoInner() {
 
         .map-scroll { width:100%; border-radius:18px; margin-bottom:24px; }
         .kyushu-fullmap-view { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; background:#D9E8F0; }
+        @media (min-width: 900px) {
+          html, body { background:#1A2E3B; }
+          .kyushu-fullmap-view { max-width:480px; margin:0 auto; }
+        }
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
         .kyushu-float-header { position:absolute; top:14px; left:calc(env(safe-area-inset-left, 0px) + 14px); z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
@@ -7765,7 +7765,7 @@ function MairuDemoInner() {
           .kyushu-float-tabs { top:auto; bottom:14px; left:50%; }
         }
         .entry-view.muni-map-fullscreen { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; }
-        .map-scroll.muni-fullmap-scroll { position:fixed; inset:0; width:100%; height:100vh; height:100dvh; margin-bottom:0; border-radius:0; z-index:1; background:#D9E8F0; }
+        .map-scroll.muni-fullmap-scroll { position:absolute; inset:0; width:100%; height:100%; margin-bottom:0; border-radius:0; z-index:1; background:#D9E8F0; }
         .map-frame-wrap.muni-fullmap-frame-wrap { position:relative; width:100%; height:100%; }
         .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; touch-action:none; }
         .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; max-width:calc(100% - 32px); }
@@ -8078,7 +8078,7 @@ function MairuDemoInner() {
         .bottom-toolbar-btn-primary { background:#E2613D; color:#fff; font-weight:700; }
         .bottom-toolbar-btn-primary:disabled { background:#C9CCD1; color:#fff; cursor:not-allowed; }
 
-        .overlay-backdrop { position:fixed; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
+        .overlay-backdrop { position:absolute; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
