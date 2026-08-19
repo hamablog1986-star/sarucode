@@ -7164,9 +7164,7 @@ function MairuDemoInner() {
           position: relative;
           box-sizing: border-box;
         }
-        @media (min-width: 900px) {
-          .mairu-app { max-width:480px; margin:0 auto; }
-        }
+        .mairu-app { max-width:480px; margin:0 auto; container-type:inline-size; container-name:mairu; }
         .mairu-app * {
           box-sizing: border-box;
           color-scheme: light only;
@@ -7491,7 +7489,7 @@ function MairuDemoInner() {
         .entry-wave { display:block; width:100%; height:24px; flex-shrink:0; }
         .entry-wave-bottom { transform:rotate(180deg); }
         .entry-footer-links { background:#fff; padding:28px 20px; display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; flex-wrap:nowrap; white-space:nowrap; }
-        @media (max-width:360px) {
+        @container mairu (max-width:360px) {
           .entry-footer-links { gap:6px; }
           .entry-footer-link { font-size:10.5px; }
         }
@@ -7746,10 +7744,8 @@ function MairuDemoInner() {
 
         .map-scroll { width:100%; border-radius:18px; margin-bottom:24px; }
         .kyushu-fullmap-view { position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden; background:#D9E8F0; }
-        @media (min-width: 900px) {
-          html, body { background:#1A2E3B; }
-          .kyushu-fullmap-view { max-width:480px; margin:0 auto; }
-        }
+        html, body { background:#1A2E3B; }
+        .kyushu-fullmap-view { max-width:480px; margin:0 auto; }
         .map-scroll.kyushu-fullmap-scroll { width:100%; height:100%; margin-bottom:0; border-radius:0; }
         .region-map-frame.kyushu-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; }
         .kyushu-float-header { position:absolute; top:14px; left:calc(env(safe-area-inset-left, 0px) + 14px); z-index:10; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.92); padding:8px 14px; border-radius:999px; }
@@ -7759,7 +7755,7 @@ function MairuDemoInner() {
         .kyushu-float-tabs { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; margin:0; }
         .kyushu-float-tabs button { padding:8px 12px; }
         .show-names-inline-btn.icon-only { display:inline-flex; align-items:center; justify-content:center; }
-        @media (max-width:560px) {
+        @container mairu (max-width:560px) {
           .kyushu-float-header { top:10px; left:calc(env(safe-area-inset-left, 0px) + 10px); padding:6px 12px; }
           .kyushu-float-title { font-size:14px; }
           .kyushu-float-tabs { top:auto; bottom:14px; left:50%; }
@@ -7781,7 +7777,7 @@ function MairuDemoInner() {
         .entry-fullmap-view .kyushu-float-lang { background:#fff; border-radius:999px; padding:6px 14px; }
         .entry-fullmap-view .kyushu-float-lang .lang-toggle-opt { color:var(--muted); }
         .entry-fullmap-view .kyushu-float-lang .lang-toggle-opt.active { color:var(--ink); }
-        @media (max-width:560px) {
+        @container mairu (max-width:560px) {
           .entry-fullmap-view .kyushu-float-header { padding:14px 18px; }
           .entry-fullmap-view .kyushu-float-title { font-size:18px; }
         }
@@ -7815,7 +7811,7 @@ function MairuDemoInner() {
         .kyushu-float-header.kyushu-float-header-dimmed .kyushu-float-lang.muni-location-pill rt { color:#fff; }
         .kyushu-float-header.kyushu-float-header-dimmed .lang-toggle-opt.active { color:#fff; font-weight:800; }
         .map-toggle-divider { width:22px; height:1px; background:var(--line); margin:2px 0; }
-        @media (max-width:560px) {
+        @container mairu (max-width:560px) {
           .kyushu-topbar-view .kyushu-float-header { padding:calc(env(safe-area-inset-top, 0px) + 14px) 18px 14px; }
           .kyushu-topbar-view .kyushu-float-title { font-size:18px; }
           .kyushu-topbar-view .kyushu-float-tabs { top:auto; bottom:14px; }
@@ -7839,7 +7835,7 @@ function MairuDemoInner() {
         .kyushu-footer-float .entry-footer-link { }
         .kyushu-footer-float.kyushu-float-header-dimmed .entry-footer-links { background:none; }
         .kyushu-footer-float.kyushu-float-header-dimmed .entry-footer-link { color:#fff; text-shadow:none; }
-        @media (max-width:560px) {
+        @container mairu (max-width:560px) {
           .tabs-on-frame.muni-float-category-tabs { bottom:12px; }
           .entry-cards-float { top:78px; }
         }
@@ -8420,7 +8416,7 @@ function MairuDemoInner() {
         .stepper-value { font-family:'JetBrains Mono', monospace; font-size:13px; min-width:38px; text-align:center; }
         .travelers-value { min-width:22px; }
 
-        @media (max-width:560px) {
+        @container mairu (max-width:560px) {
           .entry-header { padding:18px 20px 16px; }
           .entry-title { font-size:22px; }
           .entry-prompt-spacer { height:8px; }
@@ -8469,7 +8465,7 @@ function MairuDemoInner() {
           .muni-peek-name { font-size:11px; }
 
         }
-        @media (max-width:380px) {
+        @container mairu (max-width:380px) {
           .budget-input-row { font-size:9.5px; padding:0 4px; }
           .budget-input { width:44px; font-size:10px; }
 
@@ -8490,7 +8486,7 @@ function MairuDemoInner() {
             <p className="app-top-tagline">
               {lang === 'en' ? 'Make this trip something special.' : 'この旅を、もっと特別に。'}
             </p>
-            <button className="app-top-start-btn" onClick={() => setAppStage('entry')}>
+            <button className="app-top-start-btn" onClick={() => setAppStage('kyushu')}>
               {lang === 'en' ? 'Get started' : 'はじめる'}
               <span className="app-top-start-arrow">→</span>
             </button>
@@ -8649,7 +8645,7 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onClick={(e) => { e.stopPropagation(); setAppStage('entry'); setPeekIslandKey(null); }}
+                    onClick={(e) => { e.stopPropagation(); setAppStage('top'); setPeekIslandKey(null); }}
                     title={lang === 'en' ? 'Back' : '戻る'}
                     aria-label={lang === 'en' ? 'Back' : '戻る'}
                   >
@@ -9037,7 +9033,7 @@ function MairuDemoInner() {
 
           <button
             className="floating-back-btn"
-            onClick={() => { setAppStage('entry'); setPeekIslandKey(null); }}
+            onClick={() => { setAppStage('top'); setPeekIslandKey(null); }}
           >
             {lang === 'en' ? '← Back' : '← 戻る'}
           </button>
@@ -10933,7 +10929,7 @@ function MairuDemoInner() {
             onClick={() => {
               if (purposePrefId) setPurposePrefId(null);
               else if (purposeCategory) setPurposeCategory(null);
-              else setAppStage('entry');
+              else setAppStage('top');
             }}
           >
             {lang === 'en' ? '← Back' : '← 戻る'}
