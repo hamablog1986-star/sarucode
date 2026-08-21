@@ -2442,14 +2442,6 @@ const ICON_CATEGORY_GROUPS = {
       { key: 'shopping', label: '買物', labelEn: 'Shopping', icon: ShoppingBag, ready: false, spotCategory: 'shopping' },
     ],
   },
-  findBy: {
-    label: '探し方', labelEn: 'Search by', icon: Search,
-    items: [
-      { key: 'area', label: '地域で探す', labelEn: 'By Area', icon: MapIcon, ready: true },
-      { key: 'purpose', label: '目的で探す', labelEn: 'By Purpose', icon: Compass, ready: false },
-      { key: 'noplan', label: 'NO PLAN', labelEn: 'NO PLAN', icon: X, ready: false },
-    ],
-  },
 };
 
 // 九州に実在する空港一覧(緯度経度は各空港の実測値)。ルート機能で「現在地を使わない場合」の
@@ -2461,7 +2453,7 @@ const DEFAULT_AIRPORTS = {
   fukuoka: { name: '福岡空港', nameEn: 'Fukuoka Airport', lat: 33.5859, lon: 130.4506, furi: 'ふくおかくうこう', desc: '福岡市博多区にある、九州最大の空港。国内外の多くの路線が就航し、九州の空の玄関口となっています。', descEn: "Kyushu's largest airport, located in Hakata Ward, Fukuoka City, with many domestic and international routes." },
   kitakyushu: { name: '北九州空港', nameEn: 'Kitakyushu Airport', lat: 33.8459, lon: 131.0347, furi: 'きたきゅうしゅうくうこう', desc: '北九州市の沖合にある海上空港。24時間運用が可能で、国内線や貨物便が発着します。', descEn: 'An offshore airport off Kitakyushu City, operating 24 hours a day for domestic passenger and cargo flights.' },
   saga: { name: '九州佐賀国際空港', nameEn: 'Saga Airport', lat: 33.1497, lon: 130.3019, furi: 'きゅうしゅうさがこくさいくうこう', desc: '佐賀県佐賀市にある空港。福岡都市圏からもアクセスしやすく、格安航空会社(LCC)の便も就航しています。', descEn: 'Located in Saga City, easily accessible from the Fukuoka metro area, with several low-cost carrier routes.' },
-  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, furi: 'ながさきくうこう', image: NAGASAKI_AIRPORT_ILLUST, desc: '（仮)大村湾に浮かぶ島を埋め立てて作られた、世界初の海上空港。長崎県のほぼ中央、大村市に位置し、県内各地からのアクセスも比較的良好です。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
+  nagasaki: { name: '長崎空港', nameEn: 'Nagasaki Airport', lat: 32.9169, lon: 129.9136, furi: 'ながさきくうこう', image: NAGASAKI_AIRPORT_ILLUST, desc: '（仮)大村湾に浮かぶ人工島を埋め立てて作られた、世界初の本格的な海上空港です。長崎県のほぼ中央、大村市に位置しており、県内各地からのアクセスも比較的良好です。空港ビル内には売店や飲食店が充実し、出発前後の時間をゆったり過ごせます。展望デッキからは離着陸する飛行機や大村湾の美しい景色を眺めることができ、家族連れにも人気のスポットです。長崎観光の玄関口として、多くの旅行者に利用されています。温泉あり。', descEn: '(Temp) The world\'s first offshore airport, built on reclaimed land in Omura Bay. Located in Omura City, roughly in the center of Nagasaki Prefecture.', officialUrl: 'https://nagasaki-airport.jp/' },
   tsushima: { name: '対馬空港', nameEn: 'Tsushima Airport', lat: 34.2847, lon: 129.3308, furi: 'つしまくうこう', desc: '対馬にある空港。長崎・福岡便が就航し、離島へのアクセスを支えています。', descEn: 'Serves Tsushima Island with flights to Nagasaki and Fukuoka.' },
   iki: { name: '壱岐空港', nameEn: 'Iki Airport', lat: 33.7503, lon: 129.7856, furi: 'いきくうこう', desc: '壱岐島にある空港。長崎・福岡便が就航しています。', descEn: 'Serves Iki Island with flights to Nagasaki and Fukuoka.' },
   goto: { name: '五島つばき空港', nameEn: 'Goto Tsubaki Airport', lat: 32.6664, lon: 128.8347, furi: 'ごとうつばきくうこう', desc: '五島列島にある空港。五島つばき空港とも呼ばれ、長崎・福岡便が就航しています。', descEn: 'Also known as Goto Tsubaki Airport, serving the Goto Islands with flights to Nagasaki and Fukuoka.' },
@@ -8156,21 +8148,19 @@ function MairuDemoInner() {
         .poi-card-topbar {
           position:absolute; top:0; left:0; right:0; z-index:3;
           display:flex; align-items:center; justify-content:flex-start; gap:8px;
-          padding:10px 10px 20px;
+          padding:20px 16px 20px 16px;
           background:linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
         }
-        .poi-card-topbar-text { min-width:0; display:flex; flex-direction:column; gap:4px; }
+        .poi-card-topbar-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
         .poi-card-furi { font-size:9px; font-weight:500; letter-spacing:0.04em; line-height:1; color:rgba(255,255,255,0.75); }
         .poi-card-name { font-size:18px; line-height:1.1; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
         .poi-card-divider { height:1px; background:rgba(255,255,255,0.5); margin-top:6px; }
-        .poi-card-bottom-panel {
+        .poi-card-footer {
           position:absolute; left:0; right:0; bottom:0; z-index:3;
-          padding:22px 10px 8px;
-          background:linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.5) 55%, transparent 100%);
+          display:grid; grid-template-columns:repeat(4, 1fr);
+          background:rgba(10,12,16,0.82);
         }
-        .poi-card-desc { font-size:10px; line-height:1.5; color:rgba(255,255,255,0.92); margin:0 0 8px; }
-        .poi-card-bottombar { display:flex; align-items:center; justify-content:flex-end; }
-        .poi-card-actions { display:flex; gap:16px; }
+        .poi-card-desc { font-size:10px; line-height:1.5; color:rgba(255,255,255,0.92); margin:6px 0 0; text-shadow:0 1px 3px rgba(0,0,0,0.7); }
         .muni-peek .muni-name-grid-item-arrow { background:#fff; color:#1A2E3B; }
         .detail-hero-more-btn {
           background:#fff; border:none; color:#1A2E3B; border-radius:50%; width:22px; height:22px;
@@ -8178,17 +8168,24 @@ function MairuDemoInner() {
           -webkit-tap-highlight-color:transparent;
         }
         .poi-float-btn {
-          display:flex; flex-direction:column; align-items:center; gap:3px;
-          background:none; border:none; cursor:pointer; text-decoration:none; color:#1B6CA8;
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+          background:none; border:none; border-right:1px solid rgba(255,255,255,0.14); cursor:pointer; text-decoration:none; color:#1B6CA8;
           -webkit-tap-highlight-color:transparent;
+          padding:10px 4px;
+          transition:background 0.15s ease;
         }
+        .poi-float-btn:last-child { border-right:none; }
+        .poi-float-btn:active { background:rgba(255,255,255,0.14); }
         .poi-float-btn-circle {
-          width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-          background:rgba(255,255,255,0.92);
+          width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+          color:#fff;
         }
-        .poi-float-btn-label { font-size:10px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.6); }
-        .poi-float-btn.active .poi-float-btn-circle { background:var(--cat-color); color:#fff; }
-        .poi-reserve-btn .poi-float-btn-circle { background:#D85A30; color:#fff; width:44px; height:44px; margin-top:-10px; }
+        .poi-float-btn-label { font-size:10px; font-weight:700; color:#fff; }
+        .poi-float-btn.active { background:var(--cat-color); }
+        .poi-float-btn.active .poi-float-btn-circle { color:#fff; }
+        .poi-reserve-btn { background:#D85A30; }
+        .poi-reserve-btn:active { filter:brightness(1.15); }
+        .poi-reserve-btn .poi-float-btn-circle { color:#fff; width:22px; height:22px; margin-top:0; }
         .detail-textblock-price { color:rgba(255,255,255,0.92); font-size:12.5px; font-weight:700; font-family:'JetBrains Mono', monospace; white-space:nowrap; }
         .detail-textblock-name { display:block; width:100%; color:#fff; font-family:'Zen Kaku Gothic New', sans-serif; font-size:21px; line-height:1.3; margin:0; text-align:left; }
         .detail-textblock-desc { color:rgba(255,255,255,0.82); font-size:13px; line-height:1.65; margin:0; text-align:left; }
@@ -8694,23 +8691,7 @@ function MairuDemoInner() {
                     <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
                       <div className="find-sheet-handle" />
                       <div className="find-sheet-grid">
-                        {ICON_CATEGORY_GROUPS.findBy.items.map((item) => {
-                          const ItemIcon = item.icon;
-                          return (
-                            <button
-                              key={`findby-${item.key}`}
-                              className={`find-sheet-item ${!item.ready ? 'coming-soon' : ''}`}
-                              onClick={() => {
-                                if (!item.ready) return;
-                                setKyushuMode('map'); setPeekPrefId(null); setPeekIslandKey(null); setBottomSheetOpen(null);
-                              }}
-                            >
-                              <ItemIcon size={18} />
-                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
-                            </button>
-                          );
-                        })}
-                        {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                        {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
                           const ItemIcon = item.icon;
                           const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
                           const isOn =
@@ -9209,23 +9190,7 @@ function MairuDemoInner() {
                     <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
                       <div className="find-sheet-handle" />
                       <div className="find-sheet-grid">
-                        {ICON_CATEGORY_GROUPS.findBy.items.map((item) => {
-                          const ItemIcon = item.icon;
-                          return (
-                            <button
-                              key={`findby-${item.key}`}
-                              className={`find-sheet-item ${!item.ready ? 'coming-soon' : ''}`}
-                              onClick={() => {
-                                if (!item.ready) return;
-                                setRegionMode('map'); setPeekCityId(null); setPeekIslandKey(null); setBottomSheetOpen(null);
-                              }}
-                            >
-                              <ItemIcon size={18} />
-                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
-                            </button>
-                          );
-                        })}
-                        {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                        {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
                           const ItemIcon = item.icon;
                           const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
                           const isOn =
@@ -9912,19 +9877,7 @@ function MairuDemoInner() {
                       <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="find-sheet-handle" />
                         <div className="find-sheet-grid">
-                          <button className="find-sheet-item active" onClick={() => { setSelectMode('map'); setLastBrowseMode('map'); setLinkedId(null); setBottomSheetOpen(null); }}>
-                            <MapIcon size={18} />
-                            <span>{lang === 'en' ? 'By Area' : '地域で探す'}</span>
-                          </button>
-                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
-                            <Compass size={18} />
-                            <span>{lang === 'en' ? 'By Purpose' : '目的で探す'}</span>
-                          </button>
-                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
-                            <Compass size={18} />
-                            <span>NO PLAN</span>
-                          </button>
-                          {Object.entries(ICON_CATEGORY_GROUPS).filter(([k]) => k !== 'findBy').flatMap(([groupKey, group]) => group.items.map((item) => {
+                          {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
                             const ItemIcon = item.icon;
                             const isActiveSpotCat = item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
                             const isOn =
@@ -11051,85 +11004,81 @@ function MairuDemoInner() {
                     {subLabel && <span className="poi-card-furi">{subLabel}</span>}
                     <span className="poi-card-name">{name}</span>
                     <div className="poi-card-divider" />
+                    {desc && <p className="poi-card-desc">{desc}</p>}
                   </div>
                 </div>
 
-                <div className="poi-card-bottom-panel">
-                  {desc && <p className="poi-card-desc">{desc}</p>}
-                  <div className="poi-card-bottombar">
-                    <div className="poi-card-actions" onClick={(e) => e.stopPropagation()} style={poiCardButtonGap != null ? { gap: poiCardButtonGap } : undefined}>
-                      <button
-                        type="button"
-                        className={`poi-float-btn ${poiDetailSaved ? 'active' : ''}`}
-                        onClick={() => setPoiDetailSaved((v) => !v)}
-                        aria-label={lang === 'en' ? 'Save' : '保存'}
-                        title={lang === 'en' ? 'Save' : '保存'}
-                      >
-                        <span className="poi-float-btn-circle"><Bookmark size={17} fill={poiDetailSaved ? 'currentColor' : 'none'} /></span>
-                        <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
-                      </button>
-                      {data.lat && data.lon && (
-                        <button
-                          type="button"
-                          className="poi-float-btn"
-                          onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
-                          aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
-                          title={lang === 'en' ? 'Navigate' : 'ナビ'}
-                        >
-                          <span className="poi-float-btn-circle"><Navigation size={17} /></span>
-                          <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
-                        </button>
-                      )}
-                      {data.officialUrl ? (
-                        <a
-                          className="poi-float-btn"
-                          href={data.officialUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
-                          title={lang === 'en' ? 'Official website' : '公式ページ'}
-                        >
-                          <span className="poi-float-btn-circle"><Globe size={17} /></span>
-                          <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          className="poi-float-btn"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
-                          title={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
-                        >
-                          <span className="poi-float-btn-circle"><Globe size={17} /></span>
-                          <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
-                        </button>
-                      )}
-                      {data.reserveUrl ? (
-                        <a
-                          className="poi-float-btn poi-reserve-btn"
-                          href={data.reserveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={lang === 'en' ? 'Reserve' : '予約'}
-                          title={lang === 'en' ? 'Reserve' : '予約'}
-                        >
-                          <span className="poi-float-btn-circle"><Calendar size={22} /></span>
-                          <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          className="poi-float-btn poi-reserve-btn"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
-                          title={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
-                        >
-                          <span className="poi-float-btn-circle"><Calendar size={22} /></span>
-                          <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                <div className="poi-card-footer" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    className={`poi-float-btn ${poiDetailSaved ? 'active' : ''}`}
+                    onClick={() => setPoiDetailSaved((v) => !v)}
+                    aria-label={lang === 'en' ? 'Save' : '保存'}
+                    title={lang === 'en' ? 'Save' : '保存'}
+                  >
+                    <span className="poi-float-btn-circle"><Bookmark size={17} fill={poiDetailSaved ? 'currentColor' : 'none'} /></span>
+                    <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
+                  </button>
+                  {data.lat && data.lon && (
+                    <button
+                      type="button"
+                      className="poi-float-btn"
+                      onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
+                      aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
+                      title={lang === 'en' ? 'Navigate' : 'ナビ'}
+                    >
+                      <span className="poi-float-btn-circle"><Navigation size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
+                    </button>
+                  )}
+                  {data.officialUrl ? (
+                    <a
+                      className="poi-float-btn"
+                      href={data.officialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
+                      title={lang === 'en' ? 'Official website' : '公式ページ'}
+                    >
+                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="poi-float-btn"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                      title={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                    >
+                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
+                    </button>
+                  )}
+                  {data.reserveUrl ? (
+                    <a
+                      className="poi-float-btn poi-reserve-btn"
+                      href={data.reserveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={lang === 'en' ? 'Reserve' : '予約'}
+                      title={lang === 'en' ? 'Reserve' : '予約'}
+                    >
+                      <span className="poi-float-btn-circle"><Calendar size={22} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="poi-float-btn poi-reserve-btn"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                      title={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                    >
+                      <span className="poi-float-btn-circle"><Calendar size={22} /></span>
+                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
