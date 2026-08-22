@@ -2398,6 +2398,8 @@ const CATEGORY_META = {
   onsen: { label: { ja: '温泉', en: 'Hot Spring' }, color: '#3B5E91', tint: '#E9EDF6', icon: Droplet },
   medical: { label: { ja: '医療', en: 'Medical' }, color: '#3B5E91', tint: '#E9EDF6', icon: Stethoscope },
   event: { label: { ja: '催事', en: 'Events' }, color: '#3B5E91', tint: '#E9EDF6', icon: PartyPopper },
+  airport: { label: { ja: '空港', en: 'Airport' }, color: '#1B6CA8', tint: '#E7F0F7', icon: Plane },
+  ferry: { label: { ja: 'フェリー', en: 'Ferry' }, color: '#1F7A6C', tint: '#E6F1EE', icon: Ship },
   // 過去のデータ・画面(目的で探すページ等)との互換性のために残してある旧カテゴリ。
   // 新規のスポット絞り込みタブでは使わず、上の history/nature/experience に分割済み。
   sightseeing: { label: { ja: '観光', en: 'Sightseeing' }, color: '#3B5E91', tint: '#E9EDF6', icon: Landmark },
@@ -5421,6 +5423,7 @@ function MairuDemoInner() {
   const [roadsideMapLoading, setRoadsideMapLoading] = useState(false);
   const [peekRoadsideId, setPeekRoadsideId] = useState(null); // タップ中の道の駅ピン
   const [poiDetail, setPoiDetail] = useState(null); // 空港・フェリー・道の駅共通の詳細カード。{ type: 'airport'|'ferry'|'roadside', data } | null
+  const [savedListOpen, setSavedListOpen] = useState(false); // 保存済みボタンを押した時に開く一覧シート
   const [poiCardHorizontalPad, setPoiCardHorizontalPad] = useState(null); // poiDetailカードの左右余白(px)。下部バーの現在地/戻るアイコンの実際の端に合わせて測定する
   const [poiCardButtonGap, setPoiCardButtonGap] = useState(null); // poiDetailカード内ボタンの間隔(px)。下部バーの隣り合うアイコン同士の実際の間隔に合わせて測定する
   useEffect(() => {
@@ -5448,8 +5451,6 @@ function MairuDemoInner() {
     window.addEventListener('resize', measure);
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', measure); };
   }, [poiDetail]);
-  const [poiDetailSaved, setPoiDetailSaved] = useState(false); // poiDetailカード:保存ボタンの状態(仮実装。永続化はまだしていない)
-  useEffect(() => { setPoiDetailSaved(false); }, [poiDetail]);
 
   // 空港・フェリー・道の駅、いずれかのピンを選ぶときに使う共通関数。
   // 他のカテゴリで開いていた吹き出しは自動的に閉じ、最後にタップしたものだけが開いた状態になる。
@@ -6730,6 +6731,136 @@ function MairuDemoInner() {
   }
   function toggleDecided(id) {
     setDecided((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+  // poiDetailカード(空港・フェリー・道の駅)の保存ボタン用。
+  // 道の駅は通常のSPOTSデータに含まれるが、空港・フェリーは別データのため、
+  // まだSPOTSに存在しなければルート計算(computeRouteFrom)が使える形で追加しておく。
+  function ensureRouteableSpot(type, data) {
+    if (!data || !data.id) return;
+    if (SPOTS.find((s) => s.id === data.id)) return;
+    const hasXY = typeof data.x === 'number' && typeof data.y === 'number';
+    const svg = hasXY ? { x: data.x, y: data.y } : geoToSvg(data.lat, data.lon);
+    SPOTS.push({
+      id: data.id,
+      category: type,
+      name: data.name,
+      nameEn: data.nameEn,
+      x: svg.x,
+      y: svg.y,
+      price: 0,
+      image: data.image,
+      desc: data.desc,
+      descEn: data.descEn,
+      furi: data.furi,
+      lat: data.lat,
+      lon: data.lon,
+      officialUrl: data.officialUrl,
+      reserveUrl: data.reserveUrl,
+    });
+  }
+  // 空港・フェリー・道の駅共通のTCGカード風カード本体(画像+上部帯+下部フッター)。
+  // poiDetail(詳細オーバーレイ)と保存済み一覧の両方から、まったく同じ見た目で呼び出す。
+  function renderPoiCardBody(type, data) {
+    const catKey = type || data.category;
+    const meta = CATEGORY_META[catKey];
+    const name = lang === 'en' ? (data.nameEn || data.name) : data.name;
+    const desc = lang === 'en' ? (data.descEn || data.desc) : data.desc;
+    const subLabel = data.furi || (catKey === 'roadside' ? data.city : null);
+    return (
+      <div className="detail-card-shell" style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
+        <div className="detail-card poi-card-rounded" onClick={(e) => e.stopPropagation()}>
+          <div className={`poi-hero-always169 detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
+            {data.image ? (
+              <img src={data.image} alt={name} className="detail-hero-img" loading="eager" decoding="async" />
+            ) : (
+              <meta.icon size={48} color={meta.color} className="detail-hero-icon" />
+            )}
+
+            <div className="poi-card-topbar">
+              <div className="poi-card-topbar-text">
+                {subLabel && <span className="poi-card-furi">{subLabel}</span>}
+                <span className="poi-card-name">{name}</span>
+                <div className="poi-card-divider" />
+                {desc && <p className="poi-card-desc">{desc}</p>}
+              </div>
+            </div>
+
+            <div className="poi-card-footer" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className={`poi-float-btn ${decided.includes(data.id) ? 'active' : ''}`}
+                onClick={() => { ensureRouteableSpot(catKey, data); toggleDecided(data.id); }}
+                aria-label={lang === 'en' ? 'Save' : '保存'}
+                title={lang === 'en' ? 'Save' : '保存'}
+              >
+                <span className="poi-float-btn-circle"><Bookmark size={17} fill={decided.includes(data.id) ? 'currentColor' : 'none'} /></span>
+                <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
+              </button>
+              {data.lat && data.lon && (
+                <button
+                  type="button"
+                  className="poi-float-btn"
+                  onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
+                  aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
+                  title={lang === 'en' ? 'Navigate' : 'ナビ'}
+                >
+                  <span className="poi-float-btn-circle"><Navigation size={17} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
+                </button>
+              )}
+              {data.officialUrl ? (
+                <a
+                  className="poi-float-btn"
+                  href={data.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
+                  title={lang === 'en' ? 'Official website' : '公式ページ'}
+                >
+                  <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="poi-float-btn"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                  title={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
+                >
+                  <span className="poi-float-btn-circle"><Globe size={17} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
+                </button>
+              )}
+              {data.reserveUrl ? (
+                <a
+                  className="poi-float-btn poi-reserve-btn"
+                  href={data.reserveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={lang === 'en' ? 'Reserve' : '予約'}
+                  title={lang === 'en' ? 'Reserve' : '予約'}
+                >
+                  <span className="poi-float-btn-circle"><Calendar size={22} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="poi-float-btn poi-reserve-btn"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                  title={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
+                >
+                  <span className="poi-float-btn-circle"><Calendar size={22} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
   function toggleReserved(id) {
     setReserved((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -8032,16 +8163,31 @@ function MairuDemoInner() {
         .route-bar-icon-circle { width:40px; height:40px; background:#D85A30; color:#fff; margin-top:-8px; }
         .route-bar-label { color:#D85A30; }
         .reset-fab {
-          position:absolute; right:calc(16px + (100% - 32px) / 12); bottom:82px; z-index:5;
+          position:absolute; right:calc(16px + (100% - 32px) / 12); bottom:79px; z-index:5;
           transform:translateX(50%);
           display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; -webkit-tap-highlight-color:transparent;
-          background:none; border:none;
+          background:none; border:none; padding:4px;
         }
         .reset-fab-circle {
           width:34px; height:34px; display:flex; align-items:center; justify-content:center;
           background:rgba(255,255,255,0.85); border-radius:50%; color:#1F6E45;
         }
         .reset-fab-label { font-size:10px; font-weight:700; color:#1F6E45; }
+        .stock-fab {
+          position:absolute; right:calc(16px + (100% - 32px) / 12); bottom:151px; z-index:5;
+          transform:translateX(50%);
+          display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+          background:none; border:none; padding:4px;
+        }
+        .stock-fab-circle {
+          position:relative; width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+          background:rgba(255,255,255,0.85); border-radius:50%; color:#E2613D;
+        }
+        .stock-fab-count {
+          position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px;
+          background:#E2613D; color:#fff; font-size:9px; font-weight:700; line-height:16px; text-align:center;
+        }
+        .stock-fab-label { font-size:10px; font-weight:700; color:#E2613D; }
         .bottom-bar-toast {
           position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:6;
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
@@ -8050,6 +8196,42 @@ function MairuDemoInner() {
         .find-sheet-backdrop { position:absolute; inset:0; z-index:8; background:rgba(0,0,0,0.35); display:flex; align-items:flex-end; }
         .find-sheet { width:100%; background:#fff; border-radius:16px 16px 0 0; padding:12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); max-height:60%; overflow-y:auto; }
         .find-sheet-handle { width:32px; height:4px; background:var(--line); border-radius:2px; margin:0 auto 10px; }
+        .saved-sheet-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+        .saved-sheet-title { display:flex; align-items:center; gap:6px; margin:0; font-size:15px; font-weight:800; color:var(--ink); }
+        .saved-sheet-close { flex-shrink:0; background:rgba(0,0,0,0.05); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); -webkit-tap-highlight-color:transparent; }
+        .saved-list { display:flex; flex-direction:column; gap:8px; padding-bottom:6px; }
+        .saved-mini-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; padding-bottom:6px; }
+        .saved-mini-card {
+          position:relative; aspect-ratio:2.5/3.5; border-radius:12px; overflow:hidden; cursor:pointer;
+          background:var(--cat-tint); -webkit-tap-highlight-color:transparent;
+        }
+        .saved-mini-img { width:100%; height:100%; object-fit:cover; display:block; }
+        .saved-mini-iconbg { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--cat-color); }
+        .saved-mini-remove {
+          position:absolute; top:6px; right:6px; z-index:2; width:20px; height:20px; border-radius:50%; border:none;
+          background:rgba(20,22,26,0.55); color:#fff; display:flex; align-items:center; justify-content:center;
+          cursor:pointer; -webkit-tap-highlight-color:transparent;
+        }
+        .saved-mini-label {
+          position:absolute; left:0; right:0; bottom:0; z-index:1; padding:16px 8px 8px;
+          display:flex; flex-direction:column; gap:2px;
+          background:linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+        }
+        .saved-mini-tag { display:flex; align-items:center; gap:2px; font-size:8px; font-weight:700; color:rgba(255,255,255,0.85); }
+        .saved-mini-name { font-size:11px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
+        .saved-overlay-body {
+          position:relative; width:100%; max-width:640px;
+          max-height:calc(100vh - 112px); max-height:calc(100dvh - 112px);
+          overflow-y:auto; overflow-x:hidden; overscroll-behavior:none;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .saved-overlay-body::-webkit-scrollbar { display:none; }
+        @media (min-width:900px) { .saved-overlay-body { max-width:820px; } }
+        @media (min-width:1200px) { .saved-overlay-body { max-width:980px; } }
+        .saved-sheet-header-onmap { padding:0 2px; }
+        .saved-sheet-title-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+        .saved-sheet-close-onmap { background:rgba(255,255,255,0.85); color:#1A2E3B; }
+        .empty-page-hint-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); padding:8px 16px; }
         .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 6px; }
         .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); }
         .find-sheet-item {
@@ -8244,6 +8426,7 @@ function MairuDemoInner() {
         .overlay-backdrop { position:absolute; inset:0; background:rgba(20,22,26,0.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; overflow-y:auto; }
         .detail-backdrop { padding-left:calc(env(safe-area-inset-left, 0px) + 20px); padding-right:calc(env(safe-area-inset-right, 0px) + 20px); } /* 下部アイコン行の「アイコン自体の端」(バー余白16px+ボタン内側余白4px)に揃える */
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
+        .overlay-backdrop.saved-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px 56px; }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
           border:1px solid rgba(255,255,255,0.5);
@@ -8774,6 +8957,18 @@ function MairuDemoInner() {
                   </button>
                 )}
 
+                {true && (
+                  <button
+                    className="stock-fab"
+                    onClick={(e) => { e.stopPropagation(); setSavedListOpen(true); }}
+                    title={lang === 'en' ? 'Saved spots' : '保存済み'}
+                    aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
+                  >
+                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                    <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
+                  </button>
+                )}
+
                 <div className="bottom-icon-bar">
                   <button
                     className="bottom-bar-btn"
@@ -8814,7 +9009,16 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (canCreateRoute) {
+                        setSelectedCity(ACTIVE_CITY_IDS[0]);
+                        setAppStage('muni');
+                        buildRoute();
+                      } else {
+                        setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
+                      }
+                    }}
                     title={lang === 'en' ? 'Create route' : 'ルート検索'}
                     aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
                   >
@@ -9274,6 +9478,18 @@ function MairuDemoInner() {
                   </button>
                 )}
 
+                {true && (
+                  <button
+                    className="stock-fab"
+                    onClick={(e) => { e.stopPropagation(); setSavedListOpen(true); }}
+                    title={lang === 'en' ? 'Saved spots' : '保存済み'}
+                    aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
+                  >
+                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                    <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
+                  </button>
+                )}
+
                 <div className="bottom-icon-bar">
                   <button
                     className="bottom-bar-btn"
@@ -9316,7 +9532,16 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onClick={(e) => { e.stopPropagation(); setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください'); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (canCreateRoute) {
+                        setSelectedCity(ACTIVE_CITY_IDS[0]);
+                        setAppStage('muni');
+                        buildRoute();
+                      } else {
+                        setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
+                      }
+                    }}
                     title={lang === 'en' ? 'Create route' : 'ルート検索'}
                     aria-label={lang === 'en' ? 'Create route' : 'ルート検索'}
                   >
@@ -9960,6 +10185,18 @@ function MairuDemoInner() {
                     </button>
                   )}
 
+                  {true && (
+                    <button
+                      className="stock-fab"
+                      onClick={(e) => { e.stopPropagation(); setSavedListOpen(true); }}
+                      title={lang === 'en' ? 'Saved spots' : '保存済み'}
+                      aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
+                    >
+                      <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                      <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
+                    </button>
+                  )}
+
                   <div className="bottom-icon-bar">
                     <button
                       className="bottom-bar-btn"
@@ -10223,7 +10460,7 @@ function MairuDemoInner() {
                         {peekAirportId === id && (
                           <span className="poi-pin-label">
                             <span className="poi-pin-label-name">{lang === 'en' ? a.nameEn : a.name}</span>
-                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: a }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: { id, x: svg.x, y: svg.y, ...a } }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
                               <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </span>
@@ -10245,7 +10482,7 @@ function MairuDemoInner() {
                         {peekFerryId === id && (
                           <span className="poi-pin-label">
                             <span className="poi-pin-label-name">{lang === 'en' ? f.nameEn : f.name}</span>
-                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: f }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: { id, x: svg.x, y: svg.y, ...f } }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
                               <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
                             </button>
                           </span>
@@ -11125,120 +11362,72 @@ function MairuDemoInner() {
         </div>
       )}
 
+      {savedListOpen && (
+        <div className="overlay-backdrop saved-overlay-backdrop" onClick={() => setSavedListOpen(false)}>
+          <div className="saved-overlay-body" onClick={(e) => e.stopPropagation()}>
+            <div className="saved-sheet-header saved-sheet-header-onmap">
+              <h3 className="saved-sheet-title saved-sheet-title-onmap">
+                <Bookmark size={16} />
+                {lang === 'en' ? `Saved (${decided.length})` : `保存済み(${decided.length})`}
+              </h3>
+              <button className="saved-sheet-close saved-sheet-close-onmap" onClick={() => setSavedListOpen(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+            </div>
+            <div className="saved-mini-grid">
+              {decided.length === 0 ? (
+                <p className="empty-page-hint empty-page-hint-onmap">
+                  {lang === 'en' ? 'No saved spots yet. Tap the bookmark on a spot to save it here.' : 'まだ保存されていません。カードの保存ボタンで追加できます。'}
+                </p>
+              ) : (
+                decided.map((id) => SPOTS.find((s) => s.id === id)).filter(Boolean).map((spot) => {
+                  const catKey = spot.category;
+                  const meta = CATEGORY_META[catKey];
+                  const Icon = meta.icon;
+                  return (
+                    <div
+                      key={spot.id}
+                      className="saved-mini-card"
+                      style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                      onClick={() => setPoiDetail({ type: catKey, data: spot })}
+                    >
+                      <button
+                        type="button"
+                        className="saved-mini-remove"
+                        onClick={(e) => { e.stopPropagation(); toggleDecided(spot.id); }}
+                        aria-label={lang === 'en' ? 'Remove' : '削除'}
+                        title={lang === 'en' ? 'Remove' : '削除'}
+                      >
+                        <X size={12} />
+                      </button>
+                      {spot.image ? (
+                        <img src={spot.image} alt={sName(spot)} className="saved-mini-img" loading="lazy" decoding="async" />
+                      ) : (
+                        <div className="saved-mini-iconbg"><Icon size={26} /></div>
+                      )}
+                      <div className="saved-mini-label">
+                        <span className="saved-mini-tag"><Icon size={8} />{catLabel(meta)}</span>
+                        <span className="saved-mini-name">{sName(spot)}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {poiDetail && (() => {
         const { type, data } = poiDetail;
-        const metaByType = {
-          airport: { Icon: Plane, color: '#1B6CA8', tint: '#E7F0F7' },
-          ferry: { Icon: Ship, color: '#1F7A6C', tint: '#E6F1EE' },
-          roadside: { Icon: Store, color: CATEGORY_META.roadside.color, tint: CATEGORY_META.roadside.tint },
-        };
-        const meta = metaByType[type];
-        const name = lang === 'en' ? (data.nameEn || data.name) : data.name;
-        const desc = lang === 'en' ? (data.descEn || data.desc) : data.desc;
-        const subLabel = data.furi || (type === 'roadside' ? data.city : null);
         return (
           <div
             className="overlay-backdrop detail-backdrop"
             onClick={() => setPoiDetail(null)}
             style={poiCardHorizontalPad ? { paddingLeft: poiCardHorizontalPad.left, paddingRight: poiCardHorizontalPad.right } : undefined}
           >
-            <div className="detail-card-shell" style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}>
-            <div className="detail-card poi-card-rounded" onClick={(e) => e.stopPropagation()}>
-              <div className={`poi-hero-always169 detail-hero ${data.image ? 'has-image' : ''}`} style={{ background: data.image ? 'none' : 'var(--cat-tint)' }}>
-                {data.image ? (
-                  <img src={data.image} alt={name} className="detail-hero-img" loading="eager" decoding="async" />
-                ) : (
-                  <meta.Icon size={48} color={meta.color} className="detail-hero-icon" />
-                )}
-
-                <div className="poi-card-topbar">
-                  <div className="poi-card-topbar-text">
-                    {subLabel && <span className="poi-card-furi">{subLabel}</span>}
-                    <span className="poi-card-name">{name}</span>
-                    <div className="poi-card-divider" />
-                    {desc && <p className="poi-card-desc">{desc}</p>}
-                  </div>
-                </div>
-
-                <div className="poi-card-footer" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    type="button"
-                    className={`poi-float-btn ${poiDetailSaved ? 'active' : ''}`}
-                    onClick={() => setPoiDetailSaved((v) => !v)}
-                    aria-label={lang === 'en' ? 'Save' : '保存'}
-                    title={lang === 'en' ? 'Save' : '保存'}
-                  >
-                    <span className="poi-float-btn-circle"><Bookmark size={17} fill={poiDetailSaved ? 'currentColor' : 'none'} /></span>
-                    <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
-                  </button>
-                  {data.lat && data.lon && (
-                    <button
-                      type="button"
-                      className="poi-float-btn"
-                      onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
-                      aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
-                      title={lang === 'en' ? 'Navigate' : 'ナビ'}
-                    >
-                      <span className="poi-float-btn-circle"><Navigation size={17} /></span>
-                      <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
-                    </button>
-                  )}
-                  {data.officialUrl ? (
-                    <a
-                      className="poi-float-btn"
-                      href={data.officialUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={lang === 'en' ? 'Official website' : '公式ページ'}
-                      title={lang === 'en' ? 'Official website' : '公式ページ'}
-                    >
-                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
-                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      className="poi-float-btn"
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
-                      title={lang === 'en' ? 'Official website (coming soon)' : '公式ページ(準備中)'}
-                    >
-                      <span className="poi-float-btn-circle"><Globe size={17} /></span>
-                      <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
-                    </button>
-                  )}
-                  {data.reserveUrl ? (
-                    <a
-                      className="poi-float-btn poi-reserve-btn"
-                      href={data.reserveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={lang === 'en' ? 'Reserve' : '予約'}
-                      title={lang === 'en' ? 'Reserve' : '予約'}
-                    >
-                      <span className="poi-float-btn-circle"><Calendar size={22} /></span>
-                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      className="poi-float-btn poi-reserve-btn"
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
-                      title={lang === 'en' ? 'Reserve (coming soon)' : '予約(準備中)'}
-                    >
-                      <span className="poi-float-btn-circle"><Calendar size={22} /></span>
-                      <span className="poi-float-btn-label">{lang === 'en' ? 'Book' : '予約'}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-            </div>
+            {renderPoiCardBody(type, data)}
           </div>
         );
       })()}
-
 
       {legalOverlay && (
         <div className="overlay-backdrop" onClick={() => setLegalOverlay(null)}>
