@@ -5513,7 +5513,7 @@ function MairuDemoInner() {
   const muniPathRefs = useRef({}); // 県ページ:市町村ID→パス要素。選択時にその市町村を直接中央へ寄せるために使う
   const [selectedPrefId, setSelectedPrefId] = useState('42'); // 県ページで表示中の県(初期値は長崎県)
   // 県ページの初期拡大率(通常は1)。PCも幅480pxに収まる表示にしたので、モバイルと同じ数値をそのまま使う
-  const REGION_DEFAULT_ZOOM = { '40': 0.9, '41': 0.9, '42': 1.0, '43': 1.08, '44': 0.9, '45': 0.7 };
+  const REGION_DEFAULT_ZOOM = { '40': 0.9, '41': 0.9, '42': 1.0, '43': 1.08, '44': 0.9, '45': 0.8 };
   useEffect(() => { if (regionZoom !== (REGION_DEFAULT_ZOOM[selectedPrefId] || 1)) setRegionViewMoved(true); }, [regionZoom, selectedPrefId]);
   useEffect(() => {
     function alignTitleWithFirstIcon() {
@@ -5566,8 +5566,8 @@ function MairuDemoInner() {
     const fvbMaxX = Math.max(rvb.x + rvb.w, ...muniXsA) + bufA;
     const fvbMaxY = Math.max(rvb.y + rvb.h, ...muniYsA) + bufA;
     const fvb = { x: fvbMinX, y: fvbMinY, w: fvbMaxX - fvbMinX, h: fvbMaxY - fvbMinY };
-    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: -33, offsetY: -25 }, '46': { name: '鹿児島市', offsetX: 15, offsetY: 20 } };
-    const REGION_PLAIN_OFFSET = { '40': { offsetX: 0, offsetY: 50 }, '41': { offsetX: 2, offsetY: 12 }, '43': { offsetX: 28, offsetY: 13 }, '44': { offsetX: 0, offsetY: 20 }, '45': { offsetX: 0, offsetY: 20 } }; // 特定の市町村を基準にせず、単純に中心をずらしたい県用
+    const REGION_CENTER_OVERRIDE = { '42': { name: '大村市', offsetX: -33, offsetY: -25 }, '46': { name: '鹿児島市', offsetX: 7, offsetY: 20 } };
+    const REGION_PLAIN_OFFSET = { '40': { offsetX: 0, offsetY: 30 }, '41': { offsetX: 2, offsetY: 0 }, '43': { offsetX: 20, offsetY: 0 }, '44': { offsetX: -5, offsetY: 0 }, '45': { offsetX: 0, offsetY: 10 } }; // 特定の市町村を基準にせず、単純に中心をずらしたい県用
     const override = REGION_CENTER_OVERRIDE[prefId];
     const overrideMuni = override ? munis.find((m) => m.name === override.name) : null;
     const plainOffset = REGION_PLAIN_OFFSET[prefId];
@@ -8155,6 +8155,8 @@ function MairuDemoInner() {
         .muni-name-grid-item rt { font-size:6px; }
         .muni-name-grid-item-text { flex:1; min-width:0; display:flex; justify-content:center; margin-left:6px; overflow:hidden; }
         .muni-name-grid-item-arrow { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(33,38,44,0.08); display:flex; align-items:center; justify-content:center; color:#1A2E3B; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+        .muni-name-grid-item-arrow svg { stroke:#1A2E3B; fill:none; }
+        .muni-peek .muni-name-grid-item-arrow svg { stroke:#1A2E3B; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
