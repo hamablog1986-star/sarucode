@@ -6500,7 +6500,10 @@ function MairuDemoInner() {
         SPOTS.push(...DEMO_SPOTS);
       })
       .finally(() => {
-        if (!cancelled) setSpotsReady(true);
+        if (!cancelled) {
+          restoreExtraSpots();
+          setSpotsReady(true);
+        }
       });
     return () => { cancelled = true; };
   }, [selectedCity]);
@@ -6735,12 +6738,17 @@ function MairuDemoInner() {
   // poiDetailカード(空港・フェリー・道の駅)の保存ボタン用。
   // 道の駅は通常のSPOTSデータに含まれるが、空港・フェリーは別データのため、
   // まだSPOTSに存在しなければルート計算(computeRouteFrom)が使える形で追加しておく。
+  // 空港・フェリーなど、市町村切り替えで再取得されるSPOTS配列とは別に保存した項目の控え。
+  // 市町村を移動するとSPOTSは丸ごと入れ替わる(下のuseEffect参照)ため、保存済みの空港等が消えないよう、
+  // ここに控えておいて入れ替え後に復元する。
+  const extraSpotsRef = useRef([]);
   function ensureRouteableSpot(type, data) {
     if (!data || !data.id) return;
-    if (SPOTS.find((s) => s.id === data.id)) return;
+    const already = SPOTS.find((s) => s.id === data.id);
+    if (already) return;
     const hasXY = typeof data.x === 'number' && typeof data.y === 'number';
     const svg = hasXY ? { x: data.x, y: data.y } : geoToSvg(data.lat, data.lon);
-    SPOTS.push({
+    const spot = {
       id: data.id,
       category: type,
       name: data.name,
@@ -6756,6 +6764,18 @@ function MairuDemoInner() {
       lon: data.lon,
       officialUrl: data.officialUrl,
       reserveUrl: data.reserveUrl,
+    };
+    SPOTS.push(spot);
+    if (!extraSpotsRef.current.find((s) => s.id === spot.id)) {
+      extraSpotsRef.current = [...extraSpotsRef.current, spot];
+    }
+  }
+  // SPOTSが市町村切り替えで入れ替わった直後に呼ぶ。控えておいた保存済み項目(空港等)を復元する。
+  function restoreExtraSpots() {
+    extraSpotsRef.current.forEach((spot) => {
+      if (!SPOTS.find((s) => s.id === spot.id)) {
+        SPOTS.push(spot);
+      }
     });
   }
   // 空港・フェリー・道の駅共通のTCGカード風カード本体(画像+上部帯+下部フッター)。
@@ -6936,7 +6956,7 @@ function MairuDemoInner() {
   // 決定済みスポットを指定の出発地点から最近隣法で並べ替え、距離・移動手段を算出する
   function computeRouteFrom(origin, decidedIds) {
     const ids = decidedIds || decided;
-    const decidedSpots = ids.map((id) => SPOTS.find((s) => s.id === id));
+    const decidedSpots = ids.map((id) => SPOTS.find((s) => s.id === id)).filter(Boolean);
     const lodgings = decidedSpots.filter((s) => s.category === 'lodging');
     let remaining = decidedSpots.filter((s) => s.category !== 'lodging');
 
