@@ -8450,6 +8450,7 @@ function MairuDemoInner() {
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .overlay-backdrop.saved-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px 56px; }
         .overlay-backdrop.route-overlay-backdrop { z-index:52; }
+        .overlay-backdrop.poi-detail-backdrop { z-index:55; }
         .route-card-shell { position:relative; width:100%; }
         .detail-card.route-card { background:#fff; }
         .route-card-close {
@@ -8760,7 +8761,7 @@ function MairuDemoInner() {
         .timeline { display:flex; flex-direction:column; gap:8px; }
         .t-row { display:flex; align-items:stretch; gap:0; }
         .t-row-poicard { display:block; }
-        .t-row-poicard .detail-card-shell { width:320px; max-width:none; zoom:0.35; }
+        .t-poicard-mini { width:112px; }
         .t-row-stop, .t-row-travel { gap:10px; }
         .t-row-stop, .t-row-travel {
           background:#fff;
@@ -10562,7 +10563,7 @@ function MairuDemoInner() {
       )}
 
       {selectedSpot && (
-        <div className="overlay-backdrop detail-backdrop" onClick={() => { setSelectedId(null); setLinkedId(null); }}>
+        <div className="overlay-backdrop detail-backdrop poi-detail-backdrop" onClick={() => { setSelectedId(null); setLinkedId(null); }}>
           <div className="detail-card-shell" style={{ '--cat-color': CATEGORY_META[selectedSpot.category].color, '--cat-tint': CATEGORY_META[selectedSpot.category].tint }}>
           <div className="detail-card" onClick={(e) => e.stopPropagation()}>
 
@@ -11019,7 +11020,7 @@ function MairuDemoInner() {
         </div>
       )}
 
-      {view === 'route' && plan && (
+      {view === 'route' && plan && !poiDetail && !selectedSpot && (
         <div className="overlay-backdrop detail-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
         <div className="detail-card-shell route-card-shell">
         <div className="detail-card poi-card-rounded route-card" onClick={(e) => e.stopPropagation()}>
@@ -11270,9 +11271,25 @@ function MairuDemoInner() {
               const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
               const destIsPoiCard = isDestination && destSpot && (destSpot.category === 'airport' || destSpot.category === 'ferry');
               if (destIsPoiCard) {
+                const poiMeta = CATEGORY_META[destSpot.category];
+                const PoiIcon = poiMeta.icon;
                 return (
                   <div key={idx} className="t-row t-row-poicard">
-                    {renderPoiCardBody(destSpot.category, destSpot)}
+                    <div
+                      className="saved-mini-card t-poicard-mini"
+                      style={{ '--cat-color': poiMeta.color, '--cat-tint': poiMeta.tint }}
+                      onClick={() => setPoiDetail({ type: destSpot.category, data: destSpot })}
+                    >
+                      {destSpot.image ? (
+                        <img src={destSpot.image} alt={sName(destSpot)} className="saved-mini-img" loading="lazy" decoding="async" />
+                      ) : (
+                        <div className="saved-mini-iconbg"><PoiIcon size={26} /></div>
+                      )}
+                      <div className="saved-mini-label">
+                        <span className="saved-mini-tag"><PoiIcon size={8} />{catLabel(poiMeta)}</span>
+                        <span className="saved-mini-name">{sName(destSpot)}</span>
+                      </div>
+                    </div>
                   </div>
                 );
               }
@@ -11474,7 +11491,7 @@ function MairuDemoInner() {
         const { type, data } = poiDetail;
         return (
           <div
-            className="overlay-backdrop detail-backdrop"
+            className="overlay-backdrop detail-backdrop poi-detail-backdrop"
             onClick={() => setPoiDetail(null)}
             style={poiCardHorizontalPad ? { paddingLeft: poiCardHorizontalPad.left, paddingRight: poiCardHorizontalPad.right } : undefined}
           >
