@@ -6986,13 +6986,6 @@ function MairuDemoInner() {
     return { stops, distances, modes };
   }
 
-  const [pendingRouteBuild, setPendingRouteBuild] = useState(false); // 九州/県ページから「ルート検索」を押した時、諫早市への切り替え(setSelectedCity/setAppStage)が実際に反映されるのを待ってからbuildRouteを呼ぶためのフラグ
-  useEffect(() => {
-    if (pendingRouteBuild && appStage === 'muni' && selectedCity === ACTIVE_CITY_IDS[0]) {
-      setPendingRouteBuild(false);
-      buildRoute();
-    }
-  }, [pendingRouteBuild, appStage, selectedCity]);
   function buildRoute() {
     if (!canCreateRoute) return;
     setCalculating(true);
@@ -8456,33 +8449,15 @@ function MairuDemoInner() {
         .detail-backdrop { padding-left:calc(env(safe-area-inset-left, 0px) + 20px); padding-right:calc(env(safe-area-inset-right, 0px) + 20px); } /* 下部アイコン行の「アイコン自体の端」(バー余白16px+ボタン内側余白4px)に揃える */
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .overlay-backdrop.saved-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px 56px; }
-        .overlay-backdrop.route-overlay-backdrop { align-items:stretch; justify-content:stretch; padding:0; background:#fff; }
-        .route-overlay-panel {
-          position:relative; width:100%; max-width:none;
-          background:#fff; border-radius:0;
-          height:100%; max-height:none;
-          overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
-          display:flex; flex-direction:column;
+        .overlay-backdrop.route-overlay-backdrop { z-index:52; }
+        .route-card-shell { position:relative; width:100%; }
+        .detail-card.route-card { background:#fff; }
+        .route-card-close {
+          position:absolute; top:10px; right:10px; z-index:6;
+          background:rgba(255,255,255,0.92); box-shadow:0 1px 4px rgba(0,0,0,0.15);
         }
-        .route-overlay-header {
-          position:sticky; top:0; z-index:6; flex-shrink:0;
-          display:flex; align-items:center; justify-content:space-between;
-          padding:14px 16px;
-          padding-top:calc(env(safe-area-inset-top, 0px) + 14px);
-          background:#fff; border-radius:0;
-          border-bottom:1px solid var(--line);
-        }
-        .route-overlay-header .kyushu-float-title { font-size:18px; }
-        .route-overlay-close {
-          position:relative; top:auto; right:auto; z-index:6;
-          background:rgba(0,0,0,0.06); border:none; border-radius:50%; width:30px; height:30px;
-          display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink);
-          -webkit-tap-highlight-color:transparent; flex-shrink:0;
-        }
-        .bottom-icon-bar.route-overlay-iconbar {
-          position:sticky; left:auto; right:auto; bottom:0; flex-shrink:0;
-          background:#fff; border-top:1px solid var(--line); border-radius:0;
-          padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+        .poi-card-footer.route-card-footer {
+          position:sticky; bottom:0; grid-template-columns:repeat(3, 1fr);
         }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
@@ -9069,9 +9044,7 @@ function MairuDemoInner() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (canCreateRoute) {
-                        setSelectedCity(ACTIVE_CITY_IDS[0]);
-                        setAppStage('muni');
-                        setPendingRouteBuild(true);
+                        buildRoute();
                       } else {
                         setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
                       }
@@ -9592,9 +9565,7 @@ function MairuDemoInner() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (canCreateRoute) {
-                        setSelectedCity(ACTIVE_CITY_IDS[0]);
-                        setAppStage('muni');
-                        setPendingRouteBuild(true);
+                        buildRoute();
                       } else {
                         setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
                       }
@@ -10596,439 +10567,6 @@ function MairuDemoInner() {
         </div>
       )}
 
-      {view === 'route' && plan && (
-        <div className="overlay-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
-        <div className="route-overlay-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="route-overlay-header">
-          <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
-            <h1 className="kyushu-float-title">CONOTAVI</h1>
-          </button>
-          <button className="route-overlay-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={18} /></button>
-        </div>
-        <main className="route-view">
-          <div className="route-actions">
-            <button className={`route-action-btn ${routeViewMode === 'timeline' ? 'active' : ''}`} onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}>
-              <LayoutGrid size={14} /> {lang === 'en' ? 'Timeline' : 'タイムライン'}
-            </button>
-            <button className={`route-action-btn ${routeViewMode === 'map' ? 'active' : ''}`} onClick={() => setRouteViewMode('map')}>
-              <MapIcon size={14} /> {lang === 'en' ? 'Route map' : 'ルートマップ'}
-            </button>
-            <button className="route-action-btn" onClick={() => { loadSavedPlansFromStorage(); setShowSaveDialog(true); }}>
-              <Save size={14} /> {lang === 'en' ? 'Save' : '保存'}
-            </button>
-            <button className="route-action-btn" onClick={shareCurrentPlan}>
-              <Share2 size={14} /> {lang === 'en' ? 'Share' : '共有'}
-            </button>
-          </div>
-
-          {routeViewMode === 'navi' && (
-            <div className="navi-view">
-              <a className="navi-combined-btn" href={naviCombinedUrl} target="_blank" rel="noopener noreferrer">
-                <Navigation size={15} /> {lang === 'en' ? 'Open full route in Google Maps (car)' : '全ルートをGoogleマップで開く(車)'}
-              </a>
-              <p className="navi-note">
-                {lang === 'en'
-                  ? 'If each leg uses a different mode of transport, start navigation separately using the buttons below.'
-                  : '区間ごとに移動手段が異なる場合は、下の各区間のボタンからそれぞれナビを開始してください。'}
-              </p>
-              <div className="navi-legs">
-                {naviLegs.map((leg, i) => {
-                  const LegIcon = MODE_ICON[leg.mode];
-                  return (
-                    <div key={i} className="navi-leg-card">
-                      <div className="navi-leg-route">
-                        <span>{leg.fromLabel}</span>
-                        <span className="navi-leg-arrow">↓</span>
-                        <span>{leg.toLabel}</span>
-                      </div>
-                      <div className="navi-leg-meta">
-                        <LegIcon size={13} /> {modeLabel(leg.mode)} ・ {leg.distanceKm}km
-                      </div>
-                      <a className="navi-leg-btn" href={gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode)} target="_blank" rel="noopener noreferrer">
-                        <Navigation size={13} /> {lang === 'en' ? 'Start navigation for this leg' : 'この区間のナビを開始'}
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="disclaimer">
-                {lang === 'en'
-                  ? 'Opens the Google Maps app or website. You can change each leg\u2019s mode of transport from the timeline view.'
-                  : '※Googleマップアプリ/サイトが開きます。区間ごとの移動手段はタイムライン画面で変更できます。'}
-              </p>
-            </div>
-          )}
-
-          {routeViewMode === 'map' && (
-            <>
-              <div className="route-map-toolbar">
-                <button className={`detour-toggle ${detourMode ? 'active' : ''}`} onClick={() => { setDetourMode((v) => !v); setLinkedId(null); }}>
-                  <Compass size={14} /> {lang === 'en' ? 'Detour mode' : '寄り道モード'}{detourMode ? ' ON' : ''}
-                </button>
-                <button className="recalc-btn" onClick={buildRoute}>
-                  <RotateCcw size={13} /> {lang === 'en' ? 'Recalculate route' : 'ルートを再計算'}
-                </button>
-              </div>
-              {detourMode && (
-                <div className="detour-filter" role="group" aria-label={lang === 'en' ? 'Filter detours by category' : '寄り道カテゴリで絞り込み'}>
-                  <button className={detourCategory === 'all' ? 'active' : ''} onClick={() => { setDetourCategory('all'); setLinkedId(null); }}>
-                    {lang === 'en' ? 'All' : 'すべて'}
-                  </button>
-                  {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => (
-                    <button
-                      key={key}
-                      className={detourCategory === key ? 'active' : ''}
-                      style={{ '--cat-color': meta.color }}
-                      onClick={() => { setDetourCategory(key); setLinkedId(null); }}
-                    >
-                      {catLabel(meta)}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="map-scroll">
-                <div className="map-frame" style={{ aspectRatio: `${activeCityConfig.viewW} / ${activeCityConfig.viewH}` }}>
-                  <svg viewBox={`${activeCityConfig.crop.x} ${activeCityConfig.crop.y} ${activeCityConfig.viewW} ${activeCityConfig.viewH}`} className="map-svg" aria-hidden="true">
-                    <path
-                      d={(KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity) || {}).d}
-                      className="city-outline"
-                    />
-                    <polyline points={routePolylinePoints} className="route-path-line" />
-                  </svg>
-
-                  {originIsMyLocation ? (
-                    <div className="my-location-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }} aria-label={lang === 'en' ? 'Your current location' : '現在地'}>
-                      <span className="my-location-pulse" />
-                      <span className="my-location-dot" />
-                    </div>
-                  ) : (
-                    <div className="route-airport-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}>
-                      <Flag size={13} />
-                    </div>
-                  )}
-
-                  {detourMode && nearbySpots.map((spot) => {
-                    const meta = CATEGORY_META[spot.category];
-                    const Icon = meta.icon;
-                    const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
-                    const isLinked = linkedId === spot.id;
-                    const leftPct = pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW);
-                    const topPct = pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH);
-                    return (
-                      <Fragment key={spot.id}>
-                        <button
-                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
-                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
-                          aria-label={sName(spot)}
-                        >
-                          <span className="spot-pin-icon">
-                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
-                          </span>
-                        </button>
-                        {isLinked && (
-                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
-                            <span className="poi-pin-label-name">{sName(spot)}</span>
-                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
-                            </button>
-                          </div>
-                        )}
-                      </Fragment>
-                    );
-                  })}
-
-                  {detourMode && linkedId && myLocation && travelFromMe && (() => {
-                    const spot = nearbySpots.find((s) => s.id === linkedId);
-                    if (!spot) return null;
-                    return (
-                      <div
-                        className="pin-travel-bubble"
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}
-                      >
-                        <span className="pin-travel-bubble-name">{sName(spot)}</span>
-                        <span className="pin-travel-bubble-time"><Car size={12} /> {lang === 'en' ? `~${travelFromMe.car} min` : `約${travelFromMe.car}分`}</span>
-                      </div>
-                    );
-                  })()}
-
-                  {routeStops.map((spot, i) => {
-                    const meta = CATEGORY_META[spot.category];
-                    const isHotelStop = spot.category === 'lodging';
-                    return (
-                      <button
-                        key={spot.id}
-                        className={`route-stop-marker ${isHotelStop ? 'is-hotel' : ''}`}
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%', '--cat-color': meta.color }}
-                        onClick={() => setSelectedId(spot.id)}
-                        aria-label={sName(spot)}
-                      >
-                        {i + 1}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              {detourMode && (
-                nearbySpots.length > 0 ? (
-                  <div className="spot-index-grid detour-index-grid">
-                    {nearbySpots.map((spot) => {
-                      const meta = CATEGORY_META[spot.category];
-                      const Icon = meta.icon;
-                      const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
-                      const isLinked = linkedId === spot.id;
-                      return (
-                        <button
-                          key={spot.id}
-                          className={`spot-index-item ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
-                          style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}
-                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
-                        >
-                          <span className="spot-index-num">{state === 'decided' ? <Check size={11} /> : <Icon size={11} />}</span>
-                          <span className="spot-index-name">{sName(spot)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="detour-empty-note">
-                    {lang === 'en' ? 'No detour suggestions near your route.' : 'ルート付近に寄り道できるスポットが見つかりませんでした。'}
-                  </p>
-                )
-              )}
-              <p className="route-map-caption">
-                {lang === 'en'
-                  ? 'The dotted line connects stops in visiting order. Numbers show the order; pins below the map are detour-mode suggestions.'
-                  : '点線は訪問順をつないだ簡易ルートです。番号は訪れる順番、地図下の一覧は寄り道モードのおすすめスポットです。'}
-              </p>
-            </>
-          )}
-          {routeViewMode === 'timeline' && (
-          <div className="timeline">
-            {plan.map((item, idx) => {
-              if (item.type === 'travel') {
-                const legIndex = (idx - 1) / 2;
-                const ActiveIcon = MODE_ICON[item.mode];
-                return (
-                  <div key={idx} className="t-row t-row-travel" style={{ '--mode-color': MODE_COLOR[item.mode] }}>
-                    <div className="t-node-col">
-                      <span className="t-mode-badge"><ActiveIcon size={13} /></span>
-                    </div>
-                    <div className="t-content-col">
-                      <div className="travel-info">
-                        <span className="travel-label">
-                          {modeLabel(item.mode)} ・ {lang === 'en' ? `approx. ${item.minutes} min` : `約${item.minutes}分`} ・ {item.distance}km
-                        </span>
-                        <div className="mode-toggle" role="group" aria-label={lang === 'en' ? 'Choose transport mode' : '移動手段を選択'}>
-                          {['walk', 'bus', 'taxi'].map((m) => {
-                            const MIcon = MODE_ICON[m];
-                            return (
-                              <button
-                                key={m}
-                                className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
-                                onClick={() => updateLegMode(legIndex, m)}
-                                aria-label={modeLabel(m)}
-                                title={modeLabel(m)}
-                                aria-pressed={item.mode === m}
-                              >
-                                <MIcon size={15} />
-                              </button>
-                            );
-                          })}
-                          <span className="mode-toggle-divider" />
-                          <button
-                            className="mode-btn"
-                            aria-label="ナビ"
-                            title="ナビ"
-                            onClick={() => {
-                              const leg = naviLegs[legIndex];
-                              if (!leg) return;
-                              const ok = window.confirm(
-                                lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
-                              );
-                              if (ok) {
-                                window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
-                              }
-                            }}
-                          >
-                            <Compass size={15} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              const isStart = item.type === 'start';
-              const isEnd = item.type === 'end';
-              const isStop = !isStart && !isEnd;
-              const dotColor = isStart ? '#9AA0A6' : isEnd ? CATEGORY_META.lodging.color : CATEGORY_META[item.category].color;
-              const StopIcon = isStart ? Navigation : isEnd ? CATEGORY_META.lodging.icon : CATEGORY_META[item.category].icon;
-              const timeInline = isStart
-                ? (lang === 'en' ? `Depart ${item.time}` : `${item.time} 出発`)
-                : isEnd
-                  ? (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)
-                  : (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 着`);
-              const isDestination = isStop || isEnd;
-              const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
-              const destIsReserved = isDestination && reserved.includes(item.spotId);
-              return (
-                <div
-                  key={idx}
-                  className={`t-row t-row-stop ${isDestination ? 'clickable' : ''}`}
-                  onClick={isDestination ? () => setSelectedId(item.spotId) : undefined}
-                >
-                  <div className="t-node-col">
-                    <span className="t-node" style={{ background: dotColor }}><StopIcon size={15} /></span>
-                  </div>
-                  <div className="t-content-col">
-                    <span className="stop-name">{item.label}</span>
-                    <div className="t-time-row">
-                      <span className="t-time-inline">{timeInline}</span>
-                      {isStop && (
-                        <span className="stop-stay-badge">{lang === 'en' ? `Stay ${item.stay} min` : `滞在${item.stay}分`}</span>
-                      )}
-                    </div>
-                  </div>
-                  {isDestination && (
-                    <div className="t-card-actions">
-                      {destSpot && needsReservation(destSpot) && (
-                        <button
-                          className={`t-card-action-btn ${destIsReserved ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleReserved(item.spotId); }}
-                        >
-                          <Calendar size={12} /> {destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
-                        </button>
-                      )}
-                      <button
-                        className="t-card-action-btn t-card-action-btn-confirm"
-                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.spotId); }}
-                      >
-                        <ChevronRight size={12} /> {lang === 'en' ? 'Details' : '確認'}
-                      </button>
-                    </div>
-                  )}
-                  {isStart && (
-                    <div className="start-actions">
-                        <button
-                          className="locate-btn"
-                          onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); }}
-                          disabled={locating}
-                        >
-                          <Navigation size={13} />
-                          {locating
-                            ? (lang === 'en' ? 'Locating…' : '取得中…')
-                            : originIsMyLocation
-                              ? (lang === 'en' ? 'Update my location' : '現在地を更新')
-                              : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
-                        </button>
-                        {activeFerrySvg && !originIsFerry && (
-                          <button
-                            className="locate-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRouteOrigin('ferry');
-                              setCustomOriginName('');
-                              const { stops, distances, modes } = computeRouteFrom(activeFerrySvg);
-                              setRouteStops(stops);
-                              setLegDistances(distances);
-                              setLegModes(modes);
-                            }}
-                          >
-                            <Navigation size={13} />
-                            {lang === 'en' ? `Start from ${activeFerry.nameEn}` : `${activeFerry.name}から出発する`}
-                          </button>
-                        )}
-                        {(originIsMyLocation || originIsCustom || originIsFerry) && (
-                          <button
-                            className="locate-origin-reset"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRouteOrigin('airport');
-                              setCustomOriginName('');
-                              const { stops, distances, modes } = computeRouteFrom(activeAirportSvg);
-                              setRouteStops(stops);
-                              setLegDistances(distances);
-                              setLegModes(modes);
-                            }}
-                          >
-                            {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
-                          </button>
-                        )}
-                        {locationError && <p className="locate-error">{locationError}</p>}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          )}
-          <p className="disclaimer">
-            {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
-          </p>
-        </main>
-        <div className="bottom-icon-bar route-overlay-iconbar">
-          <button
-            className="bottom-bar-btn"
-            onClick={(e) => { e.stopPropagation(); locateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
-            disabled={myLocationStatus === 'loading' || locating}
-            title={lang === 'en' ? 'Show my location' : '現在地を表示'}
-            aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
-          >
-            <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
-            <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
-          </button>
-          <button
-            className="bottom-bar-btn"
-            onClick={(e) => { e.stopPropagation(); }}
-            title={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
-            aria-label={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
-            style={{ opacity: 0.4 }}
-          >
-            <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
-            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
-          </button>
-          <button
-            className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
-            onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
-            title={lang === 'en' ? 'Search' : '探す'}
-            aria-label={lang === 'en' ? 'Search' : '探す'}
-          >
-            <span className="bottom-bar-icon-circle"><Search size={17} /></span>
-            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Search' : '探す'}</span>
-          </button>
-          <button
-            className="bottom-bar-btn"
-            onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
-            title={lang === 'en' ? 'More' : 'その他'}
-            aria-label={lang === 'en' ? 'More' : 'その他'}
-          >
-            <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
-            <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
-          </button>
-          <button
-            className="bottom-bar-btn"
-            onClick={(e) => { e.stopPropagation(); if (!calculating) buildRoute(); }}
-            title={lang === 'en' ? 'Recalculate route' : 'ルート再検索'}
-            aria-label={lang === 'en' ? 'Recalculate route' : 'ルート再検索'}
-          >
-            <span className="bottom-bar-icon-circle route-bar-icon-circle"><Route size={17} /></span>
-            <span className="bottom-bar-btn-label route-bar-label">{lang === 'en' ? 'Route' : 'ルート検索'}</span>
-          </button>
-          <button
-            className="bottom-bar-btn"
-            onClick={(e) => { e.stopPropagation(); setView('select'); }}
-            title={lang === 'en' ? 'Back' : '戻る'}
-            aria-label={lang === 'en' ? 'Back' : '戻る'}
-          >
-            <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
-            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
-          </button>
-        </div>
-        </div>
-        </div>
-      )}
-
       {selectedSpot && (
         <div className="overlay-backdrop detail-backdrop" onClick={() => { setSelectedId(null); setLinkedId(null); }}>
           <div className="detail-card-shell" style={{ '--cat-color': CATEGORY_META[selectedSpot.category].color, '--cat-tint': CATEGORY_META[selectedSpot.category].tint }}>
@@ -11484,6 +11022,395 @@ function MairuDemoInner() {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {view === 'route' && plan && (
+        <div className="overlay-backdrop detail-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
+        <div className="detail-card-shell route-card-shell">
+        <div className="detail-card poi-card-rounded route-card" onClick={(e) => e.stopPropagation()}>
+        <button className="saved-sheet-close route-card-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+        <main className="route-view">
+          {routeViewMode === 'navi' && (
+            <div className="navi-view">
+              <a className="navi-combined-btn" href={naviCombinedUrl} target="_blank" rel="noopener noreferrer">
+                <Navigation size={15} /> {lang === 'en' ? 'Open full route in Google Maps (car)' : '全ルートをGoogleマップで開く(車)'}
+              </a>
+              <p className="navi-note">
+                {lang === 'en'
+                  ? 'If each leg uses a different mode of transport, start navigation separately using the buttons below.'
+                  : '区間ごとに移動手段が異なる場合は、下の各区間のボタンからそれぞれナビを開始してください。'}
+              </p>
+              <div className="navi-legs">
+                {naviLegs.map((leg, i) => {
+                  const LegIcon = MODE_ICON[leg.mode];
+                  return (
+                    <div key={i} className="navi-leg-card">
+                      <div className="navi-leg-route">
+                        <span>{leg.fromLabel}</span>
+                        <span className="navi-leg-arrow">↓</span>
+                        <span>{leg.toLabel}</span>
+                      </div>
+                      <div className="navi-leg-meta">
+                        <LegIcon size={13} /> {modeLabel(leg.mode)} ・ {leg.distanceKm}km
+                      </div>
+                      <a className="navi-leg-btn" href={gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode)} target="_blank" rel="noopener noreferrer">
+                        <Navigation size={13} /> {lang === 'en' ? 'Start navigation for this leg' : 'この区間のナビを開始'}
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="disclaimer">
+                {lang === 'en'
+                  ? 'Opens the Google Maps app or website. You can change each leg\u2019s mode of transport from the timeline view.'
+                  : '※Googleマップアプリ/サイトが開きます。区間ごとの移動手段はタイムライン画面で変更できます。'}
+              </p>
+            </div>
+          )}
+
+          {routeViewMode === 'map' && (
+            <>
+              <div className="route-map-toolbar">
+                <button className={`detour-toggle ${detourMode ? 'active' : ''}`} onClick={() => { setDetourMode((v) => !v); setLinkedId(null); }}>
+                  <Compass size={14} /> {lang === 'en' ? 'Detour mode' : '寄り道モード'}{detourMode ? ' ON' : ''}
+                </button>
+                <button className="recalc-btn" onClick={buildRoute}>
+                  <RotateCcw size={13} /> {lang === 'en' ? 'Recalculate route' : 'ルートを再計算'}
+                </button>
+              </div>
+              {detourMode && (
+                <div className="detour-filter" role="group" aria-label={lang === 'en' ? 'Filter detours by category' : '寄り道カテゴリで絞り込み'}>
+                  <button className={detourCategory === 'all' ? 'active' : ''} onClick={() => { setDetourCategory('all'); setLinkedId(null); }}>
+                    {lang === 'en' ? 'All' : 'すべて'}
+                  </button>
+                  {Object.entries(CATEGORY_META).filter(([key]) => key !== 'sightseeing').map(([key, meta]) => (
+                    <button
+                      key={key}
+                      className={detourCategory === key ? 'active' : ''}
+                      style={{ '--cat-color': meta.color }}
+                      onClick={() => { setDetourCategory(key); setLinkedId(null); }}
+                    >
+                      {catLabel(meta)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="map-scroll">
+                <div className="map-frame" style={{ aspectRatio: `${activeCityConfig.viewW} / ${activeCityConfig.viewH}` }}>
+                  <svg viewBox={`${activeCityConfig.crop.x} ${activeCityConfig.crop.y} ${activeCityConfig.viewW} ${activeCityConfig.viewH}`} className="map-svg" aria-hidden="true">
+                    <path
+                      d={(KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity) || {}).d}
+                      className="city-outline"
+                    />
+                    <polyline points={routePolylinePoints} className="route-path-line" />
+                  </svg>
+
+                  {originIsMyLocation ? (
+                    <div className="my-location-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }} aria-label={lang === 'en' ? 'Your current location' : '現在地'}>
+                      <span className="my-location-pulse" />
+                      <span className="my-location-dot" />
+                    </div>
+                  ) : (
+                    <div className="route-airport-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}>
+                      <Flag size={13} />
+                    </div>
+                  )}
+
+                  {detourMode && nearbySpots.map((spot) => {
+                    const meta = CATEGORY_META[spot.category];
+                    const Icon = meta.icon;
+                    const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
+                    const isLinked = linkedId === spot.id;
+                    const leftPct = pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW);
+                    const topPct = pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH);
+                    return (
+                      <Fragment key={spot.id}>
+                        <button
+                          className={`spot-pin ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ left: leftPct + '%', top: topPct + '%', '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
+                          aria-label={sName(spot)}
+                        >
+                          <span className="spot-pin-icon">
+                            {state === 'decided' ? <Check size={12} /> : <Icon size={12} />}
+                          </span>
+                        </button>
+                        {isLinked && (
+                          <div className="spot-pin-peek-label" style={{ left: leftPct + '%', top: topPct + '%' }}>
+                            <span className="poi-pin-label-name">{sName(spot)}</span>
+                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setSelectedId(spot.id); setLinkedId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
+                              <ChevronRight size={13} color="#1A2E3B" strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+
+                  {detourMode && linkedId && myLocation && travelFromMe && (() => {
+                    const spot = nearbySpots.find((s) => s.id === linkedId);
+                    if (!spot) return null;
+                    return (
+                      <div
+                        className="pin-travel-bubble"
+                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}
+                      >
+                        <span className="pin-travel-bubble-name">{sName(spot)}</span>
+                        <span className="pin-travel-bubble-time"><Car size={12} /> {lang === 'en' ? `~${travelFromMe.car} min` : `約${travelFromMe.car}分`}</span>
+                      </div>
+                    );
+                  })()}
+
+                  {routeStops.map((spot, i) => {
+                    const meta = CATEGORY_META[spot.category];
+                    const isHotelStop = spot.category === 'lodging';
+                    return (
+                      <button
+                        key={spot.id}
+                        className={`route-stop-marker ${isHotelStop ? 'is-hotel' : ''}`}
+                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%', '--cat-color': meta.color }}
+                        onClick={() => setSelectedId(spot.id)}
+                        aria-label={sName(spot)}
+                      >
+                        {i + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {detourMode && (
+                nearbySpots.length > 0 ? (
+                  <div className="spot-index-grid detour-index-grid">
+                    {nearbySpots.map((spot) => {
+                      const meta = CATEGORY_META[spot.category];
+                      const Icon = meta.icon;
+                      const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
+                      const isLinked = linkedId === spot.id;
+                      return (
+                        <button
+                          key={spot.id}
+                          className={`spot-index-item ${state === 'decided' ? 'is-decided' : state === 'candidate' ? 'is-candidate' : ''} ${isLinked ? 'is-linked' : ''}`}
+                          style={{ '--cat-color': meta.color, '--cat-tint': meta.tint }}
+                          onClick={(e) => { e.stopPropagation(); handleSpotTap(spot.id); }}
+                        >
+                          <span className="spot-index-num">{state === 'decided' ? <Check size={11} /> : <Icon size={11} />}</span>
+                          <span className="spot-index-name">{sName(spot)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="detour-empty-note">
+                    {lang === 'en' ? 'No detour suggestions near your route.' : 'ルート付近に寄り道できるスポットが見つかりませんでした。'}
+                  </p>
+                )
+              )}
+              <p className="route-map-caption">
+                {lang === 'en'
+                  ? 'The dotted line connects stops in visiting order. Numbers show the order; pins below the map are detour-mode suggestions.'
+                  : '点線は訪問順をつないだ簡易ルートです。番号は訪れる順番、地図下の一覧は寄り道モードのおすすめスポットです。'}
+              </p>
+            </>
+          )}
+          {routeViewMode === 'timeline' && (
+          <div className="timeline">
+            {plan.map((item, idx) => {
+              if (item.type === 'travel') {
+                const legIndex = (idx - 1) / 2;
+                const ActiveIcon = MODE_ICON[item.mode];
+                return (
+                  <div key={idx} className="t-row t-row-travel" style={{ '--mode-color': MODE_COLOR[item.mode] }}>
+                    <div className="t-node-col">
+                      <span className="t-mode-badge"><ActiveIcon size={13} /></span>
+                    </div>
+                    <div className="t-content-col">
+                      <div className="travel-info">
+                        <span className="travel-label">
+                          {modeLabel(item.mode)} ・ {lang === 'en' ? `approx. ${item.minutes} min` : `約${item.minutes}分`} ・ {item.distance}km
+                        </span>
+                        <div className="mode-toggle" role="group" aria-label={lang === 'en' ? 'Choose transport mode' : '移動手段を選択'}>
+                          {['walk', 'bus', 'taxi'].map((m) => {
+                            const MIcon = MODE_ICON[m];
+                            return (
+                              <button
+                                key={m}
+                                className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
+                                onClick={() => updateLegMode(legIndex, m)}
+                                aria-label={modeLabel(m)}
+                                title={modeLabel(m)}
+                                aria-pressed={item.mode === m}
+                              >
+                                <MIcon size={15} />
+                              </button>
+                            );
+                          })}
+                          <span className="mode-toggle-divider" />
+                          <button
+                            className="mode-btn"
+                            aria-label="ナビ"
+                            title="ナビ"
+                            onClick={() => {
+                              const leg = naviLegs[legIndex];
+                              if (!leg) return;
+                              const ok = window.confirm(
+                                lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
+                              );
+                              if (ok) {
+                                window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
+                              }
+                            }}
+                          >
+                            <Compass size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              const isStart = item.type === 'start';
+              const isEnd = item.type === 'end';
+              const isStop = !isStart && !isEnd;
+              const dotColor = isStart ? '#9AA0A6' : isEnd ? CATEGORY_META.lodging.color : CATEGORY_META[item.category].color;
+              const StopIcon = isStart ? Navigation : isEnd ? CATEGORY_META.lodging.icon : CATEGORY_META[item.category].icon;
+              const timeInline = isStart
+                ? (lang === 'en' ? `Depart ${item.time}` : `${item.time} 出発`)
+                : isEnd
+                  ? (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)
+                  : (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 着`);
+              const isDestination = isStop || isEnd;
+              const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
+              const destIsReserved = isDestination && reserved.includes(item.spotId);
+              return (
+                <div
+                  key={idx}
+                  className={`t-row t-row-stop ${isDestination ? 'clickable' : ''}`}
+                  onClick={isDestination ? () => setSelectedId(item.spotId) : undefined}
+                >
+                  <div className="t-node-col">
+                    <span className="t-node" style={{ background: dotColor }}><StopIcon size={15} /></span>
+                  </div>
+                  <div className="t-content-col">
+                    <span className="stop-name">{item.label}</span>
+                    <div className="t-time-row">
+                      <span className="t-time-inline">{timeInline}</span>
+                      {isStop && (
+                        <span className="stop-stay-badge">{lang === 'en' ? `Stay ${item.stay} min` : `滞在${item.stay}分`}</span>
+                      )}
+                    </div>
+                  </div>
+                  {isDestination && (
+                    <div className="t-card-actions">
+                      {destSpot && needsReservation(destSpot) && (
+                        <button
+                          className={`t-card-action-btn ${destIsReserved ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleReserved(item.spotId); }}
+                        >
+                          <Calendar size={12} /> {destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
+                        </button>
+                      )}
+                      <button
+                        className="t-card-action-btn t-card-action-btn-confirm"
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.spotId); }}
+                      >
+                        <ChevronRight size={12} /> {lang === 'en' ? 'Details' : '確認'}
+                      </button>
+                    </div>
+                  )}
+                  {isStart && (
+                    <div className="start-actions">
+                        <button
+                          className="locate-btn"
+                          onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); }}
+                          disabled={locating}
+                        >
+                          <Navigation size={13} />
+                          {locating
+                            ? (lang === 'en' ? 'Locating…' : '取得中…')
+                            : originIsMyLocation
+                              ? (lang === 'en' ? 'Update my location' : '現在地を更新')
+                              : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
+                        </button>
+                        {activeFerrySvg && !originIsFerry && (
+                          <button
+                            className="locate-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRouteOrigin('ferry');
+                              setCustomOriginName('');
+                              const { stops, distances, modes } = computeRouteFrom(activeFerrySvg);
+                              setRouteStops(stops);
+                              setLegDistances(distances);
+                              setLegModes(modes);
+                            }}
+                          >
+                            <Navigation size={13} />
+                            {lang === 'en' ? `Start from ${activeFerry.nameEn}` : `${activeFerry.name}から出発する`}
+                          </button>
+                        )}
+                        {(originIsMyLocation || originIsCustom || originIsFerry) && (
+                          <button
+                            className="locate-origin-reset"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRouteOrigin('airport');
+                              setCustomOriginName('');
+                              const { stops, distances, modes } = computeRouteFrom(activeAirportSvg);
+                              setRouteStops(stops);
+                              setLegDistances(distances);
+                              setLegModes(modes);
+                            }}
+                          >
+                            {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
+                          </button>
+                        )}
+                        {locationError && <p className="locate-error">{locationError}</p>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          )}
+          <p className="disclaimer">
+            {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
+          </p>
+        </main>
+        <div className="poi-card-footer route-card-footer">
+          <button
+            type="button"
+            className={`poi-float-btn ${routeViewMode === 'timeline' ? 'active' : ''}`}
+            onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}
+            aria-label={lang === 'en' ? 'Timeline' : 'タイムライン'}
+            title={lang === 'en' ? 'Timeline' : 'タイムライン'}
+          >
+            <span className="poi-float-btn-circle"><LayoutGrid size={17} /></span>
+            <span className="poi-float-btn-label">{lang === 'en' ? 'Timeline' : 'タイムライン'}</span>
+          </button>
+          <button
+            type="button"
+            className={`poi-float-btn ${routeViewMode === 'map' ? 'active' : ''}`}
+            onClick={() => setRouteViewMode('map')}
+            aria-label={lang === 'en' ? 'Route map' : 'ルートマップ'}
+            title={lang === 'en' ? 'Route map' : 'ルートマップ'}
+          >
+            <span className="poi-float-btn-circle"><MapIcon size={17} /></span>
+            <span className="poi-float-btn-label">{lang === 'en' ? 'Route map' : 'ルートマップ'}</span>
+          </button>
+          <button
+            type="button"
+            className="poi-float-btn"
+            onClick={shareCurrentPlan}
+            aria-label={lang === 'en' ? 'Share' : '共有'}
+            title={lang === 'en' ? 'Share' : '共有'}
+          >
+            <span className="poi-float-btn-circle"><Share2 size={17} /></span>
+            <span className="poi-float-btn-label">{lang === 'en' ? 'Share' : '共有'}</span>
+          </button>
+        </div>
+        </div>
+        </div>
         </div>
       )}
 
