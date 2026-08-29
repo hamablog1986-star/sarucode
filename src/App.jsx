@@ -5,7 +5,7 @@ import {
   Save, Share2, Download, Upload, X, Trash2, ExternalLink,
   Calendar, TrainFront, Trees, Sparkles, ShoppingBag, Stethoscope, Droplet, PartyPopper, Coffee, ZoomIn, Mountain,
   MapPin, BookOpen, Building2, Fuel, Wallet, Soup, Search, Languages,
-  ChevronRight, ChevronLeft, Plane, Ship, Bookmark, Globe, FileText, MoreHorizontal,
+  ChevronRight, ChevronLeft, ChevronDown, Plane, Ship, Bookmark, Globe, FileText, MoreHorizontal, GripVertical,
 } from 'lucide-react';
 
 /* ---------------------------------------------------------
@@ -6986,6 +6986,84 @@ function MairuDemoInner() {
     return { stops, distances, modes };
   }
 
+  // 手動で並び替えた後の順番はそのままに、区間ごとの距離・移動手段だけ再計算する
+  function recomputeDistancesForOrder(origin, stops) {
+    const distances = [];
+    let prevPoint = origin;
+    stops.forEach((spot) => {
+      distances.push(dist(prevPoint, spot));
+      prevPoint = spot;
+    });
+    const modes = distances.map((d) => autoMode(d));
+    return { distances, modes };
+  }
+
+  const [reorderPickIdx, setReorderPickIdx] = useState(null); // タイムラインで並び替え用に選択中のrouteStopsインデックス(1つ目をタップして選択、2つ目をタップして入れ替え)
+  function handleReorderTap(routeStopIndex) {
+    if (reorderPickIdx === null) {
+      setReorderPickIdx(routeStopIndex);
+      return;
+    }
+    if (reorderPickIdx === routeStopIndex) {
+      setReorderPickIdx(null);
+      return;
+    }
+    const nextStops = [...routeStops];
+    [nextStops[reorderPickIdx], nextStops[routeStopIndex]] = [nextStops[routeStopIndex], nextStops[reorderPickIdx]];
+    const { distances, modes } = recomputeDistancesForOrder(effectiveOrigin, nextStops);
+    setRouteStops(nextStops);
+    setLegDistances(distances);
+    setLegModes(modes);
+    setReorderPickIdx(null);
+  }
+
+  // カードを指でつまんで動かす、実際のドラッグ&ドロップによる並び替え。
+  // Pointer Events + setPointerCapture を使うことで、マウス・タッチ両方に同じコードで対応する。
+  const [draggingStopIndex, setDraggingStopIndex] = useState(null); // 現在ドラッグ中のrouteStopsインデックス
+  const [dragOverStopIndex, setDragOverStopIndex] = useState(null); // 現在指が重なっている先のインデックス
+  const dragStateRef = useRef({ active: false, fromIndex: null });
+
+  function handleDragHandlePointerDown(e, routeStopIndex) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragStateRef.current = { active: true, fromIndex: routeStopIndex };
+    setDraggingStopIndex(routeStopIndex);
+    setDragOverStopIndex(routeStopIndex);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+  }
+  function handleDragPointerMove(e) {
+    if (!dragStateRef.current.active) return;
+    e.preventDefault();
+    const touch = e.touches && e.touches[0];
+    const clientX = touch ? touch.clientX : e.clientX;
+    const clientY = touch ? touch.clientY : e.clientY;
+    const el = document.elementFromPoint(clientX, clientY);
+    const cardEl = el && el.closest('[data-route-stop-index]');
+    if (cardEl) {
+      const overIdx = parseInt(cardEl.dataset.routeStopIndex, 10);
+      if (!Number.isNaN(overIdx)) setDragOverStopIndex(overIdx);
+    }
+  }
+  function handleDragPointerUp() {
+    if (!dragStateRef.current.active) return;
+    const fromIdx = dragStateRef.current.fromIndex;
+    const toIdx = dragOverStopIndex;
+    dragStateRef.current = { active: false, fromIndex: null };
+    setDraggingStopIndex(null);
+    setDragOverStopIndex(null);
+    if (fromIdx !== null && toIdx !== null && toIdx !== fromIdx) {
+      const nextStops = [...routeStops];
+      const [moved] = nextStops.splice(fromIdx, 1);
+      nextStops.splice(toIdx, 0, moved);
+      const { distances, modes } = recomputeDistancesForOrder(effectiveOrigin, nextStops);
+      setRouteStops(nextStops);
+      setLegDistances(distances);
+      setLegModes(modes);
+    }
+  }
+
+  const [originPickerOpen, setOriginPickerOpen] = useState(false); // 出発地カードのバッジを押すと開く、出発地選択メニュー
+
   function buildRoute() {
     if (!canCreateRoute) return;
     setCalculating(true);
@@ -7031,6 +7109,7 @@ function MairuDemoInner() {
         label: sName(spot),
         category: spot.category,
         spotId: spot.id,
+        routeStopIndex: i,
         arrive,
         depart: isHotel ? null : addMinutes(arrive, stay),
         stay,
@@ -8758,41 +8837,63 @@ function MairuDemoInner() {
         .route-stop-marker.is-hotel { width:30px; height:30px; }
         .route-map-caption { font-size:11px; color:var(--muted); margin-top:12px; text-align:center; }
 
-        .timeline { display:flex; flex-direction:column; gap:8px; }
-        .t-row { display:flex; align-items:stretch; gap:0; }
-        .t-row-poicard { display:block; }
-        .t-poicard-mini { width:112px; }
-        .t-row-stop, .t-row-travel { gap:10px; }
-        .t-row-stop, .t-row-travel {
-          background:#fff;
-          border:1.5px solid var(--line);
-          border-radius:14px;
-          padding:0 14px;
-          box-shadow:0 2px 6px rgba(26,46,59,0.05);
-          flex-wrap:wrap;
+        .timeline { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; align-items:start; }
+        .t-grid-tile { min-width:0; }
+        .t-poicard-mini.clickable { cursor:pointer; transition: border-color .15s; -webkit-tap-highlight-color: transparent; }
+        .t-grid-span { grid-column:1 / -1; }
+        .t-mini-wrap { display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+        .t-mini-badge {
+          position:absolute; top:6px; left:6px; z-index:2;
+          font-size:9.5px; font-weight:700; color:#fff; background:rgba(20,22,26,0.6);
+          border-radius:999px; padding:2px 7px;
         }
-        .t-node-col { position:relative; flex-shrink:0; width:44px; display:flex; align-items:center; justify-content:center; }
-        .t-node { position:relative; z-index:1; flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
-        .t-mode-badge { position:relative; z-index:1; flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; border:2.5px solid var(--mode-color); display:flex; align-items:center; justify-content:center; color:var(--mode-color); }
-        .t-content-col { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:4px; padding:14px 0; }
-        .t-time-inline { font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600; color:#7C828A; }
-        .t-time-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .t-row-stop.clickable { cursor:pointer; transition: border-color .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent; }
-        @media (hover: hover) and (pointer: fine) {
-          .t-row-stop.clickable:hover { border-color:#C7CBD1; box-shadow:0 3px 10px rgba(26,46,59,0.09); }
+        .t-mini-reserve {
+          position:absolute; top:6px; right:6px; z-index:2;
+          width:22px; height:22px; border-radius:50%; border:none;
+          background:rgba(255,255,255,0.92); color:var(--cat-color);
+          display:flex; align-items:center; justify-content:center; cursor:pointer;
+          -webkit-tap-highlight-color: transparent;
         }
-        .stop-chevron { flex-shrink:0; align-self:center; color:#B7BBC0; margin-left:6px; }
-        .stop-name { font-weight:800; font-size:15.5px; line-height:1.3; }
-        .stop-stay-badge { font-size:10.5px; font-weight:600; color:#5B616A; background:#F6F6F4; border-radius:999px; padding:2px 8px; }
-        .t-card-actions { display:flex; flex-direction:row; align-items:center; gap:6px; margin-left:auto; padding-left:10px; flex-shrink:0; }
-        .t-card-action-btn-confirm { margin-left:0; }
-        .t-card-action-btn { display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-size:11px; font-weight:600; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; }
-        .t-card-action-btn.active { background:#E9F3EC; border-color:#3F8753; color:#2E7D4F; }
-        .travel-info { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
-        .travel-label { font-size:12px; color:var(--mode-color); font-weight:700; }
-        .mode-toggle { display:flex; align-items:center; gap:5px; }
-        .mode-toggle-divider { width:1px; height:18px; background:var(--line); margin:0 2px; }
-        .mode-btn { display:flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:#5B616A; cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; }
+        .t-mini-reserve.active { background:#2E7D4F; color:#fff; }
+        .t-mini-order {
+          position:absolute; top:6px; left:6px; z-index:2;
+          width:22px; height:22px; border-radius:50%; border:none;
+          background:rgba(255,255,255,0.92); color:var(--cat-color);
+          display:flex; align-items:center; justify-content:center; cursor:pointer;
+          font-size:11px; font-weight:800;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .t-mini-order.picked { background:#D97757; color:#fff; box-shadow:0 0 0 2px #fff, 0 0 0 4px #D97757; }
+        .t-mini-order-start { background:#1A2E3B; color:#fff; }
+        .t-mini-drag-handle {
+          position:absolute; bottom:6px; right:6px; z-index:2;
+          width:24px; height:24px; border-radius:6px;
+          background:rgba(255,255,255,0.92); color:#7C828A;
+          display:flex; align-items:center; justify-content:center;
+          cursor:grab; touch-action:none; -webkit-tap-highlight-color: transparent;
+        }
+        .saved-mini-card.dragging { opacity:0.4; }
+        .saved-mini-card.drag-over { outline:2.5px dashed #D97757; outline-offset:2px; }
+        .origin-picker { flex-direction:column; align-items:stretch; gap:6px; background:#F7F7F5; border-radius:12px; padding:10px; }
+        .origin-picker-title { margin:0 0 2px; font-size:11px; font-weight:700; color:var(--muted); text-align:center; }
+        .start-actions-compact { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px; }
+        .locate-btn-compact {
+          display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:999px;
+          border:1.5px solid var(--line); background:#fff; font-size:10.5px; font-weight:600; color:var(--ink);
+          cursor:pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .locate-btn-compact:disabled { opacity:0.6; cursor:not-allowed; }
+        .locate-origin-reset-compact { font-size:10.5px; background:none; border:none; color:var(--muted); text-decoration:underline; cursor:pointer; padding:2px; }
+        .t-connector {
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+          padding:6px 0; color:var(--mode-color); cursor:pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .t-connector-arrow { display:flex; color:var(--mode-color); }
+        .t-connector-mode { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; border:2px solid var(--mode-color); background:#fff; }
+        .t-connector-label { font-size:11px; font-weight:700; color:#7C828A; }
+        .t-connector-toggle { display:flex; align-items:center; gap:5px; margin-top:2px; }
+        .mode-toggle-divider { width:1px; height:16px; background:var(--line); margin:0 2px; }
+        .mode-btn { display:flex; align-items:center; justify-content:center; width:26px; height:26px; padding:0; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:#5B616A; cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; }
         .mode-btn.mode-active { background:var(--ink); border-color:var(--ink); color:#fff; }
         .disclaimer { font-size:11px; color:var(--muted); margin-top:30px; text-align:center; }
 
@@ -11212,182 +11313,161 @@ function MairuDemoInner() {
           <div className="timeline">
             {plan.map((item, idx) => {
               if (item.type === 'travel') {
-                const legIndex = (idx - 1) / 2;
-                const ActiveIcon = MODE_ICON[item.mode];
-                return (
-                  <div key={idx} className="t-row t-row-travel" style={{ '--mode-color': MODE_COLOR[item.mode] }}>
-                    <div className="t-node-col">
-                      <span className="t-mode-badge"><ActiveIcon size={13} /></span>
-                    </div>
-                    <div className="t-content-col">
-                      <div className="travel-info">
-                        <span className="travel-label">
-                          {modeLabel(item.mode)} ・ {lang === 'en' ? `approx. ${item.minutes} min` : `約${item.minutes}分`} ・ {item.distance}km
-                        </span>
-                        <div className="mode-toggle" role="group" aria-label={lang === 'en' ? 'Choose transport mode' : '移動手段を選択'}>
-                          {['walk', 'bus', 'taxi'].map((m) => {
-                            const MIcon = MODE_ICON[m];
-                            return (
-                              <button
-                                key={m}
-                                className={`mode-btn ${item.mode === m ? 'mode-active' : ''}`}
-                                onClick={() => updateLegMode(legIndex, m)}
-                                aria-label={modeLabel(m)}
-                                title={modeLabel(m)}
-                                aria-pressed={item.mode === m}
-                              >
-                                <MIcon size={15} />
-                              </button>
-                            );
-                          })}
-                          <span className="mode-toggle-divider" />
-                          <button
-                            className="mode-btn"
-                            aria-label="ナビ"
-                            title="ナビ"
-                            onClick={() => {
-                              const leg = naviLegs[legIndex];
-                              if (!leg) return;
-                              const ok = window.confirm(
-                                lang === 'en' ? 'Start navigation for this leg?' : 'この区間のナビを開始しますか？'
-                              );
-                              if (ok) {
-                                window.open(gmapsUrl(leg.originQuery, leg.destinationQuery, leg.mode), '_blank', 'noopener,noreferrer');
-                              }
-                            }}
-                          >
-                            <Compass size={15} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
+                return null;
               }
               const isStart = item.type === 'start';
               const isEnd = item.type === 'end';
               const isStop = !isStart && !isEnd;
               const isDestination = isStop || isEnd;
               const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
-              const destIsPoiCard = isDestination && destSpot && (destSpot.category === 'airport' || destSpot.category === 'ferry');
-              if (destIsPoiCard) {
-                const poiMeta = CATEGORY_META[destSpot.category];
-                const PoiIcon = poiMeta.icon;
-                return (
-                  <div key={idx} className="t-row t-row-poicard">
-                    <div
-                      className="saved-mini-card t-poicard-mini"
-                      style={{ '--cat-color': poiMeta.color, '--cat-tint': poiMeta.tint }}
-                      onClick={() => setPoiDetail({ type: destSpot.category, data: destSpot })}
-                    >
-                      {destSpot.image ? (
-                        <img src={destSpot.image} alt={sName(destSpot)} className="saved-mini-img" loading="lazy" decoding="async" />
-                      ) : (
-                        <div className="saved-mini-iconbg"><PoiIcon size={26} /></div>
-                      )}
-                      <div className="saved-mini-label">
-                        <span className="saved-mini-tag"><PoiIcon size={8} />{catLabel(poiMeta)}</span>
-                        <span className="saved-mini-name">{sName(destSpot)}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              const dotColor = isStart ? '#9AA0A6' : isEnd ? CATEGORY_META.lodging.color : CATEGORY_META[item.category].color;
-              const StopIcon = isStart ? Navigation : isEnd ? CATEGORY_META.lodging.icon : CATEGORY_META[item.category].icon;
-              const timeInline = isStart
-                ? (lang === 'en' ? `Depart ${item.time}` : `${item.time} 出発`)
-                : isEnd
-                  ? (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)
-                  : (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 着`);
               const destIsReserved = isDestination && reserved.includes(item.spotId);
+
+              // どのタイプ(出発地・経由地・到着地)でも同じミニカードで表示するため、必要な情報を一本化する
+              let catKey = null;
+              let cardData = null;
+              if (isStart && !originIsMyLocation) {
+                catKey = originIsFerry ? 'ferry' : 'airport';
+                const startSpot = catKey === 'ferry' ? activeFerry : activeAirport;
+                const startSvg = catKey === 'ferry' ? activeFerrySvg : activeAirportSvg;
+                const startKey = catKey === 'ferry' ? MUNI_FERRY_OVERRIDE[selectedCity] : (MUNI_AIRPORT_OVERRIDE[selectedCity] || PREF_AIRPORT[activeCityConfig.prefId] || 'fukuoka');
+                cardData = startSpot && startSvg ? { id: `${catKey}-${startKey}`, x: startSvg.x, y: startSvg.y, ...startSpot } : null;
+              } else if (isDestination) {
+                catKey = destSpot ? destSpot.category : item.category;
+                cardData = destSpot;
+              }
+              const cardMeta = catKey ? CATEGORY_META[catKey] : null;
+              const CardIcon = cardMeta ? cardMeta.icon : Navigation;
+              const cardIsPoi = catKey === 'airport' || catKey === 'ferry';
+              const cardName = cardData ? sName(cardData) : (lang === 'en' ? 'Your location' : '現在地');
+              const cardColor = cardMeta ? cardMeta.color : '#9AA0A6';
+              const cardTint = cardMeta ? cardMeta.tint : '#EFF1F2';
+              const cardTag = cardMeta ? catLabel(cardMeta) : (lang === 'en' ? 'Origin' : '出発地');
+              const onCardClick = () => {
+                if (!cardData) return;
+                if (cardIsPoi) setPoiDetail({ type: catKey, data: cardData });
+                else setSelectedId(cardData.id);
+              };
               return (
-                <div
-                  key={idx}
-                  className={`t-row t-row-stop ${isDestination ? 'clickable' : ''}`}
-                  onClick={isDestination ? () => setSelectedId(item.spotId) : undefined}
-                >
-                  <div className="t-node-col">
-                    <span className="t-node" style={{ background: dotColor }}><StopIcon size={15} /></span>
-                  </div>
-                  <div className="t-content-col">
-                    <span className="stop-name">{item.label}</span>
-                    <div className="t-time-row">
-                      <span className="t-time-inline">{timeInline}</span>
-                      {isStop && (
-                        <span className="stop-stay-badge">{lang === 'en' ? `Stay ${item.stay} min` : `滞在${item.stay}分`}</span>
-                      )}
+                <Fragment key={idx}>
+                <div className="t-mini-wrap t-grid-tile">
+                  <div
+                    className={`saved-mini-card t-poicard-mini ${cardData ? 'clickable' : ''} ${draggingStopIndex === item.routeStopIndex ? 'dragging' : ''} ${isDestination && dragOverStopIndex === item.routeStopIndex && draggingStopIndex !== null && draggingStopIndex !== item.routeStopIndex ? 'drag-over' : ''}`}
+                    style={{ '--cat-color': cardColor, '--cat-tint': cardTint }}
+                    onClick={cardData ? onCardClick : undefined}
+                    data-route-stop-index={isDestination ? item.routeStopIndex : undefined}
+                  >
+                    {cardData && cardData.image ? (
+                      <img src={cardData.image} alt={cardName} className="saved-mini-img" loading="lazy" decoding="async" />
+                    ) : (
+                      <div className="saved-mini-iconbg"><CardIcon size={26} /></div>
+                    )}
+                    <div className="saved-mini-label">
+                      <span className="saved-mini-tag"><CardIcon size={8} />{cardTag}</span>
+                      <span className="saved-mini-name">{cardName}</span>
                     </div>
-                  </div>
-                  {isDestination && (
-                    <div className="t-card-actions">
-                      {destSpot && needsReservation(destSpot) && (
-                        <button
-                          className={`t-card-action-btn ${destIsReserved ? 'active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleReserved(item.spotId); }}
-                        >
-                          <Calendar size={12} /> {destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
-                        </button>
-                      )}
+                    {isStart && (
                       <button
-                        className="t-card-action-btn t-card-action-btn-confirm"
-                        onClick={(e) => { e.stopPropagation(); setSelectedId(item.spotId); }}
+                        type="button"
+                        className="t-mini-order t-mini-order-start"
+                        onClick={(e) => { e.stopPropagation(); setOriginPickerOpen((v) => !v); }}
+                        aria-label={lang === 'en' ? 'Choose origin' : '出発地を選択'}
+                        title={lang === 'en' ? 'Choose origin' : '出発地を選択'}
                       >
-                        <ChevronRight size={12} /> {lang === 'en' ? 'Details' : '確認'}
+                        1
                       </button>
-                    </div>
-                  )}
-                  {isStart && (
-                    <div className="start-actions">
-                        <button
-                          className="locate-btn"
-                          onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); }}
-                          disabled={locating}
-                        >
-                          <Navigation size={13} />
-                          {locating
-                            ? (lang === 'en' ? 'Locating…' : '取得中…')
-                            : originIsMyLocation
-                              ? (lang === 'en' ? 'Update my location' : '現在地を更新')
-                              : (lang === 'en' ? 'Start from my location' : '現在地から出発する')}
-                        </button>
-                        {activeFerrySvg && !originIsFerry && (
-                          <button
-                            className="locate-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRouteOrigin('ferry');
-                              setCustomOriginName('');
-                              const { stops, distances, modes } = computeRouteFrom(activeFerrySvg);
-                              setRouteStops(stops);
-                              setLegDistances(distances);
-                              setLegModes(modes);
-                            }}
-                          >
-                            <Navigation size={13} />
-                            {lang === 'en' ? `Start from ${activeFerry.nameEn}` : `${activeFerry.name}から出発する`}
-                          </button>
-                        )}
-                        {(originIsMyLocation || originIsCustom || originIsFerry) && (
-                          <button
-                            className="locate-origin-reset"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRouteOrigin('airport');
-                              setCustomOriginName('');
-                              const { stops, distances, modes } = computeRouteFrom(activeAirportSvg);
-                              setRouteStops(stops);
-                              setLegDistances(distances);
-                              setLegModes(modes);
-                            }}
-                          >
-                            {lang === 'en' ? 'Back to airport departure' : '空港出発に戻す'}
-                          </button>
-                        )}
-                        {locationError && <p className="locate-error">{locationError}</p>}
-                    </div>
-                  )}
+                    )}
+                    {isDestination && (
+                      <button
+                        type="button"
+                        className={`t-mini-order ${reorderPickIdx === item.routeStopIndex ? 'picked' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); handleReorderTap(item.routeStopIndex); }}
+                        aria-label={lang === 'en' ? `Reorder, position ${item.routeStopIndex + 2}` : `並び替え(現在${item.routeStopIndex + 2}番目)`}
+                        title={lang === 'en' ? 'Tap to reorder' : 'タップで並び替え'}
+                      >
+                        {item.routeStopIndex + 2}
+                      </button>
+                    )}
+                    {isDestination && (
+                      <span
+                        className="t-mini-drag-handle"
+                        onPointerDown={(e) => handleDragHandlePointerDown(e, item.routeStopIndex)}
+                        onPointerMove={handleDragPointerMove}
+                        onPointerUp={handleDragPointerUp}
+                        onPointerCancel={handleDragPointerUp}
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={lang === 'en' ? 'Drag to reorder' : 'ドラッグで並び替え'}
+                        title={lang === 'en' ? 'Drag to reorder' : 'ドラッグで並び替え'}
+                      >
+                        <GripVertical size={13} />
+                      </span>
+                    )}
+                    {isDestination && destSpot && needsReservation(destSpot) && (
+                      <button
+                        type="button"
+                        className={`t-mini-reserve ${destIsReserved ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); toggleReserved(item.spotId); }}
+                        aria-label={destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
+                        title={destIsReserved ? (lang === 'en' ? 'Reserved' : '予約済み') : (lang === 'en' ? 'Reserve' : '予約')}
+                      >
+                        <Calendar size={12} />
+                      </button>
+                    )}
+                  </div>
                 </div>
+                  {isStart && originPickerOpen && (
+                    <div className="start-actions-compact t-grid-span origin-picker">
+                      <p className="origin-picker-title">{lang === 'en' ? 'Choose origin' : '出発地を選択'}</p>
+                      <button
+                        className="locate-btn-compact"
+                        onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); setOriginPickerOpen(false); }}
+                        disabled={locating}
+                      >
+                        <Navigation size={12} />
+                        {locating
+                          ? (lang === 'en' ? 'Locating…' : '取得中…')
+                          : originIsMyLocation
+                            ? (lang === 'en' ? 'Update' : '現在地を更新')
+                            : (lang === 'en' ? 'From my location' : '現在地から出発')}
+                      </button>
+                      {activeFerrySvg && !originIsFerry && (
+                        <button
+                          className="locate-btn-compact"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRouteOrigin('ferry');
+                            setCustomOriginName('');
+                            const { stops, distances, modes } = computeRouteFrom(activeFerrySvg);
+                            setRouteStops(stops);
+                            setLegDistances(distances);
+                            setLegModes(modes);
+                            setOriginPickerOpen(false);
+                          }}
+                        >
+                          <Navigation size={12} />
+                          {lang === 'en' ? `From ${activeFerry.nameEn}` : `${activeFerry.name}から出発`}
+                        </button>
+                      )}
+                      {(originIsMyLocation || originIsCustom || originIsFerry) && (
+                        <button
+                          className="locate-origin-reset locate-origin-reset-compact"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRouteOrigin('airport');
+                            setCustomOriginName('');
+                            const { stops, distances, modes } = computeRouteFrom(activeAirportSvg);
+                            setRouteStops(stops);
+                            setLegDistances(distances);
+                            setLegModes(modes);
+                            setOriginPickerOpen(false);
+                          }}
+                        >
+                          {lang === 'en' ? 'Back to airport' : '空港出発に戻す'}
+                        </button>
+                      )}
+                      {locationError && <p className="locate-error">{locationError}</p>}
+                    </div>
+                  )}
+                </Fragment>
               );
             })}
           </div>
