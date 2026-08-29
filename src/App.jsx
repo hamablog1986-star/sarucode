@@ -5424,6 +5424,7 @@ function MairuDemoInner() {
   const [peekRoadsideId, setPeekRoadsideId] = useState(null); // タップ中の道の駅ピン
   const [poiDetail, setPoiDetail] = useState(null); // 空港・フェリー・道の駅共通の詳細カード。{ type: 'airport'|'ferry'|'roadside', data } | null
   const [savedListOpen, setSavedListOpen] = useState(false); // 保存済みボタンを押した時に開く一覧シート
+  const [savedListTab, setSavedListTab] = useState('spots'); // 保存済み一覧のタブ('spots'=目的地 | 'routes'=保存したルート)
   const [poiCardHorizontalPad, setPoiCardHorizontalPad] = useState(null); // poiDetailカードの左右余白(px)。下部バーの現在地/戻るアイコンの実際の端に合わせて測定する
   const [poiCardButtonGap, setPoiCardButtonGap] = useState(null); // poiDetailカード内ボタンの間隔(px)。下部バーの隣り合うアイコン同士の実際の間隔に合わせて測定する
   useEffect(() => {
@@ -6248,7 +6249,16 @@ function MairuDemoInner() {
   const [myLocation, setMyLocation] = useState(null); // 取得した現在地のSVG座標 {x,y}
   const [locating, setLocating] = useState(false); // 現在地取得中フラグ
   const [locationError, setLocationError] = useState(null); // 現在地取得エラーメッセージ
-  const [savedPlans, setSavedPlans] = useState([]); // ブラウザに保存済みのプラン一覧
+  const [savedPlans, setSavedPlans] = useState(() => {
+    // 保存済みボタンのバッジ(青)を起動直後から正しく出すため、ここで初期値としてlocalStorageから読み込む
+    try {
+      const raw = localStorage.getItem(SAVED_PLANS_STORAGE_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return [];
+    }
+  }); // ブラウザに保存済みのプラン一覧
   const [showSaveDialog, setShowSaveDialog] = useState(false); // 保存・保存したプラン確認ダイアログの表示(1つに統合)
   const [showShareDialog, setShowShareDialog] = useState(false); // 共有ダイアログの表示
   const [legalOverlay, setLegalOverlay] = useState(null); // null | 'terms' | 'privacy' | 'contact' : フッターの利用規約/プライバシーポリシー/お問い合わせを開くと表示
@@ -8283,8 +8293,12 @@ function MairuDemoInner() {
           background:rgba(255,255,255,0.85); border-radius:50%; color:#E2613D;
         }
         .stock-fab-count {
-          position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px;
+          position:absolute; top:-4px; left:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px;
           background:#E2613D; color:#fff; font-size:9px; font-weight:700; line-height:16px; text-align:center;
+        }
+        .stock-fab-count-routes {
+          position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px;
+          background:#1B6CA8; color:#fff; font-size:9px; font-weight:700; line-height:16px; text-align:center;
         }
         .stock-fab-label { font-size:10px; font-weight:700; color:#E2613D; }
         .bottom-bar-toast {
@@ -8330,6 +8344,34 @@ function MairuDemoInner() {
         .saved-sheet-header-onmap { padding:0 2px; }
         .saved-sheet-title-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
         .saved-sheet-close-onmap { background:rgba(255,255,255,0.85); color:#1A2E3B; }
+        .saved-sheet-tabs { display:flex; gap:6px; }
+        .saved-sheet-tab {
+          display:flex; align-items:center; gap:5px; padding:7px 12px; border-radius:999px;
+          border:none; background:rgba(255,255,255,0.55); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5);
+          font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .saved-sheet-tab.active { background:rgba(255,255,255,0.92); color:#1A2E3B; text-shadow:none; }
+        .saved-sheet-tab-count {
+          min-width:16px; height:16px; padding:0 4px; border-radius:999px; color:#fff;
+          font-size:9.5px; line-height:16px; text-align:center;
+        }
+        .saved-sheet-tab-count-spots { background:#E2613D; }
+        .saved-sheet-tab-count-routes { background:#1B6CA8; }
+        .saved-route-list { display:flex; flex-direction:column; gap:8px; }
+        .saved-route-item { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.95); border-radius:12px; padding:4px; }
+        .saved-route-info { flex:1; min-width:0; display:flex; align-items:center; gap:10px; background:none; border:none; padding:8px; cursor:pointer; text-align:left; -webkit-tap-highlight-color: transparent; }
+        .saved-route-order {
+          flex-shrink:0; width:32px; height:32px; border-radius:50%; background:#1B6CA8; color:#fff;
+          display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;
+        }
+        .saved-route-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+        .saved-route-name { font-size:13.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .saved-route-meta { font-size:11px; color:var(--muted); }
+        .saved-route-delete {
+          flex-shrink:0; width:30px; height:30px; border-radius:50%; border:none; background:rgba(0,0,0,0.05);
+          color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer;
+          -webkit-tap-highlight-color: transparent; margin-right:4px;
+        }
         .empty-page-hint-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); padding:8px 16px; }
         .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 6px; }
         .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); }
@@ -8531,13 +8573,13 @@ function MairuDemoInner() {
         .overlay-backdrop.route-overlay-backdrop { z-index:52; }
         .overlay-backdrop.poi-detail-backdrop { z-index:55; }
         .route-card-shell { position:relative; width:100%; }
-        .detail-card.route-card { background:#fff; }
+        .detail-card.route-card { background:#fff; aspect-ratio:2.5/3.5; overflow:hidden; display:flex; flex-direction:column; }
         .route-card-close {
           position:absolute; top:10px; right:10px; z-index:6;
           background:rgba(255,255,255,0.92); box-shadow:0 1px 4px rgba(0,0,0,0.15);
         }
         .poi-card-footer.route-card-footer {
-          position:sticky; bottom:0; grid-template-columns:repeat(3, 1fr);
+          position:relative; flex-shrink:0; grid-template-columns:repeat(4, 1fr);
         }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
@@ -8797,6 +8839,7 @@ function MairuDemoInner() {
         .action-btn.action-active { background:var(--cat-color); color:#fff; }
 
         .route-view { padding:16px 22px 50px; }
+        .route-card .route-view { flex:1 1 auto; min-height:0; overflow-y:auto; }
         .route-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
         .route-action-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); font-size:13px; font-weight:500; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; white-space:nowrap; }
         .route-action-btn.active { background:var(--ink); border-color:var(--ink); color:#fff; font-weight:700; }
@@ -9092,7 +9135,7 @@ function MairuDemoInner() {
                     title={lang === 'en' ? 'Saved spots' : '保存済み'}
                     aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
                   >
-                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}{savedPlans.length > 0 && <span className="stock-fab-count-routes">{savedPlans.length}</span>}</span>
                     <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
                   </button>
                 )}
@@ -9611,7 +9654,7 @@ function MairuDemoInner() {
                     title={lang === 'en' ? 'Saved spots' : '保存済み'}
                     aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
                   >
-                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                    <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}{savedPlans.length > 0 && <span className="stock-fab-count-routes">{savedPlans.length}</span>}</span>
                     <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
                   </button>
                 )}
@@ -10316,7 +10359,7 @@ function MairuDemoInner() {
                       title={lang === 'en' ? 'Saved spots' : '保存済み'}
                       aria-label={lang === 'en' ? 'Saved spots' : '保存済み'}
                     >
-                      <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}</span>
+                      <span className="stock-fab-circle"><Bookmark size={16} fill={decided.length > 0 ? "currentColor" : "none"} />{decided.length > 0 && <span className="stock-fab-count">{decided.length}</span>}{savedPlans.length > 0 && <span className="stock-fab-count-routes">{savedPlans.length}</span>}</span>
                       <span className="stock-fab-label">{lang === 'en' ? 'Saved' : '保存済み'}</span>
                     </button>
                   )}
@@ -11122,7 +11165,11 @@ function MairuDemoInner() {
       )}
 
       {view === 'route' && plan && !poiDetail && !selectedSpot && (
-        <div className="overlay-backdrop detail-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
+        <div
+          className="overlay-backdrop detail-backdrop route-overlay-backdrop"
+          onClick={() => setView('select')}
+          style={poiCardHorizontalPad ? { paddingLeft: poiCardHorizontalPad.left, paddingRight: poiCardHorizontalPad.right } : undefined}
+        >
         <div className="detail-card-shell route-card-shell">
         <div className="detail-card poi-card-rounded route-card" onClick={(e) => e.stopPropagation()}>
         <button className="saved-sheet-close route-card-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
@@ -11472,9 +11519,6 @@ function MairuDemoInner() {
             })}
           </div>
           )}
-          <p className="disclaimer">
-            {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
-          </p>
         </main>
         <div className="poi-card-footer route-card-footer">
           <button
@@ -11500,6 +11544,20 @@ function MairuDemoInner() {
           <button
             type="button"
             className="poi-float-btn"
+            onClick={() => {
+              loadSavedPlansFromStorage();
+              const defaultName = lang === 'en' ? `Route ${savedPlans.length + 1}` : `ルート${savedPlans.length + 1}`;
+              savePlanToBrowser(defaultName);
+            }}
+            aria-label={lang === 'en' ? 'Save route' : 'ルート保存'}
+            title={lang === 'en' ? 'Save route' : 'ルート保存'}
+          >
+            <span className="poi-float-btn-circle"><Save size={17} /></span>
+            <span className="poi-float-btn-label">{lang === 'en' ? 'Save route' : 'ルート保存'}</span>
+          </button>
+          <button
+            type="button"
+            className="poi-float-btn"
             onClick={shareCurrentPlan}
             aria-label={lang === 'en' ? 'Share' : '共有'}
             title={lang === 'en' ? 'Share' : '共有'}
@@ -11517,12 +11575,29 @@ function MairuDemoInner() {
         <div className="overlay-backdrop saved-overlay-backdrop" onClick={() => setSavedListOpen(false)}>
           <div className="saved-overlay-body" onClick={(e) => e.stopPropagation()}>
             <div className="saved-sheet-header saved-sheet-header-onmap">
-              <h3 className="saved-sheet-title saved-sheet-title-onmap">
-                <Bookmark size={16} />
-                {lang === 'en' ? `Saved (${decided.length})` : `保存済み(${decided.length})`}
-              </h3>
+              <div className="saved-sheet-tabs">
+                <button
+                  type="button"
+                  className={`saved-sheet-tab ${savedListTab === 'spots' ? 'active' : ''}`}
+                  onClick={() => setSavedListTab('spots')}
+                >
+                  <Bookmark size={14} />
+                  {lang === 'en' ? 'Saved' : '保存済み'}
+                  <span className="saved-sheet-tab-count saved-sheet-tab-count-spots">{decided.length}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`saved-sheet-tab ${savedListTab === 'routes' ? 'active' : ''}`}
+                  onClick={() => { setSavedListTab('routes'); loadSavedPlansFromStorage(); }}
+                >
+                  <Route size={14} />
+                  {lang === 'en' ? 'Routes' : 'ルート保存済み'}
+                  <span className="saved-sheet-tab-count saved-sheet-tab-count-routes">{savedPlans.length}</span>
+                </button>
+              </div>
               <button className="saved-sheet-close saved-sheet-close-onmap" onClick={() => setSavedListOpen(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
             </div>
+            {savedListTab === 'spots' ? (
             <div className="saved-mini-grid">
               {decided.length === 0 ? (
                 <p className="empty-page-hint empty-page-hint-onmap">
@@ -11563,6 +11638,42 @@ function MairuDemoInner() {
                 })
               )}
             </div>
+            ) : (
+            <div className="saved-route-list">
+              {savedPlans.length === 0 ? (
+                <p className="empty-page-hint empty-page-hint-onmap">
+                  {lang === 'en' ? 'No saved routes yet. Save one from the route screen.' : 'まだ保存したルートがありません。ルート画面の保存ボタンで追加できます。'}
+                </p>
+              ) : (
+                savedPlans.map((snap, i) => (
+                  <div key={i} className="saved-route-item">
+                    <button
+                      type="button"
+                      className="saved-route-info"
+                      onClick={() => { applyPlanSnapshot(snap); setSavedListOpen(false); setPlanToast(lang === 'en' ? 'Plan loaded.' : 'プランを読み込みました。'); }}
+                    >
+                      <span className="saved-route-order">{i + 1}</span>
+                      <span className="saved-route-text">
+                        <span className="saved-route-name">{snap.name || (lang === 'en' ? 'Untitled plan' : '名称未設定のプラン')}</span>
+                        <span className="saved-route-meta">
+                          {(snap.decided || []).length}{lang === 'en' ? ' spots' : '件決定'}
+                          {snap.savedAt ? ` ・ ${new Date(snap.savedAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'ja-JP')}` : ''}
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="saved-route-delete"
+                      onClick={(e) => { e.stopPropagation(); deleteSavedPlan(i); }}
+                      aria-label={lang === 'en' ? 'Delete' : '削除'}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+            )}
           </div>
         </div>
       )}
