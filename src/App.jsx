@@ -8456,23 +8456,23 @@ function MairuDemoInner() {
         .detail-backdrop { padding-left:calc(env(safe-area-inset-left, 0px) + 20px); padding-right:calc(env(safe-area-inset-right, 0px) + 20px); } /* 下部アイコン行の「アイコン自体の端」(バー余白16px+ボタン内側余白4px)に揃える */
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .overlay-backdrop.saved-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px 56px; }
-        .overlay-backdrop.route-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+        .overlay-backdrop.route-overlay-backdrop { align-items:stretch; justify-content:stretch; padding:0; background:#fff; }
         .route-overlay-panel {
-          position:relative; width:100%; max-width:640px;
-          background:#fff; border-radius:16px;
-          max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px);
+          position:relative; width:100%; max-width:none;
+          background:#fff; border-radius:0;
+          height:100%; max-height:none;
           overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
           display:flex; flex-direction:column;
         }
-        @media (min-width:900px) { .route-overlay-panel { max-width:820px; } }
-        @media (min-width:1200px) { .route-overlay-panel { max-width:980px; } }
         .route-overlay-header {
           position:sticky; top:0; z-index:6; flex-shrink:0;
           display:flex; align-items:center; justify-content:space-between;
-          padding:12px 14px; background:#fff; border-radius:16px 16px 0 0;
+          padding:14px 16px;
+          padding-top:calc(env(safe-area-inset-top, 0px) + 14px);
+          background:#fff; border-radius:0;
           border-bottom:1px solid var(--line);
         }
-        .route-overlay-header .kyushu-float-title { font-size:16px; }
+        .route-overlay-header .kyushu-float-title { font-size:18px; }
         .route-overlay-close {
           position:relative; top:auto; right:auto; z-index:6;
           background:rgba(0,0,0,0.06); border:none; border-radius:50%; width:30px; height:30px;
@@ -8481,7 +8481,7 @@ function MairuDemoInner() {
         }
         .bottom-icon-bar.route-overlay-iconbar {
           position:sticky; left:auto; right:auto; bottom:0; flex-shrink:0;
-          background:#fff; border-top:1px solid var(--line); border-radius:0 0 16px 16px;
+          background:#fff; border-top:1px solid var(--line); border-radius:0;
           padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
         }
         .detail-card {
