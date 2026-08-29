@@ -8462,14 +8462,27 @@ function MairuDemoInner() {
           background:#fff; border-radius:16px;
           max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px);
           overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
+          display:flex; flex-direction:column;
         }
         @media (min-width:900px) { .route-overlay-panel { max-width:820px; } }
         @media (min-width:1200px) { .route-overlay-panel { max-width:980px; } }
+        .route-overlay-header {
+          position:sticky; top:0; z-index:6; flex-shrink:0;
+          display:flex; align-items:center; justify-content:space-between;
+          padding:12px 14px; background:#fff; border-radius:16px 16px 0 0;
+          border-bottom:1px solid var(--line);
+        }
+        .route-overlay-header .kyushu-float-title { font-size:16px; }
         .route-overlay-close {
-          position:absolute; top:10px; right:10px; z-index:6;
+          position:relative; top:auto; right:auto; z-index:6;
           background:rgba(0,0,0,0.06); border:none; border-radius:50%; width:30px; height:30px;
           display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink);
-          -webkit-tap-highlight-color:transparent;
+          -webkit-tap-highlight-color:transparent; flex-shrink:0;
+        }
+        .bottom-icon-bar.route-overlay-iconbar {
+          position:sticky; left:auto; right:auto; bottom:0; flex-shrink:0;
+          background:#fff; border-top:1px solid var(--line); border-radius:0 0 16px 16px;
+          padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
         }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
@@ -10586,7 +10599,12 @@ function MairuDemoInner() {
       {view === 'route' && plan && (
         <div className="overlay-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
         <div className="route-overlay-panel" onClick={(e) => e.stopPropagation()}>
-        <button className="route-overlay-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={18} /></button>
+        <div className="route-overlay-header">
+          <button className="entry-title-btn kyushu-float-title-btn" onClick={() => setAppStage('top')}>
+            <h1 className="kyushu-float-title">CONOTAVI</h1>
+          </button>
+          <button className="route-overlay-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={18} /></button>
+        </div>
         <main className="route-view">
           <div className="route-actions">
             <button className={`route-action-btn ${routeViewMode === 'timeline' ? 'active' : ''}`} onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}>
@@ -10949,6 +10967,64 @@ function MairuDemoInner() {
             {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
           </p>
         </main>
+        <div className="bottom-icon-bar route-overlay-iconbar">
+          <button
+            className="bottom-bar-btn"
+            onClick={(e) => { e.stopPropagation(); locateMe(); setIconLabelPeek(lang === 'en' ? 'Show my location' : '現在地を表示'); }}
+            disabled={myLocationStatus === 'loading' || locating}
+            title={lang === 'en' ? 'Show my location' : '現在地を表示'}
+            aria-label={lang === 'en' ? 'Show my location' : '現在地を表示'}
+          >
+            <span className="bottom-bar-icon-circle"><Navigation size={17} /></span>
+            <span className="bottom-bar-btn-label">{lang === 'en' ? 'My loc.' : '現在地'}</span>
+          </button>
+          <button
+            className="bottom-bar-btn"
+            onClick={(e) => { e.stopPropagation(); }}
+            title={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+            aria-label={lang === 'en' ? 'Show place names (Coming soon)' : '地名を表示(準備中)'}
+            style={{ opacity: 0.4 }}
+          >
+            <span className="bottom-bar-icon-circle"><MapPin size={17} /></span>
+            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Names' : '地名表示'}</span>
+          </button>
+          <button
+            className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
+            onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+            title={lang === 'en' ? 'Search' : '探す'}
+            aria-label={lang === 'en' ? 'Search' : '探す'}
+          >
+            <span className="bottom-bar-icon-circle"><Search size={17} /></span>
+            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Search' : '探す'}</span>
+          </button>
+          <button
+            className="bottom-bar-btn"
+            onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+            title={lang === 'en' ? 'More' : 'その他'}
+            aria-label={lang === 'en' ? 'More' : 'その他'}
+          >
+            <span className="bottom-bar-icon-circle"><MoreHorizontal size={17} /></span>
+            <span className="bottom-bar-btn-label">{lang === 'en' ? 'More' : 'その他'}</span>
+          </button>
+          <button
+            className="bottom-bar-btn"
+            onClick={(e) => { e.stopPropagation(); if (!calculating) buildRoute(); }}
+            title={lang === 'en' ? 'Recalculate route' : 'ルート再検索'}
+            aria-label={lang === 'en' ? 'Recalculate route' : 'ルート再検索'}
+          >
+            <span className="bottom-bar-icon-circle route-bar-icon-circle"><Route size={17} /></span>
+            <span className="bottom-bar-btn-label route-bar-label">{lang === 'en' ? 'Route' : 'ルート検索'}</span>
+          </button>
+          <button
+            className="bottom-bar-btn"
+            onClick={(e) => { e.stopPropagation(); setView('select'); }}
+            title={lang === 'en' ? 'Back' : '戻る'}
+            aria-label={lang === 'en' ? 'Back' : '戻る'}
+          >
+            <span className="bottom-bar-icon-circle"><ChevronLeft size={17} /></span>
+            <span className="bottom-bar-btn-label">{lang === 'en' ? 'Back' : '戻る'}</span>
+          </button>
+        </div>
         </div>
         </div>
       )}
