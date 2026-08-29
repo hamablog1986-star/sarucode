@@ -8759,8 +8759,10 @@ function MairuDemoInner() {
 
         .timeline { display:flex; flex-direction:column; gap:8px; }
         .t-row { display:flex; align-items:stretch; gap:0; }
-        .t-row-stop { gap:10px; }
-        .t-row-stop {
+        .t-row-poicard { display:block; }
+        .t-row-poicard .detail-card-shell { width:320px; max-width:none; zoom:0.35; }
+        .t-row-stop, .t-row-travel { gap:10px; }
+        .t-row-stop, .t-row-travel {
           background:#fff;
           border:1.5px solid var(--line);
           border-radius:14px;
@@ -8769,16 +8771,8 @@ function MairuDemoInner() {
           flex-wrap:wrap;
         }
         .t-node-col { position:relative; flex-shrink:0; width:44px; display:flex; align-items:center; justify-content:center; }
-        .t-row-travel .t-node-col::before {
-          content:'';
-          position:absolute;
-          top:0; bottom:0; left:50%;
-          width:3px;
-          margin-left:-1.5px;
-          background:var(--mode-color);
-        }
         .t-node { position:relative; z-index:1; flex-shrink:0; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
-        .t-mode-badge { position:relative; z-index:1; flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; border:2.5px solid var(--mode-color); display:flex; align-items:center; justify-content:center; color:var(--mode-color); box-shadow:0 0 0 4px #EFF1F2; }
+        .t-mode-badge { position:relative; z-index:1; flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; border:2.5px solid var(--mode-color); display:flex; align-items:center; justify-content:center; color:var(--mode-color); }
         .t-content-col { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:4px; padding:14px 0; }
         .t-time-inline { font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600; color:#7C828A; }
         .t-time-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -11272,6 +11266,16 @@ function MairuDemoInner() {
               const isStart = item.type === 'start';
               const isEnd = item.type === 'end';
               const isStop = !isStart && !isEnd;
+              const isDestination = isStop || isEnd;
+              const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
+              const destIsPoiCard = isDestination && destSpot && (destSpot.category === 'airport' || destSpot.category === 'ferry');
+              if (destIsPoiCard) {
+                return (
+                  <div key={idx} className="t-row t-row-poicard">
+                    {renderPoiCardBody(destSpot.category, destSpot)}
+                  </div>
+                );
+              }
               const dotColor = isStart ? '#9AA0A6' : isEnd ? CATEGORY_META.lodging.color : CATEGORY_META[item.category].color;
               const StopIcon = isStart ? Navigation : isEnd ? CATEGORY_META.lodging.icon : CATEGORY_META[item.category].icon;
               const timeInline = isStart
@@ -11279,8 +11283,6 @@ function MairuDemoInner() {
                 : isEnd
                   ? (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 到着`)
                   : (lang === 'en' ? `Arrive ${item.arrive}` : `${item.arrive} 着`);
-              const isDestination = isStop || isEnd;
-              const destSpot = isDestination ? SPOTS.find((s) => s.id === item.spotId) : null;
               const destIsReserved = isDestination && reserved.includes(item.spotId);
               return (
                 <div
