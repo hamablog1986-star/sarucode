@@ -6966,6 +6966,13 @@ function MairuDemoInner() {
     return { stops, distances, modes };
   }
 
+  const [pendingRouteBuild, setPendingRouteBuild] = useState(false); // 九州/県ページから「ルート検索」を押した時、諫早市への切り替え(setSelectedCity/setAppStage)が実際に反映されるのを待ってからbuildRouteを呼ぶためのフラグ
+  useEffect(() => {
+    if (pendingRouteBuild && appStage === 'muni' && selectedCity === ACTIVE_CITY_IDS[0]) {
+      setPendingRouteBuild(false);
+      buildRoute();
+    }
+  }, [pendingRouteBuild, appStage, selectedCity]);
   function buildRoute() {
     if (!canCreateRoute) return;
     setCalculating(true);
@@ -9031,7 +9038,7 @@ function MairuDemoInner() {
                       if (canCreateRoute) {
                         setSelectedCity(ACTIVE_CITY_IDS[0]);
                         setAppStage('muni');
-                        buildRoute();
+                        setPendingRouteBuild(true);
                       } else {
                         setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
                       }
@@ -9554,7 +9561,7 @@ function MairuDemoInner() {
                       if (canCreateRoute) {
                         setSelectedCity(ACTIVE_CITY_IDS[0]);
                         setAppStage('muni');
-                        buildRoute();
+                        setPendingRouteBuild(true);
                       } else {
                         setIconLabelPeek(lang === 'en' ? 'Please select a city first' : '市町村を選んでください');
                       }
