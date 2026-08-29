@@ -8337,8 +8337,10 @@ function MairuDemoInner() {
         .muni-name-grid-item rt { font-size:6px; }
         .muni-name-grid-item-text { flex:1; min-width:0; display:flex; justify-content:center; margin-left:6px; overflow:hidden; }
         .muni-name-grid-item-arrow { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(33,38,44,0.08); display:flex; align-items:center; justify-content:center; color:#1A2E3B; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-        .muni-name-grid-item-arrow svg { stroke:#1A2E3B; fill:none; }
-        .muni-peek .muni-name-grid-item-arrow svg { stroke:#1A2E3B; }
+        .muni-name-grid-item-arrow svg { color:#1A2E3B !important; stroke:#1A2E3B !important; fill:none !important; }
+        .muni-name-grid-item-arrow svg * { stroke:#1A2E3B !important; }
+        .muni-peek .muni-name-grid-item-arrow svg { color:#1A2E3B !important; stroke:#1A2E3B !important; }
+        .muni-peek .muni-name-grid-item-arrow svg * { stroke:#1A2E3B !important; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
         .pref-label-line { stroke:#21262C; stroke-width:0.6; opacity:0.55; }
         .map-svg { position:absolute; left:var(--frame-pad, 0); top:var(--frame-pad, 0); width:calc(100% - var(--frame-pad, 0) * 2); height:calc(100% - var(--frame-pad, 0) * 2); }
@@ -8427,6 +8429,21 @@ function MairuDemoInner() {
         .detail-backdrop { padding-left:calc(env(safe-area-inset-left, 0px) + 20px); padding-right:calc(env(safe-area-inset-right, 0px) + 20px); } /* 下部アイコン行の「アイコン自体の端」(バー余白16px+ボタン内側余白4px)に揃える */
         .overlay-backdrop.detail-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 56px) 16px 56px; }
         .overlay-backdrop.saved-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px 56px; }
+        .overlay-backdrop.route-overlay-backdrop { align-items:flex-start; padding:calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+        .route-overlay-panel {
+          position:relative; width:100%; max-width:640px;
+          background:#fff; border-radius:16px;
+          max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px);
+          overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
+        }
+        @media (min-width:900px) { .route-overlay-panel { max-width:820px; } }
+        @media (min-width:1200px) { .route-overlay-panel { max-width:980px; } }
+        .route-overlay-close {
+          position:absolute; top:10px; right:10px; z-index:6;
+          background:rgba(0,0,0,0.06); border:none; border-radius:50%; width:30px; height:30px;
+          display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink);
+          -webkit-tap-highlight-color:transparent;
+        }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
           border:1px solid rgba(255,255,255,0.5);
@@ -10540,6 +10557,9 @@ function MairuDemoInner() {
       )}
 
       {view === 'route' && plan && (
+        <div className="overlay-backdrop route-overlay-backdrop" onClick={() => setView('select')}>
+        <div className="route-overlay-panel" onClick={(e) => e.stopPropagation()}>
+        <button className="route-overlay-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={18} /></button>
         <main className="route-view">
           <div className="route-actions">
             <button className={`route-action-btn ${routeViewMode === 'timeline' ? 'active' : ''}`} onClick={() => { setRouteViewMode('timeline'); setLinkedId(null); }}>
@@ -10902,6 +10922,8 @@ function MairuDemoInner() {
             {lang === 'en' ? 'Locations, routes, and times shown are estimates.' : '※表示される地点・経路・所要時間は目安です'}
           </p>
         </main>
+        </div>
+        </div>
       )}
 
       {selectedSpot && (
