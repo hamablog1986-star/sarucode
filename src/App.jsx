@@ -8474,6 +8474,7 @@ function MairuDemoInner() {
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
         .poi-pin-label-name-block { display:flex; flex-direction:column; gap:1px; cursor:default; }
+        .poi-pin-label-select { cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .poi-pin-label-furi { font-size:6px; font-weight:500; color:rgba(255,255,255,0.65); white-space:nowrap; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; justify-content:space-between; }
         .poi-pin-label-row-arrow { background:#E2613D; color:#fff; border-radius:6px; padding:4px 7px; font-size:10.5px; font-weight:600; white-space:nowrap; }
@@ -9389,20 +9390,20 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
+                                      {lang === 'en' ? i.nameEn : i.name}
                                     </button>
                                   ))}
                                 </span>
                               ) : (
-                                <>
-                                  <span className="poi-pin-label-name-block">
-                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
-                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  </span>
-                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                                    <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                                  </button>
-                                </>
+                                <span
+                                  className="poi-pin-label-name-block poi-pin-label-select"
+                                  onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }}
+                                  role="button"
+                                  aria-label={lang === 'en' ? 'Select' : '選択する'}
+                                >
+                                  {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                </span>
                               )}
                             </span>
                           )}
@@ -9444,8 +9445,8 @@ function MairuDemoInner() {
                                     <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
                                   </span>
                                   <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'ferry', data: cluster.items[0] }); setPeekFerryId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                              <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                            </button>
+                                    <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
+                                  </button>
                                 </>
                               )}
                             </span>
@@ -9926,20 +9927,20 @@ function MairuDemoInner() {
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: i }); setPeekAirportId(null); }}>
-                                      {lang === 'en' ? i.nameEn : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
+                                      {lang === 'en' ? i.nameEn : i.name}
                                     </button>
                                   ))}
                                 </span>
                               ) : (
-                                <>
-                                  <span className="poi-pin-label-name-block">
-                                    {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
-                                    <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
-                                  </span>
-                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                                    <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                                  </button>
-                                </>
+                                <span
+                                  className="poi-pin-label-name-block poi-pin-label-select"
+                                  onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: cluster.items[0] }); setPeekAirportId(null); }}
+                                  role="button"
+                                  aria-label={lang === 'en' ? 'Select' : '選択する'}
+                                >
+                                  {cluster.items[0].furi && <span className="poi-pin-label-furi">{cluster.items[0].furi}</span>}
+                                  <span className="poi-pin-label-name">{lang === 'en' ? cluster.items[0].nameEn : cluster.items[0].name}</span>
+                                </span>
                               )}
                             </span>
                           )}
@@ -10025,8 +10026,8 @@ function MairuDemoInner() {
                                 <>
                                   <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
                                   <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                              <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                            </button>
+                                    <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
+                                  </button>
                                 </>
                               )}
                             </span>
@@ -10636,10 +10637,14 @@ function MairuDemoInner() {
                         <span className={`poi-pin-icon poi-pin-icon-airport ${peekAirportId === id ? 'is-peeked' : ''}`}><span className="poi-pin-icon-glyph"><Plane size={12} /></span></span>
                         {peekAirportId === id && (
                           <span className="poi-pin-label">
-                            <span className="poi-pin-label-name">{lang === 'en' ? a.nameEn : a.name}</span>
-                            <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: { id, x: svg.x, y: svg.y, ...a } }); setPeekAirportId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                              <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                            </button>
+                            <span
+                              className="poi-pin-label-name poi-pin-label-select"
+                              onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'airport', data: { id, x: svg.x, y: svg.y, ...a } }); setPeekAirportId(null); }}
+                              role="button"
+                              aria-label={lang === 'en' ? 'Select' : '選択する'}
+                            >
+                              {lang === 'en' ? a.nameEn : a.name}
+                            </span>
                           </span>
                         )}
                       </div>
