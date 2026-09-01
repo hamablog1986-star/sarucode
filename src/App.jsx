@@ -5423,6 +5423,7 @@ function MairuDemoInner() {
   const [roadsideMapLoading, setRoadsideMapLoading] = useState(false);
   const [peekRoadsideId, setPeekRoadsideId] = useState(null); // タップ中の道の駅ピン
   const [poiDetail, setPoiDetail] = useState(null); // 空港・フェリー・道の駅共通の詳細カード。{ type: 'airport'|'ferry'|'roadside', data } | null
+  const [expandedDescIds, setExpandedDescIds] = useState({}); // poiカードの説明文「もっと見る」で全文表示中のid一覧
   const [savedListOpen, setSavedListOpen] = useState(false); // 保存済みボタンを押した時に開く一覧シート
   const [savedListTab, setSavedListTab] = useState('spots'); // 保存済み一覧のタブ('spots'=目的地 | 'routes'=保存したルート)
   const [poiCardHorizontalPad, setPoiCardHorizontalPad] = useState(null); // poiDetailカードの左右余白(px)。下部バーの現在地/戻るアイコンの実際の端に合わせて測定する
@@ -6821,7 +6822,18 @@ function MairuDemoInner() {
                 {subLabel && <span className="poi-card-furi">{subLabel}</span>}
                 <span className="poi-card-name">{name}</span>
                 <div className="poi-card-divider" />
-                {desc && <p className="poi-card-desc">{desc}</p>}
+                {desc && (
+                  <>
+                    <p className={`poi-card-desc ${expandedDescIds[data.id] ? 'poi-card-desc-expanded' : ''}`}>{desc}</p>
+                    <button
+                      type="button"
+                      className="poi-card-desc-toggle"
+                      onClick={(e) => { e.stopPropagation(); setExpandedDescIds((prev) => ({ ...prev, [data.id]: !prev[data.id] })); }}
+                    >
+                      {expandedDescIds[data.id] ? (lang === 'en' ? 'Show less' : '閉じる') : (lang === 'en' ? 'Read more' : 'もっと見る')}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -8347,8 +8359,8 @@ function MairuDemoInner() {
           background:rgba(0,0,0,0.32);
         }
         .saved-mini-label-center .saved-mini-name { white-space:normal; }
-        .saved-mini-name-lg { font-size:14px; }
-        .saved-mini-furi { font-size:8px; font-weight:600; color:rgba(255,255,255,0.8); text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-bottom:1px; }
+        .saved-mini-name-lg { font-size:12px; }
+        .saved-mini-furi { font-size:8px; font-weight:600; color:rgba(255,255,255,0.8); text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
         .saved-mini-tag-topleft {
           position:absolute; top:6px; left:6px; z-index:2;
           display:flex; align-items:center; gap:3px;
@@ -8356,6 +8368,7 @@ function MairuDemoInner() {
           background:rgba(20,22,26,0.55); border-radius:999px; padding:3px 7px 3px 6px;
           text-shadow:0 1px 2px rgba(0,0,0,0.4);
         }
+        .saved-mini-tag-bottomleft { top:auto; bottom:6px; }
         .saved-overlay-body {
           position:relative; width:100%; max-width:640px;
           max-height:calc(100vh - 112px); max-height:calc(100dvh - 112px);
@@ -8665,7 +8678,17 @@ function MairuDemoInner() {
           display:grid; grid-template-columns:repeat(4, 1fr);
           background:rgba(10,12,16,0.82);
         }
-        .poi-card-desc { font-size:13px; line-height:1.6; color:rgba(255,255,255,0.95); margin:6px 0 0; text-shadow:0 1px 3px rgba(0,0,0,0.7); }
+        .poi-card-desc {
+          font-size:13px; line-height:1.6; color:rgba(255,255,255,0.95); margin:6px 0 0; text-shadow:0 1px 3px rgba(0,0,0,0.7);
+          text-align:justify; text-justify:inter-ideograph;
+          display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+        }
+        .poi-card-desc.poi-card-desc-expanded { -webkit-line-clamp:unset; overflow:visible; }
+        .poi-card-desc-toggle {
+          margin-top:4px; background:none; border:none; padding:0; font-size:12px; font-weight:700;
+          color:#fff; text-decoration:underline; text-shadow:0 1px 3px rgba(0,0,0,0.7); cursor:pointer;
+          -webkit-tap-highlight-color:transparent;
+        }
         .muni-peek .muni-name-grid-item-arrow { background:#fff; color:#1A2E3B; }
         .detail-hero-more-btn {
           background:#fff; border:none; color:#1A2E3B; border-radius:50%; width:22px; height:22px;
@@ -11432,14 +11455,15 @@ function MairuDemoInner() {
                     onClick={cardData ? onCardClick : undefined}
                     data-route-stop-index={isDestination ? item.routeStopIndex : undefined}
                   >
+                    <span className="saved-mini-tag-topleft saved-mini-tag-bottomleft"><CardIcon size={9} />{cardTag}</span>
                     {cardData && cardData.image ? (
                       <img src={cardData.image} alt={cardName} className="saved-mini-img" loading="lazy" decoding="async" />
                     ) : (
                       <div className="saved-mini-iconbg"><CardIcon size={26} /></div>
                     )}
-                    <div className="saved-mini-label">
-                      <span className="saved-mini-tag"><CardIcon size={8} />{cardTag}</span>
-                      <span className="saved-mini-name">{cardName}</span>
+                    <div className="saved-mini-label saved-mini-label-center">
+                      {cardData && cardData.furi && <span className="saved-mini-furi">{cardData.furi}</span>}
+                      <span className="saved-mini-name saved-mini-name-lg">{cardName}</span>
                     </div>
                     {isStart && (
                       <button
@@ -11624,7 +11648,6 @@ function MairuDemoInner() {
                   <span className="saved-sheet-tab-count saved-sheet-tab-count-routes">{savedPlans.length}</span>
                 </button>
               </div>
-              <button className="saved-sheet-close saved-sheet-close-onmap" onClick={() => setSavedListOpen(false)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
             </div>
             {savedListTab === 'spots' ? (
             <div className="saved-mini-grid">
