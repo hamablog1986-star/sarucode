@@ -8342,6 +8342,20 @@ function MairuDemoInner() {
         }
         .saved-mini-tag { display:flex; align-items:center; gap:2px; font-size:8px; font-weight:700; color:rgba(255,255,255,0.85); }
         .saved-mini-name { font-size:11px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
+        .saved-mini-label-center {
+          top:0; align-items:center; justify-content:center; text-align:center;
+          background:rgba(0,0,0,0.32);
+        }
+        .saved-mini-label-center .saved-mini-name { white-space:normal; }
+        .saved-mini-name-lg { font-size:14px; }
+        .saved-mini-furi { font-size:8px; font-weight:600; color:rgba(255,255,255,0.8); text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-bottom:1px; }
+        .saved-mini-tag-topleft {
+          position:absolute; top:6px; left:6px; z-index:2;
+          display:flex; align-items:center; gap:3px;
+          font-size:9px; font-weight:700; color:#fff;
+          background:rgba(20,22,26,0.55); border-radius:999px; padding:3px 7px 3px 6px;
+          text-shadow:0 1px 2px rgba(0,0,0,0.4);
+        }
         .saved-overlay-body {
           position:relative; width:100%; max-width:640px;
           max-height:calc(100vh - 112px); max-height:calc(100dvh - 112px);
@@ -8639,8 +8653,8 @@ function MairuDemoInner() {
         .poi-card-topbar {
           position:absolute; top:0; left:0; right:0; z-index:3;
           display:flex; align-items:center; justify-content:flex-start; gap:8px;
-          padding:20px 16px 20px 16px;
-          background:linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+          padding:20px 16px 60px 16px;
+          background:linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0.45) 70%, transparent 100%);
         }
         .poi-card-topbar-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
         .poi-card-furi { font-size:9px; font-weight:500; letter-spacing:0.04em; line-height:1; color:rgba(255,255,255,0.75); }
@@ -8651,7 +8665,7 @@ function MairuDemoInner() {
           display:grid; grid-template-columns:repeat(4, 1fr);
           background:rgba(10,12,16,0.82);
         }
-        .poi-card-desc { font-size:10px; line-height:1.5; color:rgba(255,255,255,0.92); margin:6px 0 0; text-shadow:0 1px 3px rgba(0,0,0,0.7); }
+        .poi-card-desc { font-size:13px; line-height:1.6; color:rgba(255,255,255,0.95); margin:6px 0 0; text-shadow:0 1px 3px rgba(0,0,0,0.7); }
         .muni-peek .muni-name-grid-item-arrow { background:#fff; color:#1A2E3B; }
         .detail-hero-more-btn {
           background:#fff; border:none; color:#1A2E3B; border-radius:50%; width:22px; height:22px;
@@ -11639,14 +11653,15 @@ function MairuDemoInner() {
                       >
                         <X size={12} />
                       </button>
+                      <span className="saved-mini-tag-topleft"><Icon size={9} />{catLabel(meta)}</span>
                       {spot.image ? (
                         <img src={spot.image} alt={sName(spot)} className="saved-mini-img" loading="lazy" decoding="async" />
                       ) : (
                         <div className="saved-mini-iconbg"><Icon size={26} /></div>
                       )}
-                      <div className="saved-mini-label">
-                        <span className="saved-mini-tag"><Icon size={8} />{catLabel(meta)}</span>
-                        <span className="saved-mini-name">{sName(spot)}</span>
+                      <div className="saved-mini-label saved-mini-label-center">
+                        {(spot.furi || spot.yomi) && <span className="saved-mini-furi">{spot.furi || spot.yomi}</span>}
+                        <span className="saved-mini-name saved-mini-name-lg">{sName(spot)}</span>
                       </div>
                     </div>
                   );
