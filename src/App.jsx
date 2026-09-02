@@ -8328,18 +8328,19 @@ function MairuDemoInner() {
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
           padding:8px 14px; border-radius:999px; pointer-events:none;
         }
-        .overlay-backdrop.find-overlay-backdrop { z-index:50; padding:24px; }
-        .find-card-shell { max-width:360px; }
-        .detail-card.find-card { background:#fff; padding:34px 14px 16px; max-height:70vh; max-height:70dvh; }
-        .find-card-close { position:absolute; top:10px; right:10px; z-index:6; background:rgba(0,0,0,0.05); box-shadow:none; }
-        /* 「探す」のカテゴリカードは、白い「ウィンドウ」に入れず地図の上に直接オーバーレイ表示する */
-        .find-overlay-body {
-          position:relative; width:100%; max-width:360px;
-          max-height:70vh; max-height:70dvh;
-          overflow-y:auto; overflow-x:hidden; overscroll-behavior:none;
+        /* 「探す」「その他」のカードは、白い「ウィンドウ」に入れず、保存済み一覧と同じ配置(画面上部・左寄せ)で地図の上に直接オーバーレイ表示する */
+        /* 下部アイコンバー・右側の保存済み/リセットボタンに隠れないよう、下部に十分な余白を確保してスクロールできるようにする */
+        .overlay-backdrop.find-cat-overlay-backdrop {
+          z-index:50; align-items:flex-start;
+          padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px calc(env(safe-area-inset-bottom, 0px) + 210px);
           scrollbar-width:none; -ms-overflow-style:none;
         }
-        .find-overlay-body::-webkit-scrollbar { display:none; }
+        .overlay-backdrop.find-cat-overlay-backdrop::-webkit-scrollbar { display:none; }
+        .find-overlay-body {
+          position:relative; width:100%; max-width:640px;
+        }
+        @media (min-width:900px) { .find-overlay-body { max-width:820px; } }
+        @media (min-width:1200px) { .find-overlay-body { max-width:980px; } }
         .saved-sheet-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
         .saved-sheet-title { display:flex; align-items:center; gap:6px; margin:0; font-size:15px; font-weight:800; color:var(--ink); }
         .saved-sheet-close { flex-shrink:0; background:rgba(0,0,0,0.05); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); -webkit-tap-highlight-color:transparent; }
@@ -8419,21 +8420,11 @@ function MairuDemoInner() {
           -webkit-tap-highlight-color: transparent; margin-right:4px;
         }
         .empty-page-hint-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); padding:8px 16px; }
-        .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px 8px; }
-        .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); gap:14px 6px; }
-        .find-sheet-item {
-          display:flex; flex-direction:column; align-items:center; gap:4px;
-          background:none; border:none; padding:4px; cursor:pointer; color:var(--ink);
-          -webkit-tap-highlight-color:transparent;
-        }
-        .find-sheet-item span { font-size:10.5px; font-weight:600; text-align:center; }
-        .find-sheet-item.active svg { color:#1F6E45; }
-        .find-sheet-item.coming-soon { opacity:0.4; }
-        /* 「探す」内の各カテゴリ(空港・航路・道の駅など)を、保存済み一覧のミニカードと同じ見た目のカードにする */
+        /* 「探す」「その他」内の各項目を、保存済み一覧のミニカードと同じ見た目のカードにする */
         .find-cat-card {
           padding:0; border:none; text-align:left; font:inherit; display:block;
         }
-        .find-cat-card.active .saved-mini-iconbg { background:var(--cat-color); color:#fff; }
+        .find-cat-card.active { background:var(--cat-color); }
         .find-cat-card.coming-soon { opacity:0.45; }
         @media (max-height:430px) and (pointer:coarse) {
           /* 横向き画面など縦幅が狭い場合は、アイコンをさらに小さく・詰めて、画面内に収まるようにする */
@@ -8527,10 +8518,6 @@ function MairuDemoInner() {
         .pref-floating-label-text { display:flex; align-items:center; background:rgba(33,38,44,0.85); backdrop-filter:blur(2px); color:#fff; padding:4px 7px; border-radius:6px; font-size:9.5px; font-weight:600; border:none; outline:none; box-shadow:none; -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
         .pref-floating-label-text.current-city-label { background:#D85A30; }
         .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); z-index:1; padding:48px 16px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-        .muni-name-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; width:100%; padding-bottom:150px; box-sizing:border-box; }
-        .muni-name-grid-item { background:rgba(255,255,255,0.95); color:#21262C; border:none; border-radius:10px; padding:9px 15px 9px 4px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:flex-end; gap:3px; }
-        .muni-name-grid-item rt { font-size:6px; }
-        .muni-name-grid-item-text { flex:1; min-width:0; display:flex; justify-content:center; margin-left:6px; overflow:hidden; }
         .muni-name-grid-item-arrow { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(33,38,44,0.08); display:flex; align-items:center; justify-content:center; color:#1A2E3B; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .chevron-glyph { display:inline-block; font-size:16px; font-weight:700; line-height:1; color:inherit !important; -webkit-text-fill-color:currentColor !important; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
@@ -8756,14 +8743,20 @@ function MairuDemoInner() {
           position:relative;
           background:#fff;
           border-radius:16px;
-          max-width:560px;
+          max-width:640px;
           width:100%;
-          max-height:86vh;
-          max-height:86dvh;
+          max-height:calc(100vh - 112px);
+          max-height:calc(100dvh - 112px);
           box-shadow:0 14px 34px rgba(0,0,0,0.18);
           display:flex;
           flex-direction:column;
           overflow:hidden;
+        }
+        @media (min-width:900px) {
+          .legal-dialog-card { max-width:820px; }
+        }
+        @media (min-width:1200px) {
+          .legal-dialog-card { max-width:980px; }
         }
         .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid var(--line); }
         .legal-dialog-header .plan-dialog-title { margin:0; }
@@ -8772,23 +8765,6 @@ function MairuDemoInner() {
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .legal-dialog-body::-webkit-scrollbar { display:none; }
-        .legal-dialog-card.legal-dialog-card-dark { background:transparent; box-shadow:none; }
-        .legal-dialog-card-dark .legal-dialog-header { border-bottom:none; padding:22px 22px 14px; }
-        .legal-dialog-card-dark .plan-dialog-title { color:#fff; text-align:center; padding-right:0; }
-        .legal-dialog-card-dark .plan-dialog-x { display:none; }
-        .legal-dialog-card-dark .legal-section h4 { color:#fff; }
-        .legal-dialog-card-dark .legal-section p,
-        .legal-dialog-card-dark .legal-section li { color:rgba(255,255,255,0.92); }
-        .legal-dialog-card-dark .legal-updated { color:rgba(255,255,255,0.75); }
-        .legal-dialog-card-dark .contact-form-label { color:#fff; }
-        .legal-dialog-card-dark .contact-form-hint { color:rgba(255,255,255,0.7); }
-        .legal-dialog-card-dark .contact-form-input,
-        .legal-dialog-card-dark .contact-form-textarea {
-          background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff !important;
-        }
-        .legal-dialog-card-dark .contact-form-submit {
-          background:transparent; border:1px solid rgba(255,255,255,0.6); color:#fff;
-        }
         .legal-section { margin-bottom:18px; }
         .legal-section:last-child { margin-bottom:0; }
         .legal-section h4 { font-size:13.5px; margin:0 0 6px; color:#1A2E3B; }
@@ -9027,8 +9003,6 @@ function MairuDemoInner() {
           .island-inset-row { gap:6px; }
           .inset-islands-row { gap:0; }
           .inset-group-label { font-size:8.5px; }
-          .muni-name-grid { grid-template-columns: repeat(4, 1fr); gap:6px; }
-          .muni-name-grid-item { padding:6px 5px; border-radius:8px; }
           .region-map-frame { --frame-pad:0px; }
           .bottom-toolbar { right:16px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); }
           .bottom-toolbar-btn { padding:12px 18px; font-size:12px; gap:5px; }
@@ -9063,8 +9037,6 @@ function MairuDemoInner() {
           .budget-input { width:44px; font-size:10px; }
 
           .pref-floating-label-text { font-size:7.5px; padding:2.5px 4px; }
-          .muni-name-grid { grid-template-columns: repeat(4, 1fr); gap:5px; }
-          .muni-name-grid-item { padding:5px 4px; }
 
         }
         @media (prefers-reduced-motion: reduce) {
@@ -9214,7 +9186,7 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className={`bottom-bar-btn ${showAllPrefNames ? 'active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); }}
+                    onClick={(e) => { e.stopPropagation(); setShowAllPrefNames((v) => !v); setShowAirportPins(false); setShowFerryPins(false); setShowRoadsidePins(false); setBottomSheetOpen(null); }}
                     title={lang === 'en' ? 'Show place names' : '地名を表示'}
                     aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                   >
@@ -9223,7 +9195,7 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); setShowAllPrefNames(false); }}
                     title={lang === 'en' ? 'Search' : '探す'}
                     aria-label={lang === 'en' ? 'Search' : '探す'}
                   >
@@ -9232,7 +9204,7 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); setShowAllPrefNames(false); }}
                     title={lang === 'en' ? 'More' : 'その他'}
                     aria-label={lang === 'en' ? 'More' : 'その他'}
                   >
@@ -9266,37 +9238,6 @@ function MairuDemoInner() {
                   </button>
                 </div>
 
-                {bottomSheetOpen === 'legal' && (
-                  <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="detail-card-shell find-card-shell">
-                      <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
-                        <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
-                        <div className="find-sheet-grid legal-sheet-grid">
-                        <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
-                          <Languages size={18} />
-                          <span>日本語</span>
-                        </button>
-                        <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
-                          <Languages size={18} />
-                          <span>English</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
-                        </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div
                   className="map-pan-scroll"
                   ref={kyushuMapScrollRef}
@@ -9508,14 +9449,18 @@ function MairuDemoInner() {
 
                 {showAllPrefNames && !peekPrefId && (
                   <div className="muni-name-grid-overlay" onClick={() => setShowAllPrefNames(false)}>
-                    <div className="muni-name-grid">
+                    <div className="saved-mini-grid" style={{ paddingBottom: 150 }}>
                       {KYUSHU_PREFS.map((p) => (
                         <button
                           key={`dimname-${p.id}`}
-                          className="muni-name-grid-item"
+                          className="find-cat-card saved-mini-card"
+                          style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
                           onClick={(e) => { e.stopPropagation(); setPeekPrefId(p.id); }}
                         >
-                          <span className="muni-name-grid-item-text">{mNameFuri(p)}</span>
+                          <div className="saved-mini-label saved-mini-label-center">
+                            {lang !== 'en' && p.yomi && <span className="saved-mini-furi">{p.yomi}</span>}
+                            <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? (p.nameEn || p.name) : p.name}</span>
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -9696,7 +9641,7 @@ function MairuDemoInner() {
                   {['40','41','42','43','44','45','46'].includes(selectedPrefId) && (
                     <button
                       className={`bottom-bar-btn ${showAllCityNames ? 'active' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setShowAllCityNames((v) => !v); }}
+                      onClick={(e) => { e.stopPropagation(); setShowAllCityNames((v) => !v); setBottomSheetOpen(null); }}
                       title={lang === 'en' ? 'Show place names' : '地名を表示'}
                       aria-label={lang === 'en' ? 'Show place names' : '地名を表示'}
                     >
@@ -9706,7 +9651,7 @@ function MairuDemoInner() {
                   )}
                   <button
                     className={`bottom-bar-btn ${bottomSheetOpen === 'find' ? 'active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); }}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'find' ? null : 'find'); setShowAllCityNames(false); }}
                     title={lang === 'en' ? 'Search' : '探す'}
                     aria-label={lang === 'en' ? 'Search' : '探す'}
                   >
@@ -9715,7 +9660,7 @@ function MairuDemoInner() {
                   </button>
                   <button
                     className="bottom-bar-btn"
-                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); }}
+                    onClick={(e) => { e.stopPropagation(); setBottomSheetOpen(bottomSheetOpen === 'legal' ? null : 'legal'); setShowAllCityNames(false); }}
                     title={lang === 'en' ? 'More' : 'その他'}
                     aria-label={lang === 'en' ? 'More' : 'その他'}
                   >
@@ -9749,37 +9694,6 @@ function MairuDemoInner() {
                   </button>
                 </div>
 
-                {bottomSheetOpen === 'legal' && (
-                  <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="detail-card-shell find-card-shell">
-                      <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
-                        <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
-                        <div className="find-sheet-grid legal-sheet-grid">
-                        <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
-                          <Languages size={18} />
-                          <span>日本語</span>
-                        </button>
-                        <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
-                          <Languages size={18} />
-                          <span>English</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
-                        </button>
-                        <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
-                          <FileText size={18} />
-                          <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
-                        </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div
                   className="map-pan-scroll"
                   ref={regionMapScrollRef}
@@ -10018,16 +9932,20 @@ function MairuDemoInner() {
 
                 {['40','41','42','43','44','45','46'].includes(selectedPrefId) && showAllCityNames && !peekCityId && (
                   <div className="muni-name-grid-overlay" onClick={() => setShowAllCityNames(false)}>
-                    <div className="muni-name-grid">
+                    <div className="saved-mini-grid" style={{ paddingBottom: 150 }}>
                       {prefMunicipalities.map((m) => {
                         const mid = m.id ?? m.name;
                         return (
                           <button
                             key={`dimname-${mid}`}
-                            className="muni-name-grid-item"
+                            className="find-cat-card saved-mini-card"
+                            style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
                             onClick={(e) => { e.stopPropagation(); setPeekCityId(mid); }}
                           >
-                            <span className="muni-name-grid-item-text">{mNameFuri(m)}</span>
+                            <div className="saved-mini-label saved-mini-label-center">
+                              {lang !== 'en' && m.yomi && <span className="saved-mini-furi">{m.yomi}</span>}
+                              <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? (m.nameEn || m.name) : m.name}</span>
+                            </div>
                           </button>
                         );
                       })}
@@ -10417,37 +10335,6 @@ function MairuDemoInner() {
                     </button>
                   </div>
 
-                  {bottomSheetOpen === 'legal' && (
-                    <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                      <div className="detail-card-shell find-card-shell">
-                        <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
-                          <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
-                          <div className="find-sheet-grid legal-sheet-grid">
-                          <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
-                            <Languages size={18} />
-                            <span>日本語</span>
-                          </button>
-                          <button className={`find-sheet-item ${lang === 'en' ? 'active' : ''}`} onClick={() => { setLang('en'); setBottomSheetOpen(null); }}>
-                            <Languages size={18} />
-                            <span>English</span>
-                          </button>
-                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}>
-                            <FileText size={18} />
-                            <span>{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
-                          </button>
-                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}>
-                            <FileText size={18} />
-                            <span>{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
-                          </button>
-                          <button className="find-sheet-item" onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}>
-                            <FileText size={18} />
-                            <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
-                          </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                   <svg viewBox={`${muniMapBox.x} ${muniMapBox.y} ${muniMapBox.w} ${muniMapBox.h}`} className="map-svg" aria-hidden="true">
                     {KYUSHU_MUNICIPALITIES.filter((m) => {
                       if (m.id === selectedCity) return false;
@@ -11117,11 +11004,10 @@ function MairuDemoInner() {
       )}
 
       {bottomSheetOpen === 'find' && (
-        <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+        <div className="overlay-backdrop find-cat-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
           <div className="find-overlay-body" onClick={(e) => e.stopPropagation()}>
             <div className="saved-mini-grid">
             {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
-              const ItemIcon = item.icon;
               const isMuni = appStage === 'muni';
               const isActiveSpotCat = isMuni && item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
               const effectiveReady = isMuni ? item.ready : (['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false);
@@ -11151,13 +11037,8 @@ function MairuDemoInner() {
                     setBottomSheetOpen(null);
                   }}
                 >
-                  <span className="saved-mini-tag-topleft">
-                    {item.key === 'roadside' && roadsideMapLoading ? <Clock size={9} /> : <ItemIcon size={9} />}
-                  {lang === 'en' ? item.labelEn : item.label}</span>
-                  <div className="saved-mini-iconbg">
-                    {item.key === 'roadside' && roadsideMapLoading ? <Clock size={26} /> : <ItemIcon size={26} />}
-                  </div>
-                  <div className="saved-mini-label">
+                  <span className="saved-mini-tag-topleft">{lang === 'en' ? item.labelEn : item.label}</span>
+                  <div className="saved-mini-label saved-mini-label-center">
                     <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? item.labelEn : item.label}</span>
                   </div>
                 </button>
@@ -11168,12 +11049,65 @@ function MairuDemoInner() {
               style={{ '--cat-color': CATEGORY_META.medical.color, '--cat-tint': CATEGORY_META.medical.tint }}
               onClick={() => {}}
             >
-              <span className="saved-mini-tag-topleft"><Stethoscope size={9} />{lang === 'en' ? 'Medical' : '医療'}</span>
-              <div className="saved-mini-iconbg"><Stethoscope size={26} /></div>
-              <div className="saved-mini-label">
+              <span className="saved-mini-tag-topleft">{lang === 'en' ? 'Medical' : '医療'}</span>
+              <div className="saved-mini-label saved-mini-label-center">
                 <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Medical' : '医療'}</span>
               </div>
             </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bottomSheetOpen === 'legal' && (
+        <div className="overlay-backdrop find-cat-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+          <div className="find-overlay-body" onClick={(e) => e.stopPropagation()}>
+            <div className="saved-mini-grid">
+              <button
+                className={`find-cat-card saved-mini-card ${lang === 'ja' ? 'active' : ''}`}
+                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}
+              >
+                <div className="saved-mini-label saved-mini-label-center">
+                  <span className="saved-mini-name saved-mini-name-lg">日本語</span>
+                </div>
+              </button>
+              <button
+                className={`find-cat-card saved-mini-card ${lang === 'en' ? 'active' : ''}`}
+                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                onClick={() => { setLang('en'); setBottomSheetOpen(null); }}
+              >
+                <div className="saved-mini-label saved-mini-label-center">
+                  <span className="saved-mini-name saved-mini-name-lg">English</span>
+                </div>
+              </button>
+              <button
+                className="find-cat-card saved-mini-card"
+                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}
+              >
+                <div className="saved-mini-label saved-mini-label-center">
+                  <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
+                </div>
+              </button>
+              <button
+                className="find-cat-card saved-mini-card"
+                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}
+              >
+                <div className="saved-mini-label saved-mini-label-center">
+                  <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
+                </div>
+              </button>
+              <button
+                className="find-cat-card saved-mini-card"
+                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}
+              >
+                <div className="saved-mini-label saved-mini-label-center">
+                  <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -11708,8 +11642,8 @@ function MairuDemoInner() {
       })()}
 
       {legalOverlay && (
-        <div className="overlay-backdrop" onClick={() => setLegalOverlay(null)}>
-          <div className={`legal-dialog-card ${legalOverlay ? 'legal-dialog-card-dark' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className="overlay-backdrop detail-backdrop" onClick={() => setLegalOverlay(null)}>
+          <div className="legal-dialog-card" onClick={(e) => e.stopPropagation()}>
             <div className="legal-dialog-header">
               <button className="plan-dialog-x" onClick={() => setLegalOverlay(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
               <h3 className="plan-dialog-title">
