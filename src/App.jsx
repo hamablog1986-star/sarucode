@@ -8328,9 +8328,18 @@ function MairuDemoInner() {
           white-space:nowrap; background:rgba(0,0,0,0.78); color:#fff; font-size:12px; font-weight:700;
           padding:8px 14px; border-radius:999px; pointer-events:none;
         }
-        .find-sheet-backdrop { position:absolute; inset:0; z-index:8; background:rgba(0,0,0,0.35); display:flex; align-items:flex-end; }
-        .find-sheet { width:100%; background:#fff; border-radius:16px 16px 0 0; padding:12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); max-height:60%; overflow-y:auto; }
-        .find-sheet-handle { width:32px; height:4px; background:var(--line); border-radius:2px; margin:0 auto 10px; }
+        .overlay-backdrop.find-overlay-backdrop { z-index:50; padding:24px; }
+        .find-card-shell { max-width:360px; }
+        .detail-card.find-card { background:#fff; padding:34px 14px 16px; max-height:70vh; max-height:70dvh; }
+        .find-card-close { position:absolute; top:10px; right:10px; z-index:6; background:rgba(0,0,0,0.05); box-shadow:none; }
+        /* 「探す」のカテゴリカードは、白い「ウィンドウ」に入れず地図の上に直接オーバーレイ表示する */
+        .find-overlay-body {
+          position:relative; width:100%; max-width:360px;
+          max-height:70vh; max-height:70dvh;
+          overflow-y:auto; overflow-x:hidden; overscroll-behavior:none;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .find-overlay-body::-webkit-scrollbar { display:none; }
         .saved-sheet-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
         .saved-sheet-title { display:flex; align-items:center; gap:6px; margin:0; font-size:15px; font-weight:800; color:var(--ink); }
         .saved-sheet-close { flex-shrink:0; background:rgba(0,0,0,0.05); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); -webkit-tap-highlight-color:transparent; }
@@ -8410,15 +8419,22 @@ function MairuDemoInner() {
           -webkit-tap-highlight-color: transparent; margin-right:4px;
         }
         .empty-page-hint-onmap { color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); padding:8px 16px; }
-        .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px 6px; }
-        .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); }
+        .find-sheet-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px 8px; }
+        .legal-sheet-grid { grid-template-columns:repeat(3, 1fr); gap:14px 6px; }
         .find-sheet-item {
           display:flex; flex-direction:column; align-items:center; gap:4px;
           background:none; border:none; padding:4px; cursor:pointer; color:var(--ink);
+          -webkit-tap-highlight-color:transparent;
         }
         .find-sheet-item span { font-size:10.5px; font-weight:600; text-align:center; }
         .find-sheet-item.active svg { color:#1F6E45; }
         .find-sheet-item.coming-soon { opacity:0.4; }
+        /* 「探す」内の各カテゴリ(空港・航路・道の駅など)を、保存済み一覧のミニカードと同じ見た目のカードにする */
+        .find-cat-card {
+          padding:0; border:none; text-align:left; font:inherit; display:block;
+        }
+        .find-cat-card.active .saved-mini-iconbg { background:var(--cat-color); color:#fff; }
+        .find-cat-card.coming-soon { opacity:0.45; }
         @media (max-height:430px) and (pointer:coarse) {
           /* 横向き画面など縦幅が狭い場合は、アイコンをさらに小さく・詰めて、画面内に収まるようにする */
           .kyushu-icons-consolidated .map-toggle-group { top:8px; }
@@ -9250,51 +9266,12 @@ function MairuDemoInner() {
                   </button>
                 </div>
 
-                {bottomSheetOpen === 'find' && (
-                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
-                      <div className="find-sheet-handle" />
-                      <div className="find-sheet-grid">
-                        {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
-                          const ItemIcon = item.icon;
-                          const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
-                          const isOn =
-                            (item.key === 'airport' && showAirportPins) ||
-                            (item.key === 'ferry' && showFerryPins) ||
-                            (item.key === 'roadside' && showRoadsidePins);
-                          return (
-                            <button
-                              key={`${groupKey}-${item.key}`}
-                              className={`find-sheet-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
-                              onClick={() => {
-                                if (!effectiveReady) return;
-                                setShowAllPrefNames(false);
-                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
-                                if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
-                                else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
-                                else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
-                                setBottomSheetOpen(null);
-                              }}
-                            >
-                              {item.key === 'roadside' && roadsideMapLoading ? <Clock size={18} /> : <ItemIcon size={18} />}
-                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
-                            </button>
-                          );
-                        }))}
-                        <button className="find-sheet-item coming-soon" onClick={() => {}}>
-                          <Stethoscope size={18} />
-                          <span>{lang === 'en' ? 'Medical' : '医療'}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {bottomSheetOpen === 'legal' && (
-                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
-                      <div className="find-sheet-handle" />
-                      <div className="find-sheet-grid legal-sheet-grid">
+                  <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="detail-card-shell find-card-shell">
+                      <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
+                        <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+                        <div className="find-sheet-grid legal-sheet-grid">
                         <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
                           <Languages size={18} />
                           <span>日本語</span>
@@ -9315,6 +9292,7 @@ function MairuDemoInner() {
                           <FileText size={18} />
                           <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
                         </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -9771,50 +9749,12 @@ function MairuDemoInner() {
                   </button>
                 </div>
 
-                {bottomSheetOpen === 'find' && (
-                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
-                      <div className="find-sheet-handle" />
-                      <div className="find-sheet-grid">
-                        {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
-                          const ItemIcon = item.icon;
-                          const effectiveReady = ['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false;
-                          const isOn =
-                            (item.key === 'airport' && showAirportPins) ||
-                            (item.key === 'ferry' && showFerryPins) ||
-                            (item.key === 'roadside' && showRoadsidePins);
-                          return (
-                            <button
-                              key={`${groupKey}-${item.key}`}
-                              className={`find-sheet-item ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
-                              onClick={() => {
-                                if (!effectiveReady) return;
-                                setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
-                                if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); setShowRoadsidePins(false); }
-                                else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); setShowRoadsidePins(false); }
-                                else if (item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
-                                setBottomSheetOpen(null);
-                              }}
-                            >
-                              {item.key === 'roadside' && roadsideMapLoading ? <Clock size={18} /> : <ItemIcon size={18} />}
-                              <span>{lang === 'en' ? item.labelEn : item.label}</span>
-                            </button>
-                          );
-                        }))}
-                        <button className="find-sheet-item coming-soon" onClick={() => {}}>
-                          <Stethoscope size={18} />
-                          <span>{lang === 'en' ? 'Medical' : '医療'}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {bottomSheetOpen === 'legal' && (
-                  <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                    <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
-                      <div className="find-sheet-handle" />
-                      <div className="find-sheet-grid legal-sheet-grid">
+                  <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                    <div className="detail-card-shell find-card-shell">
+                      <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
+                        <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+                        <div className="find-sheet-grid legal-sheet-grid">
                         <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
                           <Languages size={18} />
                           <span>日本語</span>
@@ -9835,6 +9775,7 @@ function MairuDemoInner() {
                           <FileText size={18} />
                           <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
                         </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -10476,54 +10417,12 @@ function MairuDemoInner() {
                     </button>
                   </div>
 
-                  {bottomSheetOpen === 'find' && (
-                    <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                      <div className="find-sheet" onClick={(e) => e.stopPropagation()}>
-                        <div className="find-sheet-handle" />
-                        <div className="find-sheet-grid">
-                          {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
-                            const ItemIcon = item.icon;
-                            const isActiveSpotCat = item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
-                            const isOn =
-                              (item.key === 'airport' && showAirportPins) ||
-                              (item.key === 'ferry' && showFerryPins) ||
-                              isActiveSpotCat;
-                            return (
-                              <button
-                                key={`${groupKey}-${item.key}`}
-                                className={`find-sheet-item ${isOn ? 'active' : ''} ${!item.ready ? 'coming-soon' : ''}`}
-                                onClick={() => {
-                                  if (!item.ready) return;
-                                  setPeekAirportId(null); setPeekFerryId(null);
-                                  if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); }
-                                  else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); }
-                                  else if (item.spotCategory) {
-                                    setActiveCategory(item.spotCategory);
-                                    setLinkedId(null);
-                                    if (selectMode === 'candidates' || selectMode === 'decided') setSelectMode(lastBrowseMode);
-                                  }
-                                  setBottomSheetOpen(null);
-                                }}
-                              >
-                                <ItemIcon size={18} />
-                                <span>{lang === 'en' ? item.labelEn : item.label}</span>
-                              </button>
-                            );
-                          }))}
-                          <button className="find-sheet-item coming-soon" onClick={() => {}}>
-                            <Stethoscope size={18} />
-                            <span>{lang === 'en' ? 'Medical' : '医療'}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   {bottomSheetOpen === 'legal' && (
-                    <div className="find-sheet-backdrop" onClick={() => setBottomSheetOpen(null)}>
-                      <div className="find-sheet legal-sheet" onClick={(e) => e.stopPropagation()}>
-                        <div className="find-sheet-handle" />
-                        <div className="find-sheet-grid legal-sheet-grid">
+                    <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+                      <div className="detail-card-shell find-card-shell">
+                        <div className="detail-card poi-card-rounded find-card legal-card" onClick={(e) => e.stopPropagation()}>
+                          <button className="saved-sheet-close find-card-close" onClick={() => setBottomSheetOpen(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
+                          <div className="find-sheet-grid legal-sheet-grid">
                           <button className={`find-sheet-item ${lang === 'ja' ? 'active' : ''}`} onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}>
                             <Languages size={18} />
                             <span>日本語</span>
@@ -10544,6 +10443,7 @@ function MairuDemoInner() {
                             <FileText size={18} />
                             <span>{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
                           </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -11213,6 +11113,69 @@ function MairuDemoInner() {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {bottomSheetOpen === 'find' && (
+        <div className="overlay-backdrop find-overlay-backdrop" onClick={() => setBottomSheetOpen(null)}>
+          <div className="find-overlay-body" onClick={(e) => e.stopPropagation()}>
+            <div className="saved-mini-grid">
+            {Object.entries(ICON_CATEGORY_GROUPS).flatMap(([groupKey, group]) => group.items.map((item) => {
+              const ItemIcon = item.icon;
+              const isMuni = appStage === 'muni';
+              const isActiveSpotCat = isMuni && item.spotCategory && activeCategory === item.spotCategory && selectMode !== 'candidates' && selectMode !== 'decided';
+              const effectiveReady = isMuni ? item.ready : (['airport', 'ferry', 'roadside'].includes(item.key) ? item.ready : false);
+              const isOn =
+                (item.key === 'airport' && showAirportPins) ||
+                (item.key === 'ferry' && showFerryPins) ||
+                (!isMuni && item.key === 'roadside' && showRoadsidePins) ||
+                isActiveSpotCat;
+              const catMeta = CATEGORY_META[item.key] || { color: '#7A8085', tint: '#EDEEF0' };
+              return (
+                <button
+                  key={`${groupKey}-${item.key}`}
+                  className={`find-cat-card saved-mini-card ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
+                  style={{ '--cat-color': catMeta.color, '--cat-tint': catMeta.tint }}
+                  onClick={() => {
+                    if (!effectiveReady) return;
+                    setShowAllPrefNames(false);
+                    setPeekAirportId(null); setPeekFerryId(null); setPeekRoadsideId(null);
+                    if (item.key === 'airport') { setShowAirportPins((v) => !v); setShowFerryPins(false); if (!isMuni) setShowRoadsidePins(false); }
+                    else if (item.key === 'ferry') { setShowFerryPins((v) => !v); setShowAirportPins(false); if (!isMuni) setShowRoadsidePins(false); }
+                    else if (!isMuni && item.key === 'roadside') { setShowRoadsidePins((v) => !v); setShowAirportPins(false); setShowFerryPins(false); }
+                    else if (isMuni && item.spotCategory) {
+                      setActiveCategory(item.spotCategory);
+                      setLinkedId(null);
+                      if (selectMode === 'candidates' || selectMode === 'decided') setSelectMode(lastBrowseMode);
+                    }
+                    setBottomSheetOpen(null);
+                  }}
+                >
+                  <span className="saved-mini-tag-topleft">
+                    {item.key === 'roadside' && roadsideMapLoading ? <Clock size={9} /> : <ItemIcon size={9} />}
+                  {lang === 'en' ? item.labelEn : item.label}</span>
+                  <div className="saved-mini-iconbg">
+                    {item.key === 'roadside' && roadsideMapLoading ? <Clock size={26} /> : <ItemIcon size={26} />}
+                  </div>
+                  <div className="saved-mini-label">
+                    <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? item.labelEn : item.label}</span>
+                  </div>
+                </button>
+              );
+            }))}
+            <button
+              className="find-cat-card saved-mini-card coming-soon"
+              style={{ '--cat-color': CATEGORY_META.medical.color, '--cat-tint': CATEGORY_META.medical.tint }}
+              onClick={() => {}}
+            >
+              <span className="saved-mini-tag-topleft"><Stethoscope size={9} />{lang === 'en' ? 'Medical' : '医療'}</span>
+              <div className="saved-mini-iconbg"><Stethoscope size={26} /></div>
+              <div className="saved-mini-label">
+                <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Medical' : '医療'}</span>
+              </div>
+            </button>
+            </div>
+          </div>
         </div>
       )}
 
