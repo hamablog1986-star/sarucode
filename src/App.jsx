@@ -7313,11 +7313,16 @@ function MairuDemoInner() {
     }
   }
 
-  async function shareCurrentPlan() {
+  function buildShareText() {
     const url = buildShareUrl();
-    const shareText = lang === 'en'
+    return lang === 'en'
       ? `My CONOTAVI travel plan for Isahaya City:\n${url}`
       : `諫早市のCONOTAVI旅行プランです:\n${url}`;
+  }
+
+  async function shareCurrentPlan() {
+    const url = buildShareUrl();
+    const shareText = buildShareText();
     if (navigator.share) {
       try {
         await navigator.share({ title: 'CONOTAVI', text: shareText, url });
@@ -8817,6 +8822,13 @@ function MairuDemoInner() {
         .share-url-row { display:flex; gap:8px; margin-bottom:10px; }
         .share-url-input { flex:1; min-width:0; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-size:11.5px; font-family:'JetBrains Mono', monospace; color:var(--ink) !important; background:#F6F6F4; }
         .share-url-copy-btn { flex-shrink:0; padding:0 16px; border-radius:9px; border:none; background:var(--ink); color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+        .share-app-row { display:flex; gap:8px; margin-bottom:10px; }
+        .share-app-btn {
+          flex:1; text-align:center; padding:10px 8px; border-radius:9px; border:1.5px solid var(--line);
+          font-size:12.5px; font-weight:700; color:var(--ink); background:#F6F6F4; text-decoration:none;
+          -webkit-tap-highlight-color:transparent;
+        }
+        .share-app-btn:active { background:#EDEDE9; }
 
         .plan-toast {
           position:fixed;
@@ -10810,6 +10822,27 @@ function MairuDemoInner() {
             <div className="share-url-row">
               <input type="text" className="share-url-input" readOnly value={buildShareUrl()} onFocus={(e) => e.target.select()} />
               <button className="share-url-copy-btn" onClick={copyShareUrl}>{lang === 'en' ? 'Copy' : 'コピー'}</button>
+            </div>
+            <div className="share-app-row">
+              <a
+                className="share-app-btn"
+                href={`https://line.me/R/msg/text/?${encodeURIComponent(buildShareText())}`}
+                target="_blank" rel="noopener noreferrer"
+              >
+                LINE
+              </a>
+              <a
+                className="share-app-btn"
+                href={`mailto:?subject=${encodeURIComponent('CONOTAVI')}&body=${encodeURIComponent(buildShareText())}`}
+              >
+                {lang === 'en' ? 'Mail' : 'メール'}
+              </a>
+              <a
+                className="share-app-btn"
+                href={`sms:${/iPad|iPhone|iPod/.test(navigator.userAgent) ? '&' : '?'}body=${encodeURIComponent(buildShareText())}`}
+              >
+                {lang === 'en' ? 'SMS' : 'ショートメール'}
+              </a>
             </div>
             <p className="plan-dialog-file-note">
               {lang === 'en' ? 'Paste this link into LINE, mail, or any messaging app.' : 'LINEやメールなど、お好きなアプリに貼り付けて送ってください。'}
