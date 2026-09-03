@@ -8751,7 +8751,7 @@ function MairuDemoInner() {
         .plan-dialog-desc { font-size:12.5px; color:#5B616A; line-height:1.6; margin:0 0 14px; }
         .legal-dialog-card {
           position:relative;
-          background:#fff;
+          background:rgba(20,22,26,0.8);
           border-radius:16px;
           max-width:640px;
           width:100%;
@@ -8767,8 +8767,9 @@ function MairuDemoInner() {
         @media (min-width:1200px) {
           .legal-dialog-card { max-width:980px; }
         }
-        .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid var(--line); }
-        .legal-dialog-header .plan-dialog-title { margin:0; }
+        .legal-dialog-card .plan-dialog-x { background:rgba(255,255,255,0.15); color:#fff; }
+        .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.15); }
+        .legal-dialog-header .plan-dialog-title { margin:0; color:#fff; }
         .legal-dialog-body {
           flex:1 1 0; min-height:0;
           padding:18px 22px 24px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
@@ -8777,27 +8778,27 @@ function MairuDemoInner() {
         .legal-dialog-body::-webkit-scrollbar { display:none; }
         .legal-section { margin-bottom:18px; }
         .legal-section:last-child { margin-bottom:0; }
-        .legal-section h4 { font-size:13.5px; margin:0 0 6px; color:#1A2E3B; }
-        .legal-section p { font-size:12.5px; color:#5B616A; line-height:1.7; margin:0 0 8px; }
+        .legal-section h4 { font-size:13.5px; margin:0 0 6px; color:#fff; }
+        .legal-section p { font-size:12.5px; color:rgba(255,255,255,0.8); line-height:1.7; margin:0 0 8px; }
         .legal-section ul { margin:0 0 8px; padding-left:18px; }
-        .legal-section li { font-size:12.5px; color:#5B616A; line-height:1.7; margin-bottom:4px; }
-        .legal-updated { font-size:11px; color:#9AA6AC; margin-top:20px; }
+        .legal-section li { font-size:12.5px; color:rgba(255,255,255,0.8); line-height:1.7; margin-bottom:4px; }
+        .legal-updated { font-size:11px; color:rgba(255,255,255,0.55); margin-top:20px; }
         .contact-form-field { margin-bottom:14px; }
-        .contact-form-hint { font-size:11.5px; color:#8A8F98; margin:-6px 0 14px; line-height:1.5; }
-        .contact-form-label { display:block; font-size:12px; font-weight:600; color:#1A2E3B; margin-bottom:5px; }
+        .contact-form-hint { font-size:11.5px; color:rgba(255,255,255,0.65); margin:-6px 0 14px; line-height:1.5; }
+        .contact-form-label { display:block; font-size:12px; font-weight:600; color:#fff; margin-bottom:5px; }
         .contact-form-input, .contact-form-textarea {
-          width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line);
-          font-size:13.5px; font-family:inherit; color:var(--ink) !important; background:#fff;
+          width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid rgba(255,255,255,0.3);
+          font-size:13.5px; font-family:inherit; color:#fff !important; background:rgba(255,255,255,0.08);
         }
         .contact-form-textarea { resize:vertical; min-height:110px; }
         .contact-form-submit {
           width:100%; padding:12px; border-radius:999px; border:none;
-          background:var(--ink); color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;
+          background:#fff; color:#1A2E3B; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;
         }
         .contact-form-submit:disabled { opacity:0.5; cursor:default; }
         .contact-form-status { font-size:12px; margin-top:10px; text-align:center; }
-        .contact-form-status.is-error { color:#C0392B; }
-        .contact-form-status.is-sent { color:#1F6E45; }
+        .contact-form-status.is-error { color:#F09595; }
+        .contact-form-status.is-sent { color:#97C459; }
         .plan-name-input { width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-size:13.5px; margin-bottom:14px; font-family:inherit; color:var(--ink) !important; }
         .plan-dialog-actions { display:flex; gap:8px; }
         .plan-dialog-btn { flex:1; padding:10px; border-radius:9px; border:1.5px solid var(--line); background:#fff; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
