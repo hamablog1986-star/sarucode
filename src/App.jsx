@@ -5,7 +5,7 @@ import {
   Save, Share2, Download, Upload, X, Trash2, ExternalLink,
   Calendar, TrainFront, Trees, Sparkles, ShoppingBag, Stethoscope, Droplet, PartyPopper, Coffee, ZoomIn, Mountain,
   MapPin, BookOpen, Building2, Fuel, Wallet, Soup, Search, Languages,
-  ChevronRight, ChevronLeft, ChevronDown, Plane, Ship, Bookmark, Globe, FileText, MoreHorizontal, GripVertical,
+  ChevronRight, ChevronLeft, ChevronDown, Plane, Ship, Bookmark, Globe, FileText, MoreHorizontal, GripVertical, Mail,
 } from 'lucide-react';
 
 /* ---------------------------------------------------------
@@ -2414,37 +2414,41 @@ const ICON_CATEGORY_GROUPS = {
   transport: {
     label: '移動', labelEn: 'Transport', icon: Car,
     items: [
-      { key: 'airport', label: '空港', labelEn: 'Airport', icon: Plane, ready: true },
-      { key: 'ferry', label: '航路', labelEn: 'Ferry', icon: Ship, ready: true },
-      { key: 'train', label: '鉄道', labelEn: 'Train', icon: TrainFront, ready: false },
-      { key: 'bus', label: '交通', labelEn: 'Bus/Transit', icon: Bus, ready: false },
+      { key: 'airport', label: '空港', labelEn: 'Airport', yomi: 'くうこう', icon: Plane, ready: true, image: null },
+      { key: 'ferry', label: '航路', labelEn: 'Ferry', yomi: 'こうろ', icon: Ship, ready: true, image: null },
+      { key: 'train', label: '鉄道', labelEn: 'Train', yomi: 'てつどう', icon: TrainFront, ready: false, image: null },
+      { key: 'bus', label: '交通', labelEn: 'Bus/Transit', yomi: 'こうつう', icon: Bus, ready: false, image: null },
     ],
   },
   rest: {
     label: '休憩・宿泊', labelEn: 'Rest & Stay', icon: Coffee,
     items: [
-      { key: 'roadside', label: '道の駅', labelEn: 'Roadside Station', icon: Store, ready: true, spotCategory: 'roadside' },
-      { key: 'onsen', label: '温泉', labelEn: 'Hot Spring', icon: Droplet, ready: false, spotCategory: 'onsen' },
-      { key: 'lodging', label: '宿泊', labelEn: 'Lodging', icon: Building2, ready: true, spotCategory: 'lodging' },
+      { key: 'roadside', label: '道の駅', labelEn: 'Roadside Station', yomi: 'みちのえき', icon: Store, ready: true, spotCategory: 'roadside', image: null },
+      { key: 'onsen', label: '温泉', labelEn: 'Hot Spring', yomi: 'おんせん', icon: Droplet, ready: false, spotCategory: 'onsen', image: null },
+      { key: 'lodging', label: '宿泊', labelEn: 'Lodging', yomi: 'しゅくはく', icon: Building2, ready: true, spotCategory: 'lodging', image: null },
     ],
   },
   see: {
     label: '観る・体験', labelEn: 'See & Experience', icon: Mountain,
     items: [
-      { key: 'history', label: '歴史', labelEn: 'History', icon: BookOpen, ready: true, spotCategory: 'history' },
-      { key: 'nature', label: '自然', labelEn: 'Nature', icon: Trees, ready: true, spotCategory: 'nature' },
-      { key: 'experience', label: '体験', labelEn: 'Experience', icon: Sparkles, ready: true, spotCategory: 'experience' },
-      { key: 'event', label: '催事', labelEn: 'Events', icon: PartyPopper, ready: false, spotCategory: 'event' },
+      { key: 'history', label: '歴史', labelEn: 'History', yomi: 'れきし', icon: BookOpen, ready: true, spotCategory: 'history', image: null },
+      { key: 'nature', label: '自然', labelEn: 'Nature', yomi: 'しぜん', icon: Trees, ready: true, spotCategory: 'nature', image: null },
+      { key: 'experience', label: '体験', labelEn: 'Experience', yomi: 'たいけん', icon: Sparkles, ready: true, spotCategory: 'experience', image: null },
+      { key: 'event', label: '催事', labelEn: 'Events', yomi: 'さいじ', icon: PartyPopper, ready: false, spotCategory: 'event', image: null },
     ],
   },
   eat: {
     label: '食べる・買う', labelEn: 'Eat & Shop', icon: Wallet,
     items: [
-      { key: 'food', label: '飲食', labelEn: 'Dining', icon: Soup, ready: true, spotCategory: 'food' },
-      { key: 'shopping', label: '買物', labelEn: 'Shopping', icon: ShoppingBag, ready: false, spotCategory: 'shopping' },
+      { key: 'food', label: '飲食', labelEn: 'Dining', yomi: 'いんしょく', icon: Soup, ready: true, spotCategory: 'food', image: null },
+      { key: 'shopping', label: '買物', labelEn: 'Shopping', yomi: 'かいもの', icon: ShoppingBag, ready: false, spotCategory: 'shopping', image: null },
     ],
   },
 };
+// 「探す」内の「医療」カードのイラスト(準備中の項目なのでICON_CATEGORY_GROUPSとは別で管理)。画像URLが用意でき次第、ここにそのURLを入れる。
+const MEDICAL_CARD_IMAGE = null;
+// 「その他」(言語切替・規約リンク)カードのイラスト。画像URLが用意でき次第、それぞれnullの部分にURLを入れる。
+const LEGAL_CARD_IMAGES = { ja: null, en: null, terms: null, privacy: null, contact: null };
 
 // 九州に実在する空港一覧(緯度経度は各空港の実測値)。ルート機能で「現在地を使わない場合」の
 // 出発地点として、表示中の市に応じた最寄りの空港を使うために用意。
@@ -5426,10 +5430,11 @@ function MairuDemoInner() {
   const [expandedDescIds, setExpandedDescIds] = useState({}); // poiカードの説明文「もっと見る」で全文表示中のid一覧
   const [savedListOpen, setSavedListOpen] = useState(false); // 保存済みボタンを押した時に開く一覧シート
   const [savedListTab, setSavedListTab] = useState('spots'); // 保存済み一覧のタブ('spots'=目的地 | 'routes'=保存したルート)
+  const [legalOverlay, setLegalOverlay] = useState(null); // null | 'terms' | 'privacy' | 'contact' : フッターの利用規約/プライバシーポリシー/お問い合わせを開くと表示
   const [poiCardHorizontalPad, setPoiCardHorizontalPad] = useState(null); // poiDetailカードの左右余白(px)。下部バーの現在地/戻るアイコンの実際の端に合わせて測定する
   const [poiCardButtonGap, setPoiCardButtonGap] = useState(null); // poiDetailカード内ボタンの間隔(px)。下部バーの隣り合うアイコン同士の実際の間隔に合わせて測定する
   useEffect(() => {
-    if (!poiDetail) return;
+    if (!poiDetail && !legalOverlay) return;
     function measure() {
       const firstIcon = firstBarIconAlignRef.current;
       const secondIcon = secondBarIconAlignRef.current;
@@ -5452,7 +5457,7 @@ function MairuDemoInner() {
     const raf = requestAnimationFrame(measure);
     window.addEventListener('resize', measure);
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', measure); };
-  }, [poiDetail]);
+  }, [poiDetail, legalOverlay]);
 
   // 空港・フェリー・道の駅、いずれかのピンを選ぶときに使う共通関数。
   // 他のカテゴリで開いていた吹き出しは自動的に閉じ、最後にタップしたものだけが開いた状態になる。
@@ -6272,7 +6277,6 @@ function MairuDemoInner() {
   }); // ブラウザに保存済みのプラン一覧
   const [showSaveDialog, setShowSaveDialog] = useState(false); // 保存・保存したプラン確認ダイアログの表示(1つに統合)
   const [showShareDialog, setShowShareDialog] = useState(false); // 共有ダイアログの表示
-  const [legalOverlay, setLegalOverlay] = useState(null); // null | 'terms' | 'privacy' | 'contact' : フッターの利用規約/プライバシーポリシー/お問い合わせを開くと表示
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [contactStatus, setContactStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
   // お問い合わせフォームの送信先(Formspree)。
@@ -8192,6 +8196,10 @@ function MairuDemoInner() {
         .map-frame-wrap.muni-fullmap-frame-wrap { position:relative; width:100%; height:100%; }
         .map-frame.muni-fullmap-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:0; box-shadow:none; touch-action:none; }
         .tabs-on-frame.muni-float-category-tabs { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); margin-bottom:0; z-index:8; background:rgba(255,255,255,0.92); padding:6px 10px; border-radius:999px; max-width:calc(100% - 32px); }
+        /* ルートマップ:カード内いっぱいにルート地図を表示する(カテゴリ地図と同じ「フルスクリーン地図」パターンを流用) */
+        .route-map-toolbar, .detour-filter { position:relative; z-index:2; }
+        .map-scroll.route-map-scroll { position:absolute; inset:0; width:100%; height:100%; margin-bottom:0; border-radius:18px 18px 0 0; z-index:1; }
+        .map-frame.route-map-frame { width:100%; height:100%; aspect-ratio:auto; border-radius:18px 18px 0 0; }
         .tabs-on-frame.muni-float-category-tabs .tabs { margin:0; }
         .entry-fullmap-view { background:#D9E8F0; }
         .entry-fullmap-view .kyushu-float-header {
@@ -8329,7 +8337,7 @@ function MairuDemoInner() {
           padding:8px 14px; border-radius:999px; pointer-events:none;
         }
         /* 「探す」「その他」のカードは、白い「ウィンドウ」に入れず、保存済み一覧と同じ配置(画面上部・左寄せ)で地図の上に直接オーバーレイ表示する */
-        /* 下部アイコンバー・右側の保存済み/リセットボタンに隠れないよう、下部に十分な余白を確保してスクロールできるようにする */
+        /* カード詳細・保存済みと同じく画面全体を覆う方式(背後の地図がスクロール/パンで動いてしまう不具合を防ぐため、範囲は縮めない) */
         .overlay-backdrop.find-cat-overlay-backdrop {
           z-index:50; align-items:flex-start;
           padding:calc(env(safe-area-inset-top, 0px) + 60px) 16px calc(env(safe-area-inset-bottom, 0px) + 210px);
@@ -8517,7 +8525,7 @@ function MairuDemoInner() {
         .pref-floating-label { position:absolute; transform:translate(-50%, -50%); pointer-events:auto; white-space:nowrap; z-index:1; }
         .pref-floating-label-text { display:flex; align-items:center; background:rgba(33,38,44,0.85); backdrop-filter:blur(2px); color:#fff; padding:4px 7px; border-radius:6px; font-size:9.5px; font-weight:600; border:none; outline:none; box-shadow:none; -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
         .pref-floating-label-text.current-city-label { background:#D85A30; }
-        .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); z-index:1; padding:48px 16px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .muni-name-grid-overlay { position:absolute; inset:0; background:rgba(18,21,26,0.32); z-index:7; padding:48px 16px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
         .muni-name-grid-item-arrow { flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(33,38,44,0.08); display:flex; align-items:center; justify-content:center; color:#1A2E3B; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .chevron-glyph { display:inline-block; font-size:16px; font-weight:700; line-height:1; color:inherit !important; -webkit-text-fill-color:currentColor !important; }
         .pref-label-dot { fill:#21262C; opacity:0.85; }
@@ -8611,13 +8619,10 @@ function MairuDemoInner() {
         .overlay-backdrop.route-overlay-backdrop { z-index:52; }
         .overlay-backdrop.poi-detail-backdrop { z-index:55; }
         .route-card-shell { position:relative; width:100%; }
-        .detail-card.route-card { background:#fff; aspect-ratio:2.5/3.5; overflow:hidden; display:flex; flex-direction:column; }
-        .route-card-close {
-          position:absolute; top:10px; right:10px; z-index:6;
-          background:rgba(255,255,255,0.92); box-shadow:0 1px 4px rgba(0,0,0,0.15);
-        }
+        .detail-card.route-card { background:rgba(20,22,26,0.8); aspect-ratio:2.5/3.5; overflow:hidden; display:flex; flex-direction:column; }
         .poi-card-footer.route-card-footer {
           position:relative; flex-shrink:0; grid-template-columns:repeat(4, 1fr);
+          background:rgba(20,22,26,0.8);
         }
         .detail-card {
           position:relative; background:none; border-radius:0; padding:0; max-width:640px; width:100%; box-shadow:none;
@@ -8745,8 +8750,7 @@ function MairuDemoInner() {
           border-radius:16px;
           max-width:640px;
           width:100%;
-          max-height:calc(100vh - 112px);
-          max-height:calc(100dvh - 112px);
+          aspect-ratio:2.5 / 3.5; /* 空港などの詳細カード(poi-hero-always169)と全く同じ縦横比。中の文章は内部スクロールする */
           box-shadow:0 14px 34px rgba(0,0,0,0.18);
           display:flex;
           flex-direction:column;
@@ -8761,6 +8765,7 @@ function MairuDemoInner() {
         .legal-dialog-header { padding:22px 44px 14px 22px; flex-shrink:0; border-bottom:1px solid var(--line); }
         .legal-dialog-header .plan-dialog-title { margin:0; }
         .legal-dialog-body {
+          flex:1 1 0; min-height:0;
           padding:18px 22px 24px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
           scrollbar-width:none; -ms-overflow-style:none;
         }
@@ -8876,7 +8881,7 @@ function MairuDemoInner() {
         .action-btn.action-active { background:var(--cat-color); color:#fff; }
 
         .route-view { padding:16px 22px 50px; }
-        .route-card .route-view { flex:1 1 auto; min-height:0; overflow-y:auto; }
+        .route-card .route-view { flex:1 1 auto; min-height:0; overflow-y:auto; position:relative; }
         .route-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
         .route-action-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--paper); font-size:13px; font-weight:500; color:var(--ink); cursor:pointer; -webkit-tap-highlight-color: transparent; flex-shrink:0; white-space:nowrap; }
         .route-action-btn.active { background:var(--ink); border-color:var(--ink); color:#fff; font-weight:700; }
@@ -8938,13 +8943,21 @@ function MairuDemoInner() {
         .t-mini-order {
           position:absolute; top:6px; left:6px; z-index:2;
           width:22px; height:22px; border-radius:50%; border:none;
-          background:rgba(255,255,255,0.92); color:var(--cat-color);
+          background:var(--cat-color); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.35);
           display:flex; align-items:center; justify-content:center; cursor:pointer;
           font-size:11px; font-weight:800;
           -webkit-tap-highlight-color: transparent;
         }
         .t-mini-order.picked { background:#D97757; color:#fff; box-shadow:0 0 0 2px #fff, 0 0 0 4px #D97757; }
         .t-mini-order-start { background:#1A2E3B; color:#fff; }
+        .t-mini-locate-origin {
+          position:absolute; bottom:6px; right:6px; z-index:2;
+          width:24px; height:24px; border-radius:50%; border:none;
+          background:#1A2E3B; color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.35);
+          display:flex; align-items:center; justify-content:center; cursor:pointer;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .t-mini-locate-origin:disabled { opacity:0.5; cursor:default; }
         .t-mini-drag-handle {
           position:absolute; bottom:6px; right:6px; z-index:2;
           width:24px; height:24px; border-radius:6px;
@@ -9454,9 +9467,14 @@ function MairuDemoInner() {
                         <button
                           key={`dimname-${p.id}`}
                           className="find-cat-card saved-mini-card"
-                          style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                          style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                           onClick={(e) => { e.stopPropagation(); setPeekPrefId(p.id); }}
                         >
+                          {p.image ? (
+                            <img src={p.image} alt={p.name} className="saved-mini-img" loading="lazy" decoding="async" />
+                          ) : (
+                            <div className="saved-mini-iconbg"><MapPin size={26} /></div>
+                          )}
                           <div className="saved-mini-label saved-mini-label-center">
                             {lang !== 'en' && p.yomi && <span className="saved-mini-furi">{p.yomi}</span>}
                             <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? (p.nameEn || p.name) : p.name}</span>
@@ -9939,9 +9957,14 @@ function MairuDemoInner() {
                           <button
                             key={`dimname-${mid}`}
                             className="find-cat-card saved-mini-card"
-                            style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                            style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                             onClick={(e) => { e.stopPropagation(); setPeekCityId(mid); }}
                           >
+                            {m.image ? (
+                              <img src={m.image} alt={m.name} className="saved-mini-img" loading="lazy" decoding="async" />
+                            ) : (
+                              <div className="saved-mini-iconbg"><MapPin size={26} /></div>
+                            )}
                             <div className="saved-mini-label saved-mini-label-center">
                               {lang !== 'en' && m.yomi && <span className="saved-mini-furi">{m.yomi}</span>}
                               <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? (m.nameEn || m.name) : m.name}</span>
@@ -11016,12 +11039,12 @@ function MairuDemoInner() {
                 (item.key === 'ferry' && showFerryPins) ||
                 (!isMuni && item.key === 'roadside' && showRoadsidePins) ||
                 isActiveSpotCat;
-              const catMeta = CATEGORY_META[item.key] || { color: '#7A8085', tint: '#EDEEF0' };
+              const ItemIcon = item.icon;
               return (
                 <button
                   key={`${groupKey}-${item.key}`}
                   className={`find-cat-card saved-mini-card ${isOn ? 'active' : ''} ${!effectiveReady ? 'coming-soon' : ''}`}
-                  style={{ '--cat-color': catMeta.color, '--cat-tint': catMeta.tint }}
+                  style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                   onClick={() => {
                     if (!effectiveReady) return;
                     setShowAllPrefNames(false);
@@ -11037,8 +11060,13 @@ function MairuDemoInner() {
                     setBottomSheetOpen(null);
                   }}
                 >
-                  <span className="saved-mini-tag-topleft">{lang === 'en' ? item.labelEn : item.label}</span>
+                  {item.image ? (
+                    <img src={item.image} alt={item.label} className="saved-mini-img" loading="lazy" decoding="async" />
+                  ) : (
+                    <div className="saved-mini-iconbg"><ItemIcon size={26} /></div>
+                  )}
                   <div className="saved-mini-label saved-mini-label-center">
+                    {lang !== 'en' && item.yomi && <span className="saved-mini-furi">{item.yomi}</span>}
                     <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? item.labelEn : item.label}</span>
                   </div>
                 </button>
@@ -11046,11 +11074,16 @@ function MairuDemoInner() {
             }))}
             <button
               className="find-cat-card saved-mini-card coming-soon"
-              style={{ '--cat-color': CATEGORY_META.medical.color, '--cat-tint': CATEGORY_META.medical.tint }}
+              style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
               onClick={() => {}}
             >
-              <span className="saved-mini-tag-topleft">{lang === 'en' ? 'Medical' : '医療'}</span>
+              {MEDICAL_CARD_IMAGE ? (
+                <img src={MEDICAL_CARD_IMAGE} alt={lang === 'en' ? 'Medical' : '医療'} className="saved-mini-img" loading="lazy" decoding="async" />
+              ) : (
+                <div className="saved-mini-iconbg"><Stethoscope size={26} /></div>
+              )}
               <div className="saved-mini-label saved-mini-label-center">
+                {lang !== 'en' && <span className="saved-mini-furi">いりょう</span>}
                 <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Medical' : '医療'}</span>
               </div>
             </button>
@@ -11064,47 +11097,77 @@ function MairuDemoInner() {
           <div className="find-overlay-body" onClick={(e) => e.stopPropagation()}>
             <div className="saved-mini-grid">
               <button
-                className={`find-cat-card saved-mini-card ${lang === 'ja' ? 'active' : ''}`}
-                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                className="find-cat-card saved-mini-card"
+                style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                 onClick={() => { setLang('ja'); setBottomSheetOpen(null); }}
               >
+                {LEGAL_CARD_IMAGES.ja ? (
+                  <img src={LEGAL_CARD_IMAGES.ja} alt="日本語" className="saved-mini-img" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="saved-mini-iconbg"><Languages size={26} /></div>
+                )}
                 <div className="saved-mini-label saved-mini-label-center">
+                  {lang !== 'en' && <span className="saved-mini-furi">にほんご</span>}
                   <span className="saved-mini-name saved-mini-name-lg">日本語</span>
                 </div>
               </button>
               <button
-                className={`find-cat-card saved-mini-card ${lang === 'en' ? 'active' : ''}`}
-                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                className="find-cat-card saved-mini-card"
+                style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                 onClick={() => { setLang('en'); setBottomSheetOpen(null); }}
               >
+                {LEGAL_CARD_IMAGES.en ? (
+                  <img src={LEGAL_CARD_IMAGES.en} alt="English" className="saved-mini-img" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="saved-mini-iconbg"><Languages size={26} /></div>
+                )}
                 <div className="saved-mini-label saved-mini-label-center">
+                  {lang !== 'en' && <span className="saved-mini-furi" style={{ visibility: 'hidden' }}>&nbsp;</span>}
                   <span className="saved-mini-name saved-mini-name-lg">English</span>
                 </div>
               </button>
               <button
                 className="find-cat-card saved-mini-card"
-                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                 onClick={() => { setLegalOverlay('terms'); setBottomSheetOpen(null); }}
               >
+                {LEGAL_CARD_IMAGES.terms ? (
+                  <img src={LEGAL_CARD_IMAGES.terms} alt={lang === 'en' ? 'Terms of Service' : '利用規約'} className="saved-mini-img" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="saved-mini-iconbg"><FileText size={26} /></div>
+                )}
                 <div className="saved-mini-label saved-mini-label-center">
+                  {lang !== 'en' && <span className="saved-mini-furi">りようきやく</span>}
                   <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Terms of Service' : '利用規約'}</span>
                 </div>
               </button>
               <button
                 className="find-cat-card saved-mini-card"
-                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                 onClick={() => { setLegalOverlay('privacy'); setBottomSheetOpen(null); }}
               >
+                {LEGAL_CARD_IMAGES.privacy ? (
+                  <img src={LEGAL_CARD_IMAGES.privacy} alt={lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'} className="saved-mini-img" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="saved-mini-iconbg"><FileText size={26} /></div>
+                )}
                 <div className="saved-mini-label saved-mini-label-center">
+                  {lang !== 'en' && <span className="saved-mini-furi" style={{ visibility: 'hidden' }}>&nbsp;</span>}
                   <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Privacy Policy' : 'プライバシーポリシー'}</span>
                 </div>
               </button>
               <button
                 className="find-cat-card saved-mini-card"
-                style={{ '--cat-color': '#1F6E45', '--cat-tint': '#E4EEE8' }}
+                style={{ '--cat-color': '#7A8085', '--cat-tint': '#EDEEF0' }}
                 onClick={() => { setLegalOverlay('contact'); setBottomSheetOpen(null); }}
               >
+                {LEGAL_CARD_IMAGES.contact ? (
+                  <img src={LEGAL_CARD_IMAGES.contact} alt={lang === 'en' ? 'Contact' : 'お問い合わせ'} className="saved-mini-img" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="saved-mini-iconbg"><Mail size={26} /></div>
+                )}
                 <div className="saved-mini-label saved-mini-label-center">
+                  {lang !== 'en' && <span className="saved-mini-furi">おといあわせ</span>}
                   <span className="saved-mini-name saved-mini-name-lg">{lang === 'en' ? 'Contact' : 'お問い合わせ'}</span>
                 </div>
               </button>
@@ -11121,7 +11184,6 @@ function MairuDemoInner() {
         >
         <div className="detail-card-shell route-card-shell">
         <div className="detail-card poi-card-rounded route-card" onClick={(e) => e.stopPropagation()}>
-        <button className="saved-sheet-close route-card-close" onClick={() => setView('select')} aria-label={lang === 'en' ? 'Close' : '閉じる'} title={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
         <main className="route-view">
           {routeViewMode === 'navi' && (
             <div className="navi-view">
@@ -11188,9 +11250,9 @@ function MairuDemoInner() {
                   ))}
                 </div>
               )}
-              <div className="map-scroll">
-                <div className="map-frame" style={{ aspectRatio: `${activeCityConfig.viewW} / ${activeCityConfig.viewH}` }}>
-                  <svg viewBox={`${activeCityConfig.crop.x} ${activeCityConfig.crop.y} ${activeCityConfig.viewW} ${activeCityConfig.viewH}`} className="map-svg" aria-hidden="true">
+              <div className="map-scroll route-map-scroll">
+                <div className="map-frame route-map-frame">
+                  <svg viewBox={`${activeCityConfig.crop.x} ${activeCityConfig.crop.y} ${activeCityConfig.viewW} ${activeCityConfig.viewH}`} preserveAspectRatio="xMidYMid slice" className="map-svg" aria-hidden="true">
                     <path
                       d={(KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity) || {}).d}
                       className="city-outline"
@@ -11371,6 +11433,18 @@ function MairuDemoInner() {
                         title={lang === 'en' ? 'Choose origin' : '出発地を選択'}
                       >
                         1
+                      </button>
+                    )}
+                    {isStart && (
+                      <button
+                        type="button"
+                        className="t-mini-locate-origin"
+                        onClick={(e) => { e.stopPropagation(); locateMe({ useAsRouteOrigin: true }); setOriginPickerOpen(false); }}
+                        disabled={locating}
+                        aria-label={lang === 'en' ? 'Use my location' : '現在地から出発'}
+                        title={lang === 'en' ? 'Use my location' : '現在地から出発'}
+                      >
+                        <Navigation size={13} />
                       </button>
                     )}
                     {isDestination && (
@@ -11642,7 +11716,11 @@ function MairuDemoInner() {
       })()}
 
       {legalOverlay && (
-        <div className="overlay-backdrop detail-backdrop" onClick={() => setLegalOverlay(null)}>
+        <div
+          className="overlay-backdrop detail-backdrop"
+          onClick={() => setLegalOverlay(null)}
+          style={poiCardHorizontalPad ? { paddingLeft: poiCardHorizontalPad.left, paddingRight: poiCardHorizontalPad.right } : undefined}
+        >
           <div className="legal-dialog-card" onClick={(e) => e.stopPropagation()}>
             <div className="legal-dialog-header">
               <button className="plan-dialog-x" onClick={() => setLegalOverlay(null)} aria-label={lang === 'en' ? 'Close' : '閉じる'}><X size={16} /></button>
