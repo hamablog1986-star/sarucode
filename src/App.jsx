@@ -6888,7 +6888,32 @@ function MairuDemoInner() {
                   <span className="poi-float-btn-label">{lang === 'en' ? 'Official' : '公式HP'}</span>
                 </button>
               )}
-              {data.reserveUrl ? (
+              {catKey === 'roadside' ? (
+                data.specialtyUrl ? (
+                  <a
+                    className="poi-float-btn poi-reserve-btn"
+                    href={data.specialtyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={lang === 'en' ? 'Local specialties' : '特産品'}
+                    title={lang === 'en' ? 'Local specialties' : '特産品'}
+                  >
+                    <span className="poi-float-btn-circle"><ShoppingBag size={20} /></span>
+                    <span className="poi-float-btn-label">{lang === 'en' ? 'Specialties' : '特産品'}</span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className="poi-float-btn poi-reserve-btn"
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={lang === 'en' ? 'Local specialties (coming soon)' : '特産品(準備中)'}
+                    title={lang === 'en' ? 'Local specialties (coming soon)' : '特産品(準備中)'}
+                  >
+                    <span className="poi-float-btn-circle"><ShoppingBag size={20} /></span>
+                    <span className="poi-float-btn-label">{lang === 'en' ? 'Specialties' : '特産品'}</span>
+                  </button>
+                )
+              ) : data.reserveUrl ? (
                 <a
                   className="poi-float-btn poi-reserve-btn"
                   href={data.reserveUrl}
@@ -8522,6 +8547,8 @@ function MairuDemoInner() {
         .poi-pin-icon-roadside.is-peeked { background:#C9821A; color:#fff; }
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
         .poi-pin-label { position:absolute; bottom:40px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50; }
+        .poi-pin-label.poi-pin-label-roadside { bottom:50px; }
+        .poi-pin-label.poi-pin-label-tappable { cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
           white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600;
@@ -9470,13 +9497,13 @@ function MairuDemoInner() {
                           >
                             <span className={`poi-pin-cluster poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><Store size={11} />{count}</span>
                             {peekRoadsideId === key && (
-                              <span className={`poi-pin-label ${isNearRightEdge ? 'poi-pin-label-left' : ''}`}>
+                              <span
+                                className={`poi-pin-label poi-pin-label-roadside poi-pin-label-tappable ${isNearRightEdge ? 'poi-pin-label-left' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); setShowRoadsidePins(true); setShowAirportPins(false); setShowFerryPins(false); }}
+                              >
                                 <span className="poi-pin-label-name">
                                   {lang === 'en' ? `${mName(p)} / ${count} roadside stations` : `${mName(p)} / 道の駅 ${count}か所`}
                                 </span>
-                                <button className="peek-detail-btn" onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); }}>
-                                  {lang === 'en' ? 'View roadside stations ›' : '道の駅を確認する ›'}
-                                </button>
                               </span>
                             )}
                           </div>
@@ -9949,22 +9976,22 @@ function MairuDemoInner() {
                             <span className={`poi-pin-icon poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><span className="poi-pin-icon-glyph"><Store size={12} /></span></span>
                           )}
                           {peekRoadsideId === key && (
-                            <span className="poi-pin-label">
+                            <span className="poi-pin-label poi-pin-label-roadside">
                               {isCluster ? (
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
                                     <button key={i.id} className="poi-pin-label-row" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: i }); setPeekRoadsideId(null); }}>
-                                      {lang === 'en' ? (i.nameEn || i.name) : i.name} <span className="poi-pin-label-row-arrow">{lang === 'en' ? 'Select ›' : '選択する ›'}</span>
+                                      {lang === 'en' ? (i.nameEn || i.name) : i.name}
                                     </button>
                                   ))}
                                 </span>
                               ) : (
-                                <>
-                                  <span className="poi-pin-label-name">{lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}</span>
-                                  <button className="detail-hero-more-btn" onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }} aria-label={lang === 'en' ? 'Select' : '選択する'} title={lang === 'en' ? 'Select' : '選択する'}>
-                                    <span className="chevron-glyph" aria-hidden="true">&#8250;</span>
-                                  </button>
-                                </>
+                                <span
+                                  className="poi-pin-label-name poi-pin-label-tappable"
+                                  onClick={(e) => { e.stopPropagation(); setPoiDetail({ type: 'roadside', data: cluster.items[0] }); setPeekRoadsideId(null); }}
+                                >
+                                  {lang === 'en' ? (cluster.items[0].nameEn || cluster.items[0].name) : cluster.items[0].name}
+                                </span>
                               )}
                             </span>
                           )}
