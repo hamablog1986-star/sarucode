@@ -8362,6 +8362,10 @@ function MairuDemoInner() {
         .saved-mini-card {
           position:relative; aspect-ratio:2.5/3.5; border-radius:12px; overflow:hidden; cursor:pointer;
           background:var(--cat-tint); -webkit-tap-highlight-color:transparent;
+          /* iOS Safariで、角丸+overflow:hiddenの要素をスクロール領域内に置くと、
+             縁に薄い白線のノイズが乗ることがある既知の不具合への対処 */
+          -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
+          -webkit-transform: translateZ(0);
         }
         .saved-mini-img { width:100%; height:100%; object-fit:cover; display:block; }
         .saved-mini-iconbg { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--cat-color); }
@@ -11679,7 +11683,7 @@ function MairuDemoInner() {
                         aria-label={lang === 'en' ? 'Remove' : '削除'}
                         title={lang === 'en' ? 'Remove' : '削除'}
                       >
-                        <X size={12} />
+                        <X size={14} color="#fff" strokeWidth={2.5} />
                       </button>
                       <span className="saved-mini-tag-topleft"><Icon size={9} />{catLabel(meta)}</span>
                       {spot.image ? (
