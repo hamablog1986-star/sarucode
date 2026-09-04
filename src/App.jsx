@@ -8129,7 +8129,9 @@ function MairuDemoInner() {
         .empty-page-hint { grid-column:1 / -1; text-align:center; font-size:12.5px; color:var(--muted); padding:40px 16px; line-height:1.6; }
 
         .card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding-bottom:14px; }
-        .spot-card { position:relative; border:1.5px solid var(--cat-color); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; background:#fff; transition: box-shadow .15s, transform .15s; -webkit-tap-highlight-color: transparent; }
+        .spot-card { position:relative; border:1.5px solid var(--cat-color); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; background:#fff; transition: box-shadow .15s, transform .15s; -webkit-tap-highlight-color: transparent;
+          -webkit-mask-image: -webkit-radial-gradient(white, black); -webkit-mask-size:100% 100%; -webkit-mask-repeat:no-repeat; -webkit-mask-position:center;
+        }
         .spot-card.has-photo { border:none; box-shadow:0 2px 10px rgba(20,16,14,0.14); }
         @media (hover: hover) and (pointer: fine) {
           .spot-card:hover { box-shadow:0 4px 10px rgba(0,0,0,0.08); transform:translateY(-1px); }
@@ -8363,9 +8365,12 @@ function MairuDemoInner() {
           position:relative; aspect-ratio:2.5/3.5; border-radius:12px; overflow:hidden; cursor:pointer;
           background:var(--cat-tint); -webkit-tap-highlight-color:transparent;
           /* iOS Safariで、角丸+overflow:hiddenの要素をスクロール領域内に置くと、
-             縁に薄い白線のノイズが乗ることがある既知の不具合への対処 */
-          -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
-          -webkit-transform: translateZ(0);
+             縁に薄い白線のノイズが乗ることがある既知の不具合への対処。
+             マスクのサイズ・繰り返しを明示し、四隅が欠けないようにする。 */
+          -webkit-mask-image: -webkit-radial-gradient(white, black);
+          -webkit-mask-size: 100% 100%;
+          -webkit-mask-repeat: no-repeat;
+          -webkit-mask-position: center;
         }
         .saved-mini-img { width:100%; height:100%; object-fit:cover; display:block; }
         .saved-mini-iconbg { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--cat-color); }
@@ -8643,7 +8648,10 @@ function MairuDemoInner() {
           scrollbar-width:none; -ms-overflow-style:none;
         }
         .detail-card::-webkit-scrollbar { display:none; }
-        .poi-card-rounded { border-radius:16px !important; border:none !important; }
+        .poi-card-rounded {
+          border-radius:16px !important; border:none !important;
+          -webkit-mask-image: -webkit-radial-gradient(white, black); -webkit-mask-size:100% 100%; -webkit-mask-repeat:no-repeat; -webkit-mask-position:center;
+        }
         @media (min-width:900px) {
           .detail-card { max-width:820px; }
         }
@@ -8764,6 +8772,7 @@ function MairuDemoInner() {
           display:flex;
           flex-direction:column;
           overflow:hidden;
+          -webkit-mask-image: -webkit-radial-gradient(white, black); -webkit-mask-size:100% 100%; -webkit-mask-repeat:no-repeat; -webkit-mask-position:center;
         }
         @media (min-width:900px) {
           .legal-dialog-card { max-width:820px; }
