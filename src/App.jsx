@@ -57,19 +57,19 @@ const SHIMABARA_SPOTS_DATA_URL = '/data/島原市.json';
 
 // 長崎県の残り18市町村:諫早市と同じ「九州全体マップと同じ正確な図法」から専用の切り出し範囲だけを用意。
 // 輪郭・周辺市町村はKYUSHU_MUNICIPALITIESを直接参照するため、ここでは切り出し範囲とデータURLだけを持つ。
-const NAGASAKI_CITY_CROP = { x: 243.4, y: 421.6 };
-const NAGASAKI_CITY_VIEW_W = 125.1;
-const NAGASAKI_CITY_VIEW_H = 137.1;
+const NAGASAKI_CITY_CROP = { x: 267.4, y: 434.7 }; // さらに少し大きく・少し左にずらすため再調整(直前は x:255.7, y:428.5)
+const NAGASAKI_CITY_VIEW_W = 101.3; // さらにズーム(直前は112.6)
+const NAGASAKI_CITY_VIEW_H = 111.1; // 縦横比を保ったまま同じ比率で縮小(直前は123.4)
 const NAGASAKI_CITY_SPOTS_DATA_URL = '/data/長崎市.json';
-const SASEBO_CROP = { x: 126.7, y: 317.3 };
-const SASEBO_VIEW_W = 226.4;
-const SASEBO_VIEW_H = 125.8;
+const SASEBO_CROP = { x: 250, y: 350 }; // 指定値に調整(直前は x:250, y:360)
+const SASEBO_VIEW_W = 84.8; // さらにズーム(直前は113.0)
+const SASEBO_VIEW_H = 47.1; // 縦横比を保ったまま同じ比率で縮小(直前は62.8)
 const SASEBO_SPOTS_DATA_URL = '/data/佐世保市.json';
 const OMURA_CROP = { x: 327.2, y: 422.5 };
 const OMURA_VIEW_W = 51.6;
 const OMURA_VIEW_H = 52.3;
 const OMURA_SPOTS_DATA_URL = '/data/大村市.json';
-const HIRADO_CROP = { x: 195.3, y: 259.3 };
+const HIRADO_CROP = { x: 195.3, y: 269.3 }; // 位置を少し上に移動(元は y:259.3)
 const HIRADO_VIEW_W = 97.1;
 const HIRADO_VIEW_H = 144.3;
 const HIRADO_SPOTS_DATA_URL = '/data/平戸市.json';
@@ -85,13 +85,13 @@ const IKI_CROP = { x: 267.8, y: 204.2 };
 const IKI_VIEW_W = 49.8;
 const IKI_VIEW_H = 54.5;
 const IKI_SPOTS_DATA_URL = '/data/壱岐市.json';
-const GOTO_CROP = { x: -34.2, y: 421.2 };
-const GOTO_VIEW_W = 210.4;
-const GOTO_VIEW_H = 296.9;
+const GOTO_CROP = { x: 45, y: 426.0 }; // 下に移動(直前は x:45, y:436.0)
+const GOTO_VIEW_W = 104.2; // 少し縮小(直前は94.7)
+const GOTO_VIEW_H = 147.0; // 縦横比を保ったまま同じ比率で拡大(直前は133.6)
 const GOTO_SPOTS_DATA_URL = '/data/五島市.json';
-const SAIKAI_CROP = { x: 168.7, y: 385.3 };
-const SAIKAI_VIEW_W = 167.2;
-const SAIKAI_VIEW_H = 89.8;
+const SAIKAI_CROP = { x: 256.4, y: 412.6 }; // さらに本島を拡大・左にずらすため再調整(直前は x:235.4, y:406.7)
+const SAIKAI_VIEW_W = 65.9; // さらにズーム(直前は87.8)
+const SAIKAI_VIEW_H = 35.4; // 縦横比を保ったまま同じ比率で縮小(直前は47.2)
 const SAIKAI_SPOTS_DATA_URL = '/data/西海市.json';
 const UNZEN_CROP = { x: 372.9, y: 450.9 };
 const UNZEN_VIEW_W = 58.2;
@@ -135,9 +135,9 @@ const SAGA_CITY_CROP = { x: 371.6, y: 295.6 };
 const SAGA_CITY_VIEW_W = 76.6;
 const SAGA_CITY_VIEW_H = 111.5;
 const SAGA_CITY_SPOTS_DATA_URL = '/data/佐賀市.json';
-const KARATSU_CROP = { x: 284.8, y: 260.4 };
-const KARATSU_VIEW_W = 119.5;
-const KARATSU_VIEW_H = 113.1;
+const KARATSU_CROP = { x: 301.8, y: 268.9 }; // 少し拡大し、少し左にずらすため調整(元は x:284.8, y:260.4)
+const KARATSU_VIEW_W = 101.6; // 少し拡大(元は119.5)
+const KARATSU_VIEW_H = 96.1; // 縦横比を保ったまま同じ比率で縮小(元は113.1)
 const KARATSU_SPOTS_DATA_URL = '/data/唐津市.json';
 const TOSU_CROP = { x: 444.1, y: 318.1 };
 const TOSU_VIEW_W = 29.9;
@@ -217,9 +217,9 @@ const KITAKYUSHU_CROP = { x: 486.4, y: 161.5 };
 const KITAKYUSHU_VIEW_W = 101.7;
 const KITAKYUSHU_VIEW_H = 98.4;
 const KITAKYUSHU_SPOTS_DATA_URL = '/data/北九州市.json';
-const FUKUOKA_CITY_CROP = { x: 344.3, y: 192.8 };
-const FUKUOKA_CITY_VIEW_W = 132.6;
-const FUKUOKA_CITY_VIEW_H = 146.8;
+const FUKUOKA_CITY_CROP = { x: 385, y: 230 }; // 指定値に調整(直前は x:385, y:226.3)
+const FUKUOKA_CITY_VIEW_W = 90.2; // さらに拡大(直前は112.7)
+const FUKUOKA_CITY_VIEW_H = 99.8; // 縦横比を保ったまま同じ比率で縮小(直前は124.8)
 const FUKUOKA_CITY_SPOTS_DATA_URL = '/data/福岡市.json';
 const OMUTA_CROP = { x: 434.4, y: 400.2 };
 const OMUTA_VIEW_W = 40.5;
@@ -285,9 +285,9 @@ const ONOJO_CROP = { x: 446.9, y: 284.9 };
 const ONOJO_VIEW_W = 20.9;
 const ONOJO_VIEW_H = 31.4;
 const ONOJO_SPOTS_DATA_URL = '/data/大野城市.json';
-const MUNAKATA_CROP = { x: 356.4, y: 96.4 };
-const MUNAKATA_VIEW_W = 153.5;
-const MUNAKATA_VIEW_H = 163.3;
+const MUNAKATA_CROP = { x: 448, y: 195 }; // 指定値に調整(直前は x:450, y:195)
+const MUNAKATA_VIEW_W = 50.3; // さらに拡大(直前は62.9)
+const MUNAKATA_VIEW_H = 53.5; // 縦横比を保ったまま同じ比率で縮小(直前は66.9)
 const MUNAKATA_SPOTS_DATA_URL = '/data/宗像市.json';
 const DAZAIFU_CROP = { x: 454.3, y: 286.4 };
 const DAZAIFU_VIEW_W = 25.5;
@@ -992,6 +992,10 @@ const CITY_CONFIGS = {
   '42202': {
     name: '佐世保市', nameEn: 'Sasebo City', prefId: '42',
     crop: SASEBO_CROP, viewW: SASEBO_VIEW_W, viewH: SASEBO_VIEW_H,
+    // 本島を拡大表示しているため、拡大前の表示範囲(元 x:126.7〜353.1, y:317.3〜443.1)の
+    // 端まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に計算して設定
+    panLimitXMin: -166, panLimitXMax: 61,
+    panLimitYMin: -56.3, panLimitYMax: 69.6,
     dataUrl: SASEBO_SPOTS_DATA_URL,
     seaBgClass: 'sasebo-sea-bg',
   },
@@ -1028,12 +1032,19 @@ const CITY_CONFIGS = {
   '42211': {
     name: '五島市', nameEn: 'Goto City', prefId: '42',
     crop: GOTO_CROP, viewW: GOTO_VIEW_W, viewH: GOTO_VIEW_H,
+    // 本島を拡大表示しているため、拡大前の表示範囲(元 x:-34.2〜176.2, y:421.2〜718.1)の
+    // 端まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に設定
+    panLimitXMin: -116, panLimitXMax: 95,
+    panLimitYMin: -96.3, panLimitYMax: 200.6,
     dataUrl: GOTO_SPOTS_DATA_URL,
     seaBgClass: 'goto-sea-bg',
   },
   '42212': {
     name: '西海市', nameEn: 'Saikai City', prefId: '42',
     crop: SAIKAI_CROP, viewW: SAIKAI_VIEW_W, viewH: SAIKAI_VIEW_H,
+    // 本島を拡大表示しているため、左(離島側)は遠くまでスクロールできるようにしつつ、
+    // 右(本島側)は本島がギリギリ見える程度までしか動かせないよう、左右非対称にする
+    panLimitXMin: -115, panLimitXMax: 35,
     dataUrl: SAIKAI_SPOTS_DATA_URL,
     seaBgClass: 'saikai-sea-bg',
   },
@@ -1322,6 +1333,10 @@ const CITY_CONFIGS = {
   '40220': {
     name: '宗像市', nameEn: 'Munakata City', prefId: '40',
     crop: MUNAKATA_CROP, viewW: MUNAKATA_VIEW_W, viewH: MUNAKATA_VIEW_H,
+    // 本島を拡大表示しているため、拡大前の表示範囲(元 x:356.4〜509.9, y:96.4〜259.7)の
+    // 端まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に設定
+    panLimitXMin: -116.8, panLimitXMax: 36.8,
+    panLimitYMin: -125.4, panLimitYMax: 38.0,
     dataUrl: MUNAKATA_SPOTS_DATA_URL,
     seaBgClass: 'munakata-sea-bg',
   },
@@ -5545,10 +5560,26 @@ function MairuDemoInner() {
     setRegionViewMoved(false);
   }, [appStage, selectedPrefId]);
   const [peekIslandKey, setPeekIslandKey] = useState(null); // 離島インセットでタップ中の島
+  // 九州ページ→県ページへ、道の駅ピン表示ONの状態を意図的に引き継ぎたい時に立てるフラグ。
+  // (下の「移動時リセット」処理は、通常は空港・フェリー・道の駅の表示を毎回OFFに戻すが、
+  //  このフラグが立っている時だけ、そのリセットを1回だけスキップする)
+  const carryRoadsidePinsRef = useRef(false);
 
   // 九州ページ⇔県ページを移動したら、空港・フェリー・道の駅のピン表示は一旦リセットする。
   // (県ページは狭い範囲の地図なので、九州全体分のピンをそのまま引き継ぐと位置がおかしく見えるため)
+  // ただし、道の駅ポップから「県ページで道の駅を表示する」目的で移動した直後だけは、
+  // carryRoadsidePinsRef が立っているので、そのリセットを1回だけスキップする。
   useEffect(() => {
+    if (carryRoadsidePinsRef.current) {
+      carryRoadsidePinsRef.current = false;
+      setShowAirportPins(false);
+      setShowFerryPins(false);
+      setPeekAirportId(null);
+      setPeekFerryId(null);
+      setPeekRoadsideId(null);
+      setPoiDetail(null);
+      return;
+    }
     setShowAirportPins(false);
     setShowFerryPins(false);
     setShowRoadsidePins(false);
@@ -6823,8 +6854,10 @@ function MairuDemoInner() {
 
             <div className="poi-card-topbar">
               <div className="poi-card-topbar-text">
-                {subLabel && <span className="poi-card-furi">{subLabel}</span>}
-                <span className="poi-card-name">{name}</span>
+                <div className="poi-card-name-block">
+                  {subLabel && <span className="poi-card-furi">{subLabel}</span>}
+                  <span className="poi-card-name">{name}</span>
+                </div>
                 <div className="poi-card-divider" />
                 {desc && (
                   <>
@@ -7604,7 +7637,7 @@ function MairuDemoInner() {
         rt { font-size:0.6em; font-weight:500; opacity:0.8; user-select:none; letter-spacing:0.02em; color:inherit; }
         /* mNameFuri共通:県名・市町村名のふりがな+漢字。全呼び出し箇所でこの1つのルールだけを使うので、
            間隔(gap)・文字間隔(letter-spacing)が呼び出し場所によらず必ず同じになる */
-        .name-furi-wrap { display:inline-flex; flex-direction:column; align-items:center; gap:2px; line-height:1; }
+        .name-furi-wrap { display:inline-flex; flex-direction:column; align-items:center; gap:3px; line-height:1; }
         .name-furi-line { font-size:0.5em; font-weight:500; opacity:0.65; line-height:1; white-space:nowrap; }
         .name-kanji-line { letter-spacing:0.15em; line-height:1; white-space:nowrap; }
 
@@ -8406,7 +8439,7 @@ function MairuDemoInner() {
         }
         .saved-mini-label {
           position:absolute; left:0; right:0; bottom:0; z-index:1; padding:16px 8px 8px;
-          display:flex; flex-direction:column; gap:2px;
+          display:flex; flex-direction:column; gap:3px;
           background:linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
         }
         .saved-mini-tag { display:flex; align-items:center; gap:2px; font-size:8px; font-weight:700; color:rgba(255,255,255,0.85); }
@@ -8417,7 +8450,7 @@ function MairuDemoInner() {
         }
         .saved-mini-label-center .saved-mini-name { white-space:normal; }
         .saved-mini-name-lg { font-size:12px; }
-        .saved-mini-furi { font-size:8px; font-weight:600; color:rgba(255,255,255,0.8); text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+        .saved-mini-furi { font-size:8px; font-weight:600; color:rgba(255,255,255,0.8); text-shadow:0 1px 3px rgba(0,0,0,0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
         .saved-mini-tag-topleft {
           position:absolute; top:6px; left:6px; z-index:2;
           display:flex; align-items:center; gap:3px;
@@ -8558,7 +8591,7 @@ function MairuDemoInner() {
         }
         .poi-pin-label.poi-pin-label-left { left:auto; right:16px; transform:none; }
         .poi-pin-label-name { cursor:default; }
-        .poi-pin-label-name-block { display:flex; flex-direction:column; gap:1px; cursor:default; }
+        .poi-pin-label-name-block { display:flex; flex-direction:column; gap:3px; cursor:default; }
         .poi-pin-label-select { cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .poi-pin-label-furi { font-size:6px; font-weight:500; color:rgba(255,255,255,0.65); white-space:nowrap; }
         .poi-pin-label-row { background:none; border:none; color:#fff; font-size:11.5px; font-weight:600; padding:2px 0; text-align:left; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; justify-content:space-between; }
@@ -8724,6 +8757,7 @@ function MairuDemoInner() {
           background:linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0.45) 70%, transparent 100%);
         }
         .poi-card-topbar-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+        .poi-card-name-block { display:flex; flex-direction:column; gap:3px; }
         .poi-card-furi { font-size:9px; font-weight:500; letter-spacing:0.04em; line-height:1; color:rgba(255,255,255,0.75); }
         .poi-card-name { font-size:18px; line-height:1.1; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
         .poi-card-divider { height:1px; background:rgba(255,255,255,0.5); margin-top:6px; }
@@ -9501,7 +9535,7 @@ function MairuDemoInner() {
                             {peekRoadsideId === key && (
                               <span
                                 className={`poi-pin-label poi-pin-label-roadside poi-pin-label-tappable ${isNearRightEdge ? 'poi-pin-label-left' : ''}`}
-                                onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); setShowRoadsidePins(true); setShowAirportPins(false); setShowFerryPins(false); }}
+                                onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); carryRoadsidePinsRef.current = true; setAppStage('region'); setSelectedPrefId(p.id); setShowRoadsidePins(true); setShowAirportPins(false); setShowFerryPins(false); }}
                               >
                                 <span className="poi-pin-label-name">
                                   {lang === 'en' ? `${mName(p)} / Roadside Stations` : `${mName(p)} / 道の駅`}
@@ -10158,8 +10192,13 @@ function MairuDemoInner() {
         // 地図をドラッグ(指/マウス)で動かせるようにする。ただし、動かせる範囲は
         // 「その市町村自体の範囲内で、輪郭線のどの部分でも中心に持ってこられる」程度に制限する
         // (隣の市町村など、関係ない場所まで際限なく動かせないようにするため)。
-        const muniPanLimitX = activeCityConfig.viewW / 2;
-        const muniPanLimitY = activeCityConfig.viewH / 2;
+        // 通常は現在のズーム幅(viewW/viewH)を基準に左右・上下対称の範囲にするが、
+        // 「本島は拡大表示のまま、離島側だけ遠くまでスクロールしたい」といった
+        // 左右非対称の範囲が必要な市町村は、panLimitXMin/panLimitXMax(・Y版)で個別に上書きする。
+        const muniPanLimitXMax = activeCityConfig.panLimitXMax ?? (activeCityConfig.panLimitW ?? activeCityConfig.viewW) / 2;
+        const muniPanLimitXMin = activeCityConfig.panLimitXMin ?? -((activeCityConfig.panLimitW ?? activeCityConfig.viewW) / 2);
+        const muniPanLimitYMax = activeCityConfig.panLimitYMax ?? (activeCityConfig.panLimitH ?? activeCityConfig.viewH) / 2;
+        const muniPanLimitYMin = activeCityConfig.panLimitYMin ?? -((activeCityConfig.panLimitH ?? activeCityConfig.viewH) / 2);
         function handleMuniMapPanStart(e) {
           const el = muniMapFrameRef.current;
           if (!el) return;
@@ -10211,8 +10250,8 @@ function MairuDemoInner() {
             const dy = my - startClientY;
             if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
             if (moved) {
-              const nextX = Math.min(muniPanLimitX, Math.max(-muniPanLimitX, startPanX - dx * scaleX));
-              const nextY = Math.min(muniPanLimitY, Math.max(-muniPanLimitY, startPanY - dy * scaleY));
+              const nextX = Math.min(muniPanLimitXMax, Math.max(muniPanLimitXMin, startPanX - dx * scaleX));
+              const nextY = Math.min(muniPanLimitYMax, Math.max(muniPanLimitYMin, startPanY - dy * scaleY));
               setMuniPanX(nextX);
               setMuniPanY(nextY);
             }
