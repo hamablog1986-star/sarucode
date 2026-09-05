@@ -8548,6 +8548,8 @@ function MairuDemoInner() {
         .poi-pin-label-list { display:flex; flex-direction:column; gap:4px; }
         .poi-pin-label { position:absolute; bottom:40px; left:0; transform:translateX(-50%); white-space:nowrap; background:#21262C; color:#fff; font-size:11.5px; font-weight:600; padding:7px 8px 7px 11px; border-radius:9px; display:flex; align-items:center; gap:8px; z-index:50; }
         .poi-pin-label.poi-pin-label-roadside { bottom:50px; }
+        /* 道の駅ピンが1件(細長いピン型アイコン)の時は、2件以上(丸いバッジ型アイコン)と見た目の余白が揃うよう、少し下げる */
+        .poi-pin-label.poi-pin-label-roadside.poi-pin-label-single { bottom:40px; }
         .poi-pin-label.poi-pin-label-tappable { cursor:pointer; -webkit-tap-highlight-color:transparent; }
         .spot-pin-peek-label {
           position:absolute; transform:translate(-50%, calc(-100% - 44px));
@@ -9502,7 +9504,7 @@ function MairuDemoInner() {
                                 onClick={(e) => { e.stopPropagation(); setPeekRoadsideId(null); setAppStage('region'); setSelectedPrefId(p.id); setShowRoadsidePins(true); setShowAirportPins(false); setShowFerryPins(false); }}
                               >
                                 <span className="poi-pin-label-name">
-                                  {lang === 'en' ? `${mName(p)} / ${count} roadside stations` : `${mName(p)} / 道の駅 ${count}か所`}
+                                  {lang === 'en' ? `${mName(p)} / Roadside Stations` : `${mName(p)} / 道の駅`}
                                 </span>
                               </span>
                             )}
@@ -9976,7 +9978,7 @@ function MairuDemoInner() {
                             <span className={`poi-pin-icon poi-pin-icon-roadside ${peekRoadsideId === key ? 'is-peeked' : ''}`}><span className="poi-pin-icon-glyph"><Store size={12} /></span></span>
                           )}
                           {peekRoadsideId === key && (
-                            <span className="poi-pin-label poi-pin-label-roadside">
+                            <span className={`poi-pin-label poi-pin-label-roadside ${isCluster ? '' : 'poi-pin-label-single'}`}>
                               {isCluster ? (
                                 <span className="poi-pin-label-list">
                                   {cluster.items.map((i) => (
