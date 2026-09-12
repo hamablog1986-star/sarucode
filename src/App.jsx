@@ -841,7 +841,7 @@ const IBUSUKI_CROP = { x: 457.3, y: 850.4 };
 const IBUSUKI_VIEW_W = 48.2;
 const IBUSUKI_VIEW_H = 48.0;
 const IBUSUKI_SPOTS_DATA_URL = '/data/指宿市.json';
-const NISHINOOMOTE_CROP = { x: 524.0, y: 963.6 };
+const NISHINOOMOTE_CROP = { x: 535, y: 963.6 }; // 指定値に調整(直前は x:529.0, y:963.6)
 const NISHINOOMOTE_VIEW_W = 71.2;
 const NISHINOOMOTE_VIEW_H = 82.2;
 const NISHINOOMOTE_SPOTS_DATA_URL = '/data/西之表市.json';
@@ -849,9 +849,9 @@ const TARUMIZU_CROP = { x: 493.9, y: 765.4 };
 const TARUMIZU_VIEW_W = 45.6;
 const TARUMIZU_VIEW_H = 71.2;
 const TARUMIZU_SPOTS_DATA_URL = '/data/垂水市.json';
-const SATSUMASENDAI_CROP = { x: 251.4, y: 656.9 };
-const SATSUMASENDAI_VIEW_W = 258.7;
-const SATSUMASENDAI_VIEW_H = 148.9;
+const SATSUMASENDAI_CROP = { x: 385, y: 680 }; // 指定値に調整(直前は x:385, y:691.7)
+const SATSUMASENDAI_VIEW_W = 103.5; // 1.2倍拡大(直前は124.2 ÷ 1.2)
+const SATSUMASENDAI_VIEW_H = 59.5; // 縦横比を保ったまま同じ比率で縮小(直前は71.4 ÷ 1.2)
 const SATSUMASENDAI_SPOTS_DATA_URL = '/data/薩摩川内市.json';
 const HIOKI_CROP = { x: 411.4, y: 738.8 };
 const HIOKI_VIEW_W = 53.2;
@@ -933,9 +933,9 @@ const MINAMITANE_CROP = { x: 530.5, y: 1057.7 };
 const MINAMITANE_VIEW_W = 38.8;
 const MINAMITANE_VIEW_H = 45.1;
 const MINAMITANE_SPOTS_DATA_URL = '/data/南種子町.json';
-const YAKUSHIMA_CROP = { x: 368.8, y: 1043.9 };
-const YAKUSHIMA_VIEW_W = 145.9;
-const YAKUSHIMA_VIEW_H = 100.0;
+const YAKUSHIMA_CROP = { x: 420, y: 1061.9 }; // 指定値に調整(直前は x:409, y:1061.9)
+const YAKUSHIMA_VIEW_W = 93.5; // 1.2倍拡大(直前は112.2 ÷ 1.2)
+const YAKUSHIMA_VIEW_H = 64.1; // 縦横比を保ったまま同じ比率で縮小(直前は76.9 ÷ 1.2)
 const YAKUSHIMA_SPOTS_DATA_URL = '/data/屋久島町.json';
 const TOSHIMA_VILLAGE_CROP = { x: 89.0, y: 1136.4 };
 const TOSHIMA_VILLAGE_VIEW_W = 299.7;
@@ -2159,6 +2159,10 @@ const CITY_CONFIGS = {
   '46213': {
     name: '西之表市', nameEn: 'Nishinoomote City', prefId: '46',
     crop: NISHINOOMOTE_CROP, viewW: NISHINOOMOTE_VIEW_W, viewH: NISHINOOMOTE_VIEW_H,
+    // 位置を少し左にずらしたため、元の表示範囲(元 x:524.0〜595.2, y:963.6〜1045.8)の
+    // 端まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に設定
+    panLimitXMin: -46.6, panLimitXMax: 24.6,
+    panLimitYMin: -41.1, panLimitYMax: 41.1,
     dataUrl: NISHINOOMOTE_SPOTS_DATA_URL,
     seaBgClass: 'nishinoomote-sea-bg',
   },
@@ -2171,6 +2175,10 @@ const CITY_CONFIGS = {
   '46215': {
     name: '薩摩川内市', nameEn: 'Satsumasendai City', prefId: '46',
     crop: SATSUMASENDAI_CROP, viewW: SATSUMASENDAI_VIEW_W, viewH: SATSUMASENDAI_VIEW_H,
+    // 本島を拡大表示しているため、拡大前の表示範囲(元 x:251.4〜510.1, y:656.9〜805.8)の
+    // 端(甑島列島などの離島含む)まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に設定
+    panLimitXMin: -185.4, panLimitXMax: 73.4,
+    panLimitYMin: -52.9, panLimitYMax: 96.1,
     dataUrl: SATSUMASENDAI_SPOTS_DATA_URL,
     seaBgClass: 'satsumasendai-sea-bg',
   },
@@ -2297,6 +2305,10 @@ const CITY_CONFIGS = {
   '46505': {
     name: '屋久島町', nameEn: 'Yakushima Town', prefId: '46',
     crop: YAKUSHIMA_CROP, viewW: YAKUSHIMA_VIEW_W, viewH: YAKUSHIMA_VIEW_H,
+    // 拡大表示しているため、拡大前の表示範囲(元 x:368.8〜514.7, y:1043.9〜1143.9)の
+    // 端まで、現在の中心位置から見てちょうど届くよう、上下左右を個別に設定
+    panLimitXMin: -98.0, panLimitXMax: 48.0,
+    panLimitYMin: -50.1, panLimitYMax: 50.0,
     dataUrl: YAKUSHIMA_SPOTS_DATA_URL,
     seaBgClass: 'yakushima-sea-bg',
   },
