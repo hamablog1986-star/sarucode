@@ -7464,28 +7464,32 @@ function MairuDemoInner() {
     return Array.from(found.values());
   }, [detourMode, detourCategory, routeStops]);
 
-  // ルートマップの表示範囲: 市町村ごとの固定範囲(activeCityConfig.crop)だと、出発地(空港など)が
-  // その市町村から離れている場合に画面外へ出てしまい、ピン・ルートが何も見えなくなることがあった。
-  // 出発地とすべての行き先(寄り道モード中はその候補も)が必ず収まるよう、範囲を自動計算する。
+  // ルートマップの表示範囲: 出発地・行き先だけがギリギリ収まる範囲にすると、街の輪郭線データが
+  // 大きく切れてしまい、地図の形がちぎれたように見える不具合があった。
+  // 「市町村本来の表示範囲(activeCityConfig.crop)」と「出発地・行き先(寄り道モード中はその候補も)が
+  // 収まる範囲」の両方を合わせた範囲にすることで、街の形を保ったまま、出発地が離れていても画面に収める。
   const routeMapBox = useMemo(() => {
+    const cityBox = { x: activeCityConfig.crop.x, y: activeCityConfig.crop.y, w: activeCityConfig.viewW, h: activeCityConfig.viewH };
     const points = [effectiveOrigin, ...(routeStops || []), ...(detourMode ? nearbySpots : [])].filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y));
-    if (!points.length) {
-      return { x: activeCityConfig.crop.x, y: activeCityConfig.crop.y, w: activeCityConfig.viewW, h: activeCityConfig.viewH };
-    }
-    const xs = points.map((p) => p.x);
-    const ys = points.map((p) => p.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const minSpan = 20; // 全地点が近すぎる時に、ズームしすぎないための最低幅
-    const padRatio = 0.3; // 端のピンが画面ギリギリにならないための余白
-    const w = Math.max(maxX - minX, minSpan) * (1 + padRatio * 2);
-    const h = Math.max(maxY - minY, minSpan) * (1 + padRatio * 2);
+    // 市町村本来の範囲を、常に含めるべき最低限の範囲として扱う
+    let minX = cityBox.x;
+    let maxX = cityBox.x + cityBox.w;
+    let minY = cityBox.y;
+    let maxY = cityBox.y + cityBox.h;
+    points.forEach((p) => {
+      minX = Math.min(minX, p.x);
+      maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y);
+      maxY = Math.max(maxY, p.y);
+    });
+    const padRatio = 0.08; // 端のピンが画面ギリギリにならないための余白(市町村分の範囲がすでにあるので控えめでよい)
+    const w = (maxX - minX) * (1 + padRatio * 2);
+    const h = (maxY - minY) * (1 + padRatio * 2);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     return { x: cx - w / 2, y: cy - h / 2, w, h };
   }, [effectiveOrigin, routeStops, detourMode, nearbySpots, activeCityConfig]);
+
 
   // Googleマップでのナビ用に、区間ごとの出発地・目的地・移動手段を整理
   // 表示名は言語に応じて切り替えるが、検索クエリ(originQuery/destinationQuery)は
