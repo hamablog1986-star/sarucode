@@ -6897,13 +6897,24 @@ function MairuDemoInner() {
                 <span className="poi-float-btn-circle"><Bookmark size={17} fill={decided.includes(data.id) ? 'currentColor' : 'none'} /></span>
                 <span className="poi-float-btn-label">{lang === 'en' ? 'Save' : '保存'}</span>
               </button>
-              {data.lat && data.lon && (
+              {data.lat && data.lon ? (
                 <button
                   type="button"
                   className="poi-float-btn"
                   onClick={() => window.open(gmapsNavigateUrl(data.lat, data.lon), '_blank', 'noopener,noreferrer')}
                   aria-label={lang === 'en' ? 'Navigate' : 'ナビ'}
                   title={lang === 'en' ? 'Navigate' : 'ナビ'}
+                >
+                  <span className="poi-float-btn-circle"><Navigation size={17} /></span>
+                  <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="poi-float-btn"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={lang === 'en' ? 'Navigate (coming soon)' : 'ナビ(準備中)'}
+                  title={lang === 'en' ? 'Navigate (coming soon)' : 'ナビ(準備中)'}
                 >
                   <span className="poi-float-btn-circle"><Navigation size={17} /></span>
                   <span className="poi-float-btn-label">{lang === 'en' ? 'Navigate' : 'ナビ'}</span>
@@ -7452,6 +7463,29 @@ function MairuDemoInner() {
     });
     return Array.from(found.values());
   }, [detourMode, detourCategory, routeStops]);
+
+  // ルートマップの表示範囲: 市町村ごとの固定範囲(activeCityConfig.crop)だと、出発地(空港など)が
+  // その市町村から離れている場合に画面外へ出てしまい、ピン・ルートが何も見えなくなることがあった。
+  // 出発地とすべての行き先(寄り道モード中はその候補も)が必ず収まるよう、範囲を自動計算する。
+  const routeMapBox = useMemo(() => {
+    const points = [effectiveOrigin, ...(routeStops || []), ...(detourMode ? nearbySpots : [])].filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y));
+    if (!points.length) {
+      return { x: activeCityConfig.crop.x, y: activeCityConfig.crop.y, w: activeCityConfig.viewW, h: activeCityConfig.viewH };
+    }
+    const xs = points.map((p) => p.x);
+    const ys = points.map((p) => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const minSpan = 20; // 全地点が近すぎる時に、ズームしすぎないための最低幅
+    const padRatio = 0.3; // 端のピンが画面ギリギリにならないための余白
+    const w = Math.max(maxX - minX, minSpan) * (1 + padRatio * 2);
+    const h = Math.max(maxY - minY, minSpan) * (1 + padRatio * 2);
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    return { x: cx - w / 2, y: cy - h / 2, w, h };
+  }, [effectiveOrigin, routeStops, detourMode, nearbySpots, activeCityConfig]);
 
   // Googleマップでのナビ用に、区間ごとの出発地・目的地・移動手段を整理
   // 表示名は言語に応じて切り替えるが、検索クエリ(originQuery/destinationQuery)は
@@ -11379,7 +11413,7 @@ function MairuDemoInner() {
               )}
               <div className="map-scroll route-map-scroll">
                 <div className="map-frame route-map-frame">
-                  <svg viewBox={`${activeCityConfig.crop.x} ${activeCityConfig.crop.y} ${activeCityConfig.viewW} ${activeCityConfig.viewH}`} preserveAspectRatio="xMidYMid slice" className="map-svg" aria-hidden="true">
+                  <svg viewBox={`${routeMapBox.x} ${routeMapBox.y} ${routeMapBox.w} ${routeMapBox.h}`} preserveAspectRatio="xMidYMid slice" className="map-svg" aria-hidden="true">
                     <path
                       d={(KYUSHU_MUNICIPALITIES.find((m) => m.id === selectedCity) || {}).d}
                       className="city-outline"
@@ -11388,12 +11422,12 @@ function MairuDemoInner() {
                   </svg>
 
                   {originIsMyLocation ? (
-                    <div className="my-location-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }} aria-label={lang === 'en' ? 'Your current location' : '現在地'}>
+                    <div className="my-location-marker" style={{ left: pct(effectiveOrigin.x - routeMapBox.x, routeMapBox.w) + '%', top: pct(effectiveOrigin.y - routeMapBox.y, routeMapBox.h) + '%' }} aria-label={lang === 'en' ? 'Your current location' : '現在地'}>
                       <span className="my-location-pulse" />
                       <span className="my-location-dot" />
                     </div>
                   ) : (
-                    <div className="route-airport-marker" style={{ left: pct(effectiveOrigin.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(effectiveOrigin.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}>
+                    <div className="route-airport-marker" style={{ left: pct(effectiveOrigin.x - routeMapBox.x, routeMapBox.w) + '%', top: pct(effectiveOrigin.y - routeMapBox.y, routeMapBox.h) + '%' }}>
                       <Flag size={13} />
                     </div>
                   )}
@@ -11403,8 +11437,8 @@ function MairuDemoInner() {
                     const Icon = meta.icon;
                     const state = decided.includes(spot.id) ? 'decided' : candidates.includes(spot.id) ? 'candidate' : 'default';
                     const isLinked = linkedId === spot.id;
-                    const leftPct = pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW);
-                    const topPct = pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH);
+                    const leftPct = pct(spot.x - routeMapBox.x, routeMapBox.w);
+                    const topPct = pct(spot.y - routeMapBox.y, routeMapBox.h);
                     return (
                       <Fragment key={spot.id}>
                         <button
@@ -11435,7 +11469,7 @@ function MairuDemoInner() {
                     return (
                       <div
                         className="pin-travel-bubble"
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%' }}
+                        style={{ left: pct(spot.x - routeMapBox.x, routeMapBox.w) + '%', top: pct(spot.y - routeMapBox.y, routeMapBox.h) + '%' }}
                       >
                         <span className="pin-travel-bubble-name">{sName(spot)}</span>
                         <span className="pin-travel-bubble-time"><Car size={12} /> {lang === 'en' ? `~${travelFromMe.car} min` : `約${travelFromMe.car}分`}</span>
@@ -11450,7 +11484,7 @@ function MairuDemoInner() {
                       <button
                         key={spot.id}
                         className={`route-stop-marker ${isHotelStop ? 'is-hotel' : ''}`}
-                        style={{ left: pct(spot.x - activeCityConfig.crop.x, activeCityConfig.viewW) + '%', top: pct(spot.y - activeCityConfig.crop.y, activeCityConfig.viewH) + '%', '--cat-color': meta.color }}
+                        style={{ left: pct(spot.x - routeMapBox.x, routeMapBox.w) + '%', top: pct(spot.y - routeMapBox.y, routeMapBox.h) + '%', '--cat-color': meta.color }}
                         onClick={() => setSelectedId(spot.id)}
                         aria-label={sName(spot)}
                       >
